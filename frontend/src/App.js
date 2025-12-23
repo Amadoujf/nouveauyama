@@ -183,6 +183,14 @@ function AppRouter() {
           </PublicLayout>
         }
       />
+      <Route
+        path="/order/:orderId"
+        element={
+          <PublicLayout>
+            <OrderDetailPage />
+          </PublicLayout>
+        }
+      />
 
       {/* 404 */}
       <Route
