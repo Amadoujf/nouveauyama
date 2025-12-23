@@ -381,22 +381,43 @@ class LuminaAPITester:
                     # Check if response is PDF
                     content_type = response.headers.get('content-type', '')
                     if 'application/pdf' in content_type:
-                        # Check PDF content for YAMA+ branding
-                        pdf_content = response.content
+                        # Save PDF and extract text to verify branding
+                        pdf_path = f"/tmp/test_invoice_{order_id}.pdf"
+                        with open(pdf_path, "wb") as f:
+                            f.write(response.content)
                         
-                        # Basic check - PDF should contain YAMA+ text
-                        if b'GROUPE YAMA+' in pdf_content or b'YAMA+' in pdf_content:
-                            self.log_test(f"PDF Invoice Generation - {order_id}", True, 
-                                        f"PDF generated successfully with YAMA+ branding (Size: {len(pdf_content)} bytes)")
+                        # Extract text from PDF to verify YAMA+ branding
+                        try:
+                            import PyPDF2
+                            with open(pdf_path, 'rb') as file:
+                                pdf_reader = PyPDF2.PdfReader(file)
+                                text = ""
+                                for page in pdf_reader.pages:
+                                    text += page.extract_text()
                             
-                            # Save a sample PDF for manual verification
-                            with open(f"/tmp/test_invoice_{order_id}.pdf", "wb") as f:
-                                f.write(pdf_content)
-                            print(f"    Sample PDF saved to /tmp/test_invoice_{order_id}.pdf")
-                            break
-                        else:
-                            self.log_test(f"PDF Invoice Generation - {order_id}", False, 
-                                        "PDF generated but may not contain YAMA+ branding")
+                            # Check for YAMA+ branding
+                            if "GROUPE YAMA+" in text or "YAMA+" in text:
+                                # Check that Wave branding is not present (or if present, YAMA+ is also there)
+                                if "Wave" in text and "YAMA+" not in text:
+                                    self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                                "CRITICAL: PDF contains Wave branding without YAMA+ branding")
+                                else:
+                                    self.log_test(f"PDF Invoice Generation - {order_id}", True, 
+                                                f"PDF generated successfully with GROUPE YAMA+ branding (Size: {len(response.content)} bytes)")
+                                    print(f"    ✅ YAMA+ branding verified in PDF text content")
+                                    break
+                            else:
+                                self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                            "PDF generated but YAMA+ branding not found in text content")
+                        except ImportError:
+                            # Fallback to binary search if PyPDF2 not available
+                            if b'GROUPE YAMA+' in response.content or b'YAMA+' in response.content:
+                                self.log_test(f"PDF Invoice Generation - {order_id}", True, 
+                                            f"PDF generated successfully with YAMA+ branding (Size: {len(response.content)} bytes)")
+                                break
+                            else:
+                                self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                            "PDF generated but YAMA+ branding not found")
                     else:
                         self.log_test(f"PDF Invoice Generation - {order_id}", False, 
                                     f"Response is not PDF format: {content_type}")
@@ -419,13 +440,33 @@ class LuminaAPITester:
                 if response.status_code == 200:
                     content_type = response.headers.get('content-type', '')
                     if 'application/pdf' in content_type:
-                        pdf_content = response.content
-                        if b'GROUPE YAMA+' in pdf_content or b'YAMA+' in pdf_content:
-                            self.log_test(f"PDF Invoice Generation - {self.test_order_id}", True, 
-                                        f"PDF generated successfully with YAMA+ branding (Size: {len(pdf_content)} bytes)")
-                        else:
-                            self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
-                                        "PDF generated but may not contain YAMA+ branding")
+                        # Extract text to verify branding
+                        try:
+                            import PyPDF2
+                            pdf_path = f"/tmp/test_invoice_{self.test_order_id}.pdf"
+                            with open(pdf_path, "wb") as f:
+                                f.write(response.content)
+                            
+                            with open(pdf_path, 'rb') as file:
+                                pdf_reader = PyPDF2.PdfReader(file)
+                                text = ""
+                                for page in pdf_reader.pages:
+                                    text += page.extract_text()
+                            
+                            if "GROUPE YAMA+" in text or "YAMA+" in text:
+                                self.log_test(f"PDF Invoice Generation - {self.test_order_id}", True, 
+                                            f"PDF generated successfully with GROUPE YAMA+ branding (Size: {len(response.content)} bytes)")
+                            else:
+                                self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
+                                            "PDF generated but YAMA+ branding not found in text content")
+                        except ImportError:
+                            # Fallback to binary search
+                            if b'GROUPE YAMA+' in response.content or b'YAMA+' in response.content:
+                                self.log_test(f"PDF Invoice Generation - {self.test_order_id}", True, 
+                                            f"PDF generated successfully with YAMA+ branding (Size: {len(response.content)} bytes)")
+                            else:
+                                self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
+                                            "PDF generated but YAMA+ branding not found")
                     else:
                         self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
                                     f"Response is not PDF format: {content_type}")
