@@ -25,6 +25,7 @@ import ContactPage from "./pages/ContactPage";
 import FAQPage from "./pages/FAQPage";
 import AccountPage from "./pages/AccountPage";
 import AdminPage from "./pages/AdminPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
 
 import "./App.css";
 
