@@ -32,12 +32,16 @@ const paymentMethods = [
   { 
     id: "wave", 
     name: "Wave", 
-    logo: "https://www.wave.com/img/logo-wave.svg"
+    color: "bg-[#1DC4F3]",
+    textColor: "text-white",
+    letter: "W"
   },
   { 
     id: "orange_money", 
     name: "Orange Money", 
-    logo: "https://www.orange.sn/sites/orange/files/2019-01/logo-orangemoney.png"
+    color: "bg-[#FF6600]",
+    textColor: "text-white",
+    letter: "OM"
   },
   { 
     id: "card", 
