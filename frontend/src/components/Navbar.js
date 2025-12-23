@@ -224,30 +224,65 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-white dark:bg-black"
+            className="fixed inset-0 z-[100] bg-white dark:bg-black"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsSearchOpen(false);
+            }}
           >
-            <div className="container-lumina py-6">
+            <div className="container-lumina py-6 h-full">
               <div className="flex items-center justify-between mb-8">
                 <span className="text-lg font-medium">Rechercher</span>
                 <button
                   onClick={() => setIsSearchOpen(false)}
-                  className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full"
+                  className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
                   data-testid="close-search-btn"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              <form onSubmit={handleSearch}>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Que recherchez-vous ?"
-                  className="w-full text-4xl md:text-6xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/30"
-                  autoFocus
-                  data-testid="search-input"
-                />
+              <form onSubmit={handleSearch} className="relative">
+                <div className="flex items-center gap-4">
+                  <Search className="w-8 h-8 text-muted-foreground flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Que recherchez-vous ?"
+                    className="w-full text-2xl md:text-4xl lg:text-5xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/40 focus:ring-0"
+                    autoFocus
+                    data-testid="search-input"
+                  />
+                </div>
+                <div className="mt-4 border-b border-black/10 dark:border-white/10" />
+                {searchQuery && (
+                  <button
+                    type="submit"
+                    className="mt-6 btn-primary"
+                  >
+                    Rechercher "{searchQuery}"
+                  </button>
+                )}
               </form>
+              
+              {/* Quick Links */}
+              <div className="mt-12">
+                <p className="text-sm text-muted-foreground mb-4">Recherches populaires</p>
+                <div className="flex flex-wrap gap-2">
+                  {["iPhone", "Samsung", "Écouteurs", "Montre", "Canapé", "Parfum"].map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => {
+                        setSearchQuery(term);
+                        navigate(`/search?q=${encodeURIComponent(term)}`);
+                        setIsSearchOpen(false);
+                      }}
+                      className="px-4 py-2 bg-black/5 dark:bg-white/10 rounded-full text-sm hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
