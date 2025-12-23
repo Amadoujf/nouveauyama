@@ -358,6 +358,11 @@ export default function ProductPage() {
           </div>
         </div>
 
+        {/* Similar Products Section */}
+        <div className="container-lumina">
+          <SimilarProducts productId={productId} category={product?.category} />
+        </div>
+
         {/* Reviews Section */}
         <div className="container-lumina pb-16">
           <ProductReviews productId={productId} />
