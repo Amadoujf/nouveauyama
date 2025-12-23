@@ -441,6 +441,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "PDF Invoice Generation"
     - "Search Functionality"
     - "Wishlist Button on Product Page"
     - "Admin Dashboard"
@@ -451,8 +452,8 @@ test_plan:
     - "Search Functionality"
     - "Wishlist Button on Product Page"
     - "Admin Dashboard"
-  test_all: true
-  test_priority: "high_first"
+  test_all: false
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
