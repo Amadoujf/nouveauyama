@@ -46,24 +46,24 @@ const categories = [
 // Hero carousel images - Flat lay par catégorie de produits YAMA+
 const heroImages = [
   {
-    url: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1920&q=80",
-    alt: "Électronique - Gadgets et tech"
+    url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=80",
+    alt: "Électronique - Casque audio premium"
   },
   {
-    url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80",
-    alt: "Beauté - Cosmétiques premium"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80",
+    url: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80",
     alt: "Décoration - Intérieur moderne"
   },
   {
-    url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80",
-    alt: "Tech lifestyle - Accessoires"
+    url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80",
+    alt: "Mobilier - Salon élégant"
   },
   {
     url: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=1920&q=80",
     alt: "Électroménager - Cuisine moderne"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1920&q=80",
+    alt: "Smartphone et accessoires tech"
   }
 ];
 
