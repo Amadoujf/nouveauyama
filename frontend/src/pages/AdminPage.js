@@ -18,6 +18,8 @@ import {
   ChevronRight,
   Menu,
   X,
+  FileText,
+  Download,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
