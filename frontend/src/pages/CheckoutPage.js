@@ -225,11 +225,20 @@ export default function CheckoutPage() {
             N° de commande : <span className="text-[#0071E3]">{orderId}</span>
           </p>
           <div className="flex flex-col gap-3">
-            <Link to="/" className="btn-primary justify-center">
+            <a
+              href={`${API_URL}/api/orders/${orderId}/invoice`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary justify-center flex items-center gap-2"
+            >
+              <FileText className="w-5 h-5" />
+              Télécharger ma facture
+            </a>
+            <Link to="/" className="btn-secondary justify-center">
               Continuer mes achats
             </Link>
             {isAuthenticated && (
-              <Link to="/account/orders" className="btn-secondary justify-center">
+              <Link to="/account/orders" className="text-[#0071E3] font-medium text-center">
                 Voir mes commandes
               </Link>
             )}
