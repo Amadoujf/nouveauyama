@@ -32,12 +32,12 @@ const paymentMethods = [
   { 
     id: "wave", 
     name: "Wave", 
-    logo: "https://play-lh.googleusercontent.com/0X9E5drkz2S2X4mPJZz7gRHP5jjZLJT7mxnwPY_hT8VvVUX2hKNGl1HLnfTVLoFy2A=w240-h480-rw"
+    logo: "https://www.wave.com/img/logo-wave.svg"
   },
   { 
     id: "orange_money", 
     name: "Orange Money", 
-    logo: "https://play-lh.googleusercontent.com/SpQk1bQVKoL9a8fVK8pu1Ey_c5snW2hKTP0mRq7zMqnrQ_xfJOBQR9r7PSwnbKhCT5o=w240-h480-rw"
+    logo: "https://www.orange.sn/sites/orange/files/2019-01/logo-orangemoney.png"
   },
   { 
     id: "card", 
