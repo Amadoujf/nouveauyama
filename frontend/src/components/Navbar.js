@@ -88,7 +88,7 @@ export default function Navbar() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
-                className="h-10 w-auto"
+                className="h-14 md:h-16 w-auto"
               />
             </Link>
 
@@ -252,7 +252,7 @@ export default function Navbar() {
                 <img 
                   src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                   alt="Groupe YAMA+" 
-                  className="h-8 w-auto"
+                  className="h-12 w-auto"
                 />
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}

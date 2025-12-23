@@ -156,7 +156,7 @@ export default function AdminPage() {
         <img 
           src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
           alt="Groupe YAMA+" 
-          className="h-8 w-auto"
+          className="h-10 w-auto"
         />
         <div className="w-10" />
       </div>
@@ -182,7 +182,7 @@ export default function AdminPage() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
-                className="h-8 w-auto"
+                className="h-12 w-auto"
               />
               <span className="text-sm font-medium text-muted-foreground">Admin</span>
             </Link>

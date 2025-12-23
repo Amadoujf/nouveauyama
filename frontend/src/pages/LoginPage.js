@@ -67,7 +67,7 @@ export default function LoginPage() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
-                className="h-10 w-auto mx-auto"
+                className="h-14 w-auto mx-auto"
               />
             </Link>
             <h1 className="text-3xl font-semibold tracking-tight mb-2">
