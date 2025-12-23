@@ -43,27 +43,27 @@ const categories = [
   },
 ];
 
-// Hero carousel images - Mix Shopping flat lay premium
+// Hero carousel images - Flat lay par catégorie de produits YAMA+
 const heroImages = [
   {
-    url: "https://images.pexels.com/photos/5632388/pexels-photo-5632388.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Shopping caddie moderne"
+    url: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1920&q=80",
+    alt: "Électronique - Gadgets et tech"
   },
   {
-    url: "https://images.pexels.com/photos/5650026/pexels-photo-5650026.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Shopping bags colorés"
+    url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80",
+    alt: "Beauté - Cosmétiques premium"
   },
   {
-    url: "https://images.pexels.com/photos/3965557/pexels-photo-3965557.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Lifestyle shopping"
+    url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80",
+    alt: "Décoration - Intérieur moderne"
   },
   {
-    url: "https://images.pexels.com/photos/5632402/pexels-photo-5632402.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Shopping premium"
+    url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80",
+    alt: "Tech lifestyle - Accessoires"
   },
   {
-    url: "https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Fashion shopping bags"
+    url: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=1920&q=80",
+    alt: "Électroménager - Cuisine moderne"
   }
 ];
 
