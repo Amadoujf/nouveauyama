@@ -95,7 +95,11 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-caption mb-6">Lumina Senegal</p>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+              alt="Groupe YAMA+" 
+              className="h-12 md:h-16 w-auto mx-auto mb-6"
+            />
             <h1 className="heading-hero mb-6 max-w-4xl mx-auto">
               Le shopping, autrement.
             </h1>
