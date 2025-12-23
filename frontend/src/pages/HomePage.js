@@ -77,13 +77,16 @@ export default function HomePage() {
   return (
     <main className="min-h-screen" data-testid="home-page">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white dark:bg-black">
-        {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F5F5F7] via-white to-[#E8E8ED] dark:from-[#1C1C1E] dark:via-black dark:to-[#0B0B0B]" />
-        
-        {/* Decorative circles */}
-        <div className="absolute top-1/4 -right-32 w-96 h-96 bg-[#0071E3]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-[#0071E3]/5 rounded-full blur-3xl" />
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-black">
+        {/* Background Image - Right Side */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/30 dark:from-black dark:via-black/95 dark:to-black/30 z-10" />
+          <img
+            src="https://images.pexels.com/photos/7007167/pexels-photo-7007167.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Cliente heureuse"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
 
         {/* Hero Content */}
         <div className="relative container-lumina text-center pt-20">
