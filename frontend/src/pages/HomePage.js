@@ -46,24 +46,24 @@ const categories = [
 // Hero carousel images - Mix Shopping flat lay
 const heroImages = [
   {
-    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&q=80",
-    alt: "Boutique shopping premium"
+    url: "https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=1920&q=80",
+    alt: "Shopping bags élégants"
   },
   {
-    url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1920&q=80",
-    alt: "Shopping bags colorés"
+    url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80",
+    alt: "Flat lay tech et accessoires"
   },
   {
-    url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80",
-    alt: "Mode et lifestyle"
+    url: "https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=1920&q=80",
+    alt: "Shopping lifestyle"
   },
   {
     url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1920&q=80",
-    alt: "Shopping experience"
+    alt: "E-commerce moderne"
   },
   {
-    url: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1920&q=80",
-    alt: "Produits variés premium"
+    url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80",
+    alt: "Mode et lifestyle premium"
   }
 ];
 
