@@ -225,6 +225,21 @@ backend:
         agent: "testing"
         comment: "Contact form submission working"
 
+  - task: "PDF Invoice Generation"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "BUG: User reported that invoice PDF was displaying Wave logo instead of YAMA+ logo"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Updated generate_invoice_pdf function to use local logo_yama.png file instead of hardcoded remote URL. Logo now correctly shows GROUPE YAMA+ on invoices. Manual test confirmed PDF is generated with correct branding."
+
 frontend:
   - task: "Homepage with Hero Carousel"
     implemented: true
