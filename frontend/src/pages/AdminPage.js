@@ -153,7 +153,11 @@ export default function AdminPage() {
         >
           <Menu className="w-6 h-6" />
         </button>
-        <span className="font-semibold">Admin Lumina</span>
+        <img 
+          src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+          alt="Groupe YAMA+" 
+          className="h-8 w-auto"
+        />
         <div className="w-10" />
       </div>
 
@@ -174,8 +178,13 @@ export default function AdminPage() {
       >
         <div className="p-6 border-b border-black/5 dark:border-white/5">
           <div className="flex items-center justify-between">
-            <Link to="/admin" className="text-xl font-semibold">
-              Lumina Admin
+            <Link to="/admin" className="flex items-center gap-2">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                alt="Groupe YAMA+" 
+                className="h-8 w-auto"
+              />
+              <span className="text-sm font-medium text-muted-foreground">Admin</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
