@@ -147,6 +147,107 @@ class LuminaAPITester:
             self.log_test("Get single product", success,
                          f"Product: {data.get('name', 'Unknown')}" if success else f"Error: {data}")
 
+    def test_flash_sales(self):
+        """Test flash sales endpoints"""
+        print("\n⚡ Testing Flash Sales...")
+        
+        # Get active flash sales
+        success, data = self.make_request('GET', '/flash-sales')
+        self.log_test("Get active flash sales", success,
+                     f"Found {len(data)} flash sale products" if success and isinstance(data, list) else f"Error: {data}")
+        
+        # Test admin flash sale creation (requires admin token)
+        if self.admin_token and self.test_product_id:
+            headers = {'Authorization': f'Bearer {self.admin_token}'}
+            flash_sale_data = {
+                "flash_sale_price": 50000,
+                "flash_sale_end": "2025-12-31T23:59:59Z"
+            }
+            success, data = self.make_request('POST', f'/admin/flash-sales/{self.test_product_id}', 
+                                            flash_sale_data, headers=headers)
+            self.log_test("Create flash sale (admin)", success,
+                         f"Message: {data.get('message', 'No message')}" if success else f"Error: {data}")
+            
+            # Remove flash sale
+            success, data = self.make_request('DELETE', f'/admin/flash-sales/{self.test_product_id}', 
+                                            headers=headers)
+            self.log_test("Remove flash sale (admin)", success,
+                         f"Message: {data.get('message', 'No message')}" if success else f"Error: {data}")
+
+    def test_similar_products(self):
+        """Test similar products endpoint"""
+        print("\n🔗 Testing Similar Products...")
+        
+        if not self.test_product_id:
+            self.log_test("Similar products", False, "No test product available")
+            return
+        
+        # Get similar products
+        success, data = self.make_request('GET', f'/products/{self.test_product_id}/similar')
+        self.log_test("Get similar products", success,
+                     f"Found {len(data)} similar products" if success and isinstance(data, list) else f"Error: {data}")
+        
+        # Test with limit parameter
+        success, data = self.make_request('GET', f'/products/{self.test_product_id}/similar?limit=3')
+        self.log_test("Get similar products with limit", success,
+                     f"Found {len(data)} similar products (limit 3)" if success and isinstance(data, list) else f"Error: {data}")
+
+    def test_order_tracking(self):
+        """Test order tracking and status history"""
+        print("\n📍 Testing Order Tracking...")
+        
+        # Test with existing order IDs from review request
+        test_order_ids = ["ORD-F1215A06", "ORD-2C32A04F"]
+        
+        for order_id in test_order_ids:
+            # Get order details
+            success, data = self.make_request('GET', f'/orders/{order_id}')
+            if success:
+                self.log_test(f"Get order details - {order_id}", True, 
+                             f"Status: {data.get('order_status', 'Unknown')}, History entries: {len(data.get('status_history', []))}")
+                
+                # Check if status_history exists and has proper structure
+                status_history = data.get('status_history', [])
+                if status_history:
+                    for entry in status_history:
+                        if 'status' in entry and 'timestamp' in entry:
+                            self.log_test(f"Order status history structure - {order_id}", True,
+                                         f"Valid history entry: {entry.get('status')} at {entry.get('timestamp')}")
+                            break
+                    else:
+                        self.log_test(f"Order status history structure - {order_id}", False,
+                                     "Status history entries missing required fields")
+                else:
+                    self.log_test(f"Order status history - {order_id}", True,
+                                 "Order found but no status history yet (acceptable)")
+                break
+            else:
+                print(f"    Order {order_id} not found, trying next...")
+                continue
+        
+        # Test admin order status update
+        if self.admin_token and self.test_order_id:
+            headers = {'Authorization': f'Bearer {self.admin_token}'}
+            update_data = {
+                "order_status": "shipped",
+                "note": "Test status update for tracking"
+            }
+            success, data = self.make_request('PUT', f'/admin/orders/{self.test_order_id}/status', 
+                                            update_data, headers=headers)
+            self.log_test("Update order status with tracking", success,
+                         f"Message: {data.get('message', 'No message')}" if success else f"Error: {data}")
+            
+            # Verify status history was updated
+            success, data = self.make_request('GET', f'/orders/{self.test_order_id}')
+            if success:
+                status_history = data.get('status_history', [])
+                if any(entry.get('status') == 'shipped' for entry in status_history):
+                    self.log_test("Verify status history update", True, 
+                                 f"Status history updated with 'shipped' status")
+                else:
+                    self.log_test("Verify status history update", False,
+                                 "Status history not updated properly")
+
     def test_auth_registration(self):
         """Test user registration"""
         print("\n👤 Testing User Registration...")
