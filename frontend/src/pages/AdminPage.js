@@ -47,6 +47,7 @@ export default function AdminPage() {
   
   // Product form state
   const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null); // For edit mode
   const [productFormLoading, setProductFormLoading] = useState(false);
   const [productForm, setProductForm] = useState({
     name: "",
@@ -64,6 +65,51 @@ export default function AdminPage() {
   });
 
   const currentPage = location.pathname.split("/").pop() || "admin";
+
+  // Reset form
+  const resetProductForm = () => {
+    setProductForm({
+      name: "",
+      description: "",
+      short_description: "",
+      price: "",
+      original_price: "",
+      category: "electronique",
+      subcategory: "",
+      images: "",
+      stock: "",
+      featured: false,
+      is_new: false,
+      is_promo: false,
+    });
+    setEditingProduct(null);
+  };
+
+  // Open form for editing
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.name || "",
+      description: product.description || "",
+      short_description: product.short_description || "",
+      price: product.price?.toString() || "",
+      original_price: product.original_price?.toString() || "",
+      category: product.category || "electronique",
+      subcategory: product.subcategory || "",
+      images: product.images?.join(", ") || "",
+      stock: product.stock?.toString() || "",
+      featured: product.featured || false,
+      is_new: product.is_new || false,
+      is_promo: product.is_promo || false,
+    });
+    setShowProductForm(true);
+  };
+
+  // Open form for new product
+  const handleNewProduct = () => {
+    resetProductForm();
+    setShowProductForm(true);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
