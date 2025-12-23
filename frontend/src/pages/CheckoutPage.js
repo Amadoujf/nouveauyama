@@ -60,6 +60,12 @@ export default function CheckoutPage() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState(null);
   
+  // Promo code state
+  const [promoCode, setPromoCode] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  
   const [formData, setFormData] = useState({
     full_name: user?.name || "",
     phone: user?.phone || "",
@@ -84,7 +90,36 @@ export default function CheckoutPage() {
 
   const shippingCost = formData.region === "Dakar" ? 2500 : 3500;
   const subtotal = cart.total;
-  const total = subtotal + shippingCost;
+  const discount = appliedPromo ? Math.round(subtotal * (appliedPromo.discount_percent / 100)) : 0;
+  const total = subtotal - discount + shippingCost;
+
+  // Apply promo code
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    
+    setPromoLoading(true);
+    setPromoError("");
+    
+    try {
+      const response = await axios.get(`${API_URL}/api/newsletter/validate/${promoCode.trim()}`);
+      setAppliedPromo({
+        code: promoCode.trim(),
+        discount_percent: response.data.discount_percent,
+      });
+      toast.success(`Code promo appliqué ! -${response.data.discount_percent}%`);
+    } catch (error) {
+      setPromoError(error.response?.data?.detail || "Code promo invalide");
+      setAppliedPromo(null);
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setAppliedPromo(null);
+    setPromoCode("");
+    setPromoError("");
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
