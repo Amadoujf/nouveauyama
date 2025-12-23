@@ -43,27 +43,27 @@ const categories = [
   },
 ];
 
-// Hero carousel images - Flat lay par catégorie de produits YAMA+
+// Hero carousel images - Images ORIGINALES générées par IA pour YAMA+
 const heroImages = [
   {
-    url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=80",
-    alt: "Électronique - Casque audio premium"
+    url: "/hero-images/hero-1.png",
+    alt: "Électronique premium - Casque, smartphone et accessoires"
   },
   {
-    url: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80",
-    alt: "Décoration - Intérieur moderne"
+    url: "/hero-images/hero-2.png",
+    alt: "Décoration intérieur - Vase, bougies et plantes"
   },
   {
-    url: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1920&q=80",
-    alt: "Électroménager - Cuisine équipée"
+    url: "/hero-images/hero-3.png",
+    alt: "Beauté et bien-être - Parfums et cosmétiques"
   },
   {
-    url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1920&q=80",
-    alt: "Tech - Smartphone moderne"
+    url: "/hero-images/hero-4.png",
+    alt: "Électroménager - Appareils de cuisine modernes"
   },
   {
-    url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1920&q=80",
-    alt: "Beauté - Maquillage et cosmétiques"
+    url: "/hero-images/hero-5.png",
+    alt: "Lifestyle premium - Tech et accessoires mode"
   }
 ];
 
