@@ -183,12 +183,23 @@ export default function AccountPage() {
                               <span className="font-semibold">
                                 {formatPrice(order.total)}
                               </span>
-                              <Link
-                                to={`/order/${order.order_id}`}
-                                className="text-[#0071E3] font-medium text-sm"
-                              >
-                                Voir les détails
-                              </Link>
+                              <div className="flex items-center gap-3">
+                                <a
+                                  href={`${API_URL}/api/orders/${order.order_id}/invoice`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 text-green-600 font-medium text-sm hover:underline"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                  Facture
+                                </a>
+                                <Link
+                                  to={`/order/${order.order_id}`}
+                                  className="text-[#0071E3] font-medium text-sm"
+                                >
+                                  Voir les détails
+                                </Link>
+                              </div>
                             </div>
                           </motion.div>
                         );
