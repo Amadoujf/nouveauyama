@@ -454,6 +454,7 @@ class LuminaAPITester:
         self.test_order_creation()
         self.test_admin_operations()
         self.test_contact_form()
+        self.test_pdf_invoice_generation()
         
         # Print summary
         print("\n" + "=" * 60)
