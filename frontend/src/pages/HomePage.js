@@ -89,22 +89,23 @@ export default function HomePage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative container-lumina text-center pt-20">
+        <div className="relative container-lumina pt-20 z-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            className="max-w-2xl"
           >
             <p className="text-caption mb-6">Groupe YAMA+</p>
-            <h1 className="heading-hero mb-6 max-w-4xl mx-auto">
+            <h1 className="heading-hero mb-6">
               Le shopping, autrement.
             </h1>
-            <p className="text-body-lg max-w-2xl mx-auto mb-10">
+            <p className="text-body-lg mb-10">
               Électronique, maison et essentiels du quotidien.
               <br />
               Sélectionnés avec exigence.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <Link
                 to="/category/electronique"
                 className="btn-primary group"
