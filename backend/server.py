@@ -124,6 +124,11 @@ class OrderCreate(BaseModel):
     shipping_cost: int
     total: int
 
+class OrderStatusHistory(BaseModel):
+    status: str
+    timestamp: str
+    note: Optional[str] = None
+
 class Order(BaseModel):
     model_config = ConfigDict(extra="ignore")
     order_id: str
@@ -133,6 +138,7 @@ class Order(BaseModel):
     payment_method: str
     payment_status: str = "pending"
     order_status: str = "pending"
+    status_history: List[OrderStatusHistory] = []
     subtotal: int
     shipping_cost: int
     total: int
