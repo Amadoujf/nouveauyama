@@ -29,10 +29,27 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221770000000";
 
 const paymentMethods = [
-  { id: "wave", name: "Wave", icon: "💳" },
-  { id: "orange_money", name: "Orange Money", icon: "📱" },
-  { id: "card", name: "Carte bancaire", icon: "💳" },
-  { id: "cash", name: "Paiement à la livraison", icon: "💵" },
+  { 
+    id: "wave", 
+    name: "Wave", 
+    logo: "https://play-lh.googleusercontent.com/0X9E5drkz2S2X4mPJZz7gRHP5jjZLJT7mxnwPY_hT8VvVUX2hKNGl1HLnfTVLoFy2A=w240-h480-rw"
+  },
+  { 
+    id: "orange_money", 
+    name: "Orange Money", 
+    logo: "https://play-lh.googleusercontent.com/SpQk1bQVKoL9a8fVK8pu1Ey_c5snW2hKTP0mRq7zMqnrQ_xfJOBQR9r7PSwnbKhCT5o=w240-h480-rw"
+  },
+  { 
+    id: "card", 
+    name: "Carte bancaire", 
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png",
+    logo2: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png"
+  },
+  { 
+    id: "cash", 
+    name: "Paiement à la livraison", 
+    icon: "💵" 
+  },
 ];
 
 const regions = [
