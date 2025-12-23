@@ -43,27 +43,27 @@ const categories = [
   },
 ];
 
-// Hero carousel images - Mix Shopping flat lay
+// Hero carousel images - Mix Shopping flat lay premium
 const heroImages = [
   {
-    url: "https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=1920&q=80",
-    alt: "Shopping bags élégants"
+    url: "https://images.pexels.com/photos/5632388/pexels-photo-5632388.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Shopping bags colorés"
   },
   {
-    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&q=80",
-    alt: "Boutique moderne"
+    url: "https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Shopping lifestyle premium"
   },
   {
-    url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80",
-    alt: "Mode et lifestyle premium"
+    url: "https://images.pexels.com/photos/3965545/pexels-photo-3965545.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Flat lay accessoires"
   },
   {
-    url: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=1920&q=80",
-    alt: "Shopping premium"
+    url: "https://images.pexels.com/photos/5632381/pexels-photo-5632381.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Shopping experience"
   },
   {
-    url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80",
-    alt: "Fashion lifestyle"
+    url: "https://images.pexels.com/photos/6567607/pexels-photo-6567607.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Fashion shopping"
   }
 ];
 
