@@ -24,7 +24,7 @@ class LuminaAPITester:
         self.failed_tests = []
         
         # Test credentials
-        self.admin_email = "admin@lumina.sn"
+        self.admin_email = "admin@yama.sn"
         self.admin_password = "admin123"
 
     def log_test(self, name: str, success: bool, details: str = ""):
