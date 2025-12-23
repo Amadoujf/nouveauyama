@@ -78,6 +78,15 @@ export default function HomePage() {
     <main className="min-h-screen" data-testid="home-page">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F5F5F7] dark:bg-black">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.pexels.com/photos/28919442/pexels-photo-28919442.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Premium Products"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-white/40 dark:from-black/90 dark:via-black/70 dark:to-black/40" />
+        </div>
 
         {/* Hero Content */}
         <div className="relative container-lumina text-center pt-20">
