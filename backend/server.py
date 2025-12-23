@@ -1207,7 +1207,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         elements.append(header_table)
     except Exception as e:
         # Fallback to text header if logo fails
-        elements.append(Paragraph("YAMA+", title_style))
+        elements.append(Paragraph("GROUPE YAMA+", title_style))
         elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
     
     elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 77 000 00 00", header_style))
