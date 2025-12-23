@@ -12,6 +12,8 @@ import {
   Tag,
   X,
   Loader2,
+  FileText,
+  Download,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
