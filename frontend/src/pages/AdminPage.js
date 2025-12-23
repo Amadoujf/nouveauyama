@@ -31,6 +31,7 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 const menuItems = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, href: "/admin" },
   { id: "products", label: "Produits", icon: Package, href: "/admin/products" },
+  { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
   { id: "users", label: "Utilisateurs", icon: Users, href: "/admin/users" },
 ];
