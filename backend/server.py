@@ -1193,14 +1193,12 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     
     # Try to add logo
     try:
-        import urllib.request
-        logo_url = "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp"
-        logo_path = "/tmp/yama_logo.png"
-        urllib.request.urlretrieve(logo_url, logo_path)
+        # Use the local YAMA+ logo
+        logo_path = Path(__file__).parent / "logo_yama.png"
         
-        # Create header with logo
-        logo_img = Image(logo_path, width=1.5*cm, height=1.5*cm)
-        header_data = [[logo_img, Paragraph("<b>YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
+        # Create header with logo - larger size for better visibility
+        logo_img = Image(str(logo_path), width=4*cm, height=4*cm)
+        header_data = [[logo_img, Paragraph("<b>GROUPE YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
         header_table = Table(header_data, colWidths=[2*cm, 10*cm])
         header_table.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
