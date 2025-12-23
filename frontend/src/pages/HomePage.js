@@ -55,7 +55,7 @@ const heroImages = [
   },
   {
     url: "/hero-images/hero-3.png",
-    alt: "Beauté et bien-être - Parfums et cosmétiques"
+    alt: "Mobilier - Canapé élégant et salon moderne"
   },
   {
     url: "/hero-images/hero-4.png",
