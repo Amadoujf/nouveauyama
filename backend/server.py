@@ -74,6 +74,9 @@ class ProductBase(BaseModel):
     featured: bool = False
     is_new: bool = False
     is_promo: bool = False
+    is_flash_sale: bool = False
+    flash_sale_end: Optional[str] = None  # ISO datetime string
+    flash_sale_price: Optional[int] = None
     specs: Optional[dict] = None
 
 class ProductCreate(ProductBase):
