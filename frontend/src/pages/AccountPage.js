@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  FileText,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay } from "../lib/utils";
 import { cn } from "../lib/utils";
