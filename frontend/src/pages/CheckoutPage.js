@@ -162,14 +162,41 @@ export default function CheckoutPage() {
         payment_method: formData.payment_method,
         subtotal,
         shipping_cost: shippingCost,
+        discount,
         total,
+        promo_code: appliedPromo?.code || null,
       };
 
       const response = await axios.post(`${API_URL}/api/orders`, orderData, {
         withCredentials: true,
       });
 
-      setOrderId(response.data.order_id);
+      const newOrderId = response.data.order_id;
+
+      // For Wave, Orange Money, or Card payments - redirect to PayTech
+      if (['wave', 'orange_money', 'card'].includes(formData.payment_method)) {
+        try {
+          const currentUrl = window.location.origin;
+          const paytechResponse = await axios.post(`${API_URL}/api/payments/paytech/initiate`, {
+            order_id: newOrderId,
+            success_url: `${currentUrl}/checkout?order_id=${newOrderId}&payment=success`,
+            cancel_url: `${currentUrl}/checkout?order_id=${newOrderId}&payment=cancel`,
+          });
+
+          if (paytechResponse.data.success && paytechResponse.data.checkout_url) {
+            // Redirect to PayTech payment page
+            window.location.href = paytechResponse.data.checkout_url;
+            return;
+          }
+        } catch (paytechError) {
+          console.error("PayTech error:", paytechError);
+          // If PayTech fails, still show order confirmation but notify about payment
+          toast.error(paytechError.response?.data?.detail || "Le paiement en ligne n'est pas disponible. Veuillez payer à la livraison.");
+        }
+      }
+
+      // For cash on delivery or if PayTech failed
+      setOrderId(newOrderId);
       setOrderComplete(true);
       clearCart();
       toast.success("Commande passée avec succès !");
@@ -180,6 +207,30 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  // Handle payment callback from PayTech
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const orderIdFromUrl = urlParams.get('order_id');
+
+    if (paymentStatus && orderIdFromUrl) {
+      if (paymentStatus === 'success') {
+        setOrderId(orderIdFromUrl);
+        setOrderComplete(true);
+        clearCart();
+        toast.success("Paiement effectué avec succès !");
+        // Clean URL
+        window.history.replaceState({}, '', '/checkout');
+      } else if (paymentStatus === 'cancel') {
+        toast.error("Paiement annulé. Votre commande est en attente de paiement.");
+        setOrderId(orderIdFromUrl);
+        setOrderComplete(true);
+        clearCart();
+        window.history.replaceState({}, '', '/checkout');
+      }
+    }
+  }, [clearCart]);
 
   const handleWhatsAppOrder = () => {
     const message = generateOrderMessage(cart.items, total, {
