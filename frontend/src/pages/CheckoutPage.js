@@ -479,14 +479,31 @@ export default function CheckoutPage() {
                         onChange={handleChange}
                         className="sr-only"
                       />
-                      <span className="text-2xl">{method.icon}</span>
+                      {method.logo ? (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={method.logo} 
+                            alt={method.name} 
+                            className="h-8 w-8 object-contain rounded"
+                          />
+                          {method.logo2 && (
+                            <img 
+                              src={method.logo2} 
+                              alt="Visa" 
+                              className="h-6 w-auto object-contain"
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-2xl">{method.icon}</span>
+                      )}
                       <span className="font-medium">{method.name}</span>
                     </label>
                   ))}
                 </div>
 
                 <p className="text-sm text-muted-foreground mt-4">
-                  * Les paiements Wave et Orange Money seront confirmés par notre équipe.
+                  * Paiement sécurisé via PayTech
                 </p>
               </div>
             </form>
