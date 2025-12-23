@@ -442,12 +442,67 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Promo Code */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Code promo</label>
+                {appliedPromo ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-green-600" />
+                      <span className="font-medium text-green-700 dark:text-green-400">
+                        {appliedPromo.code}
+                      </span>
+                      <span className="text-sm text-green-600 dark:text-green-500">
+                        (-{appliedPromo.discount_percent}%)
+                      </span>
+                    </div>
+                    <button
+                      onClick={removePromo}
+                      className="p-1 hover:bg-green-200 dark:hover:bg-green-800 rounded-full transition-colors"
+                    >
+                      <X className="w-4 h-4 text-green-600" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value.toUpperCase());
+                        setPromoError("");
+                      }}
+                      placeholder="Entrez votre code"
+                      className="flex-1 h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors"
+                      data-testid="promo-code-input"
+                    />
+                    <button
+                      onClick={handleApplyPromo}
+                      disabled={promoLoading || !promoCode.trim()}
+                      className="px-4 h-12 bg-black dark:bg-white text-white dark:text-black rounded-xl font-medium hover:bg-black/90 dark:hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      data-testid="apply-promo-btn"
+                    >
+                      {promoLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Appliquer"}
+                    </button>
+                  </div>
+                )}
+                {promoError && (
+                  <p className="text-sm text-red-500 mt-2">{promoError}</p>
+                )}
+              </div>
+
               {/* Totals */}
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Sous-total</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
+                {appliedPromo && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Réduction ({appliedPromo.discount_percent}%)</span>
+                    <span>-{formatPrice(discount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Livraison</span>
                   <span>{formatPrice(shippingCost)}</span>
