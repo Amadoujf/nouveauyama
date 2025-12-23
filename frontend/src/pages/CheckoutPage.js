@@ -480,24 +480,24 @@ export default function CheckoutPage() {
                         className="sr-only"
                       />
                       {method.logo ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <img 
                             src={method.logo} 
                             alt={method.name} 
-                            className="h-8 w-8 object-contain rounded"
+                            className="h-10 w-10 object-contain rounded-lg"
                           />
                           {method.logo2 && (
                             <img 
                               src={method.logo2} 
                               alt="Visa" 
-                              className="h-6 w-auto object-contain"
+                              className="h-8 w-auto object-contain"
                             />
                           )}
                         </div>
                       ) : (
-                        <span className="text-2xl">{method.icon}</span>
+                        <span className="text-2xl flex-shrink-0">{method.icon}</span>
                       )}
-                      <span className="font-medium">{method.name}</span>
+                      <span className="font-medium text-sm sm:text-base">{method.name}</span>
                     </label>
                   ))}
                 </div>
