@@ -82,7 +82,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20 dark:from-black dark:via-black/90 dark:to-black/20 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1920&q=80"
+            src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=1920&q=80"
             alt="Flat lay produits premium YAMA+"
             className="w-full h-full object-cover object-center"
           />
