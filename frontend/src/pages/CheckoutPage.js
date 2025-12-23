@@ -32,14 +32,12 @@ const paymentMethods = [
   { 
     id: "wave", 
     name: "Wave", 
-    logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/ky9m7h4h_IMG_0626.jpeg"
+    logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp"
   },
   { 
     id: "orange_money", 
     name: "Orange Money", 
-    color: "bg-[#FF6600]",
-    textColor: "text-white",
-    letter: "OM"
+    logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
   },
   { 
     id: "card", 
