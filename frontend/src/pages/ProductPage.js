@@ -356,6 +356,11 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <div className="container-lumina pb-16">
+          <ProductReviews productId={productId} />
+        </div>
       </section>
     </main>
   );
