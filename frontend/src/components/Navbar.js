@@ -261,107 +261,189 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-white dark:bg-black lg:hidden"
+            className="fixed inset-0 z-[60] bg-[#F5F5F7] dark:bg-[#0B0B0B] lg:hidden overflow-y-auto"
           >
-            <div className="container-lumina py-6 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-8">
-                <img 
-                  src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
-                  alt="Groupe YAMA+" 
-                  className="h-12 w-auto"
-                />
-                <button
+            {/* Header */}
+            <div className="sticky top-0 bg-white dark:bg-[#1C1C1E] px-6 py-4 flex items-center justify-between border-b border-black/5 dark:border-white/10">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+                alt="Groupe YAMA+" 
+                className="h-10 w-auto"
+              />
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-10 h-10 flex items-center justify-center bg-black/5 dark:bg-white/10 rounded-full"
+                data-testid="close-mobile-menu-btn"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-6 py-6 flex flex-col h-[calc(100%-72px)]">
+              {/* User Card (if authenticated) */}
+              {isAuthenticated && (
+                <Link
+                  to={isAdmin ? "/admin" : "/account"}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full"
-                  data-testid="close-mobile-menu-btn"
+                  className="flex items-center gap-4 p-4 bg-white dark:bg-[#1C1C1E] rounded-2xl mb-6 shadow-sm"
                 >
-                  <X className="w-6 h-6" />
+                  {user?.picture ? (
+                    <img
+                      src={user.picture}
+                      alt={user.name}
+                      className="w-14 h-14 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-gradient-to-br from-[#0071E3] to-[#00C6FB] rounded-full flex items-center justify-center">
+                      <User className="w-7 h-7 text-white" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg">{user?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isAdmin ? "Administrateur" : "Mon compte"}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </Link>
+              )}
+
+              {/* Main Categories */}
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                  Catégories
+                </p>
+                <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
+                  {navItems.map((item, index) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-4 px-4 py-4 transition-colors",
+                        index !== navItems.length - 1 && "border-b border-black/5 dark:border-white/5",
+                        isActive(item.href)
+                          ? "bg-[#0071E3]/5"
+                          : "active:bg-black/5 dark:active:bg-white/5"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center",
+                        isActive(item.href)
+                          ? "bg-[#0071E3] text-white"
+                          : "bg-black/5 dark:bg-white/10"
+                      )}>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className={cn(
+                        "flex-1 font-medium",
+                        isActive(item.href) && "text-[#0071E3]"
+                      )}>
+                        {item.name}
+                      </span>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Secondary Links */}
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                  Informations
+                </p>
+                <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
+                  {secondaryNavItems.map((item, index) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-4 px-4 py-4 transition-colors active:bg-black/5 dark:active:bg-white/5",
+                        index !== secondaryNavItems.length - 1 && "border-b border-black/5 dark:border-white/5"
+                      )}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center">
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className="flex-1 font-medium">{item.name}</span>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <Link
+                  to="/wishlist"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-sm"
+                >
+                  <Heart className="w-5 h-5 text-red-500" />
+                  <span className="font-medium">Favoris</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setCartOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-sm relative"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span className="font-medium">Panier</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#0071E3] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
                 </button>
               </div>
 
-              <nav className="flex flex-col gap-1 flex-1">
-                {navItems.map((item) => (
+              {/* Auth Buttons (if not authenticated) */}
+              {!isAuthenticated && (
+                <div className="mt-auto space-y-3">
                   <Link
-                    key={item.href}
-                    to={item.href}
+                    to="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "py-4 text-2xl font-medium border-b border-black/5 dark:border-white/10",
-                      isActive(item.href)
-                        ? "text-[#0071E3]"
-                        : "text-[#1D1D1F] dark:text-white"
-                    )}
+                    className="flex items-center justify-center gap-2 w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl font-semibold"
                   >
-                    {item.name}
+                    Connexion
                   </Link>
-                ))}
-                
-                <Link
-                  to="/a-propos"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="py-4 text-2xl font-medium border-b border-black/5 dark:border-white/10 text-[#1D1D1F] dark:text-white"
-                >
-                  À propos
-                </Link>
-                <Link
-                  to="/contact"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="py-4 text-2xl font-medium border-b border-black/5 dark:border-white/10 text-[#1D1D1F] dark:text-white"
-                >
-                  Contact
-                </Link>
-                <Link
-                  to="/aide"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="py-4 text-2xl font-medium border-b border-black/5 dark:border-white/10 text-[#1D1D1F] dark:text-white"
-                >
-                  Aide / FAQ
-                </Link>
-              </nav>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-4 border-2 border-black/10 dark:border-white/10 rounded-2xl font-semibold"
+                  >
+                    Créer un compte
+                  </Link>
+                </div>
+              )}
 
-              <div className="pt-6 border-t border-black/5 dark:border-white/10">
-                {isAuthenticated ? (
-                  <Link
-                    to={isAdmin ? "/admin" : "/account"}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 py-4"
-                  >
-                    {user?.picture ? (
-                      <img
-                        src={user.picture}
-                        alt={user.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5" />
-                      </div>
+              {/* Dark Mode Toggle at bottom */}
+              <div className="mt-auto pt-4 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Mode sombre</span>
+                <button
+                  onClick={toggleDarkMode}
+                  className={cn(
+                    "w-14 h-8 rounded-full p-1 transition-colors",
+                    isDark ? "bg-[#0071E3]" : "bg-black/10 dark:bg-white/10"
+                  )}
+                >
+                  <motion.div
+                    layout
+                    className={cn(
+                      "w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center",
+                      isDark && "ml-auto"
                     )}
-                    <div>
-                      <div className="font-medium">{user?.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {isAdmin ? "Administrateur" : "Mon compte"}
-                      </div>
-                    </div>
-                  </Link>
-                ) : (
-                  <div className="flex gap-3">
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex-1 btn-primary justify-center"
-                    >
-                      Connexion
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex-1 btn-secondary justify-center"
-                    >
-                      Inscription
-                    </Link>
-                  </div>
-                )}
+                  >
+                    {isDark ? (
+                      <Moon className="w-3.5 h-3.5 text-[#0071E3]" />
+                    ) : (
+                      <Sun className="w-3.5 h-3.5 text-gray-600" />
+                    )}
+                  </motion.div>
+                </button>
               </div>
             </div>
           </motion.div>
