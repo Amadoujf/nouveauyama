@@ -1167,9 +1167,9 @@ async def update_order_status(
 # ============== INVOICE GENERATION ==============
 
 def generate_invoice_pdf(order: dict) -> io.BytesIO:
-    """Generate a professional PDF invoice for an order"""
+    """Generate a professional PDF invoice for an order with logo and product images"""
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=1.5*cm, bottomMargin=2*cm)
     
     elements = []
     styles = getSampleStyleSheet()
@@ -1178,30 +1178,57 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=24,
-        spaceAfter=30,
-        textColor=colors.HexColor('#0B0B0B')
+        fontSize=28,
+        spaceAfter=5,
+        textColor=colors.HexColor('#0B0B0B'),
+        fontName='Helvetica-Bold'
     )
     
     header_style = ParagraphStyle(
         'CustomHeader',
         parent=styles['Normal'],
-        fontSize=12,
+        fontSize=10,
         textColor=colors.HexColor('#666666')
     )
     
-    # Header - Company Info
-    elements.append(Paragraph("YAMA+", title_style))
-    elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
+    # Try to add logo
+    try:
+        import urllib.request
+        logo_url = "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp"
+        logo_path = "/tmp/yama_logo.png"
+        urllib.request.urlretrieve(logo_url, logo_path)
+        
+        # Create header with logo
+        logo_img = Image(logo_path, width=1.5*cm, height=1.5*cm)
+        header_data = [[logo_img, Paragraph("<b>YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
+        header_table = Table(header_data, colWidths=[2*cm, 10*cm])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ]))
+        elements.append(header_table)
+    except Exception as e:
+        # Fallback to text header if logo fails
+        elements.append(Paragraph("YAMA+", title_style))
+        elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
+    
     elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 77 000 00 00", header_style))
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 15))
+    
+    # Divider line
+    divider = Table([['']], colWidths=[17*cm])
+    divider.setStyle(TableStyle([
+        ('LINEBELOW', (0, 0), (-1, -1), 1, colors.HexColor('#0B0B0B')),
+    ]))
+    elements.append(divider)
+    elements.append(Spacer(1, 15))
     
     # Invoice Title
     elements.append(Paragraph(f"<b>FACTURE N° {order['order_id'].upper()}</b>", ParagraphStyle(
         'InvoiceTitle',
         parent=styles['Heading2'],
         fontSize=16,
-        spaceAfter=20
+        spaceAfter=15
     )))
     
     # Order Date
@@ -1210,7 +1237,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         order_date = datetime.fromisoformat(order_date.replace('Z', '+00:00'))
     
     elements.append(Paragraph(f"<b>Date:</b> {order_date.strftime('%d/%m/%Y à %H:%M')}", styles['Normal']))
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 15))
     
     # Customer Info
     shipping = order.get('shipping', {})
@@ -1221,34 +1248,55 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     elements.append(Paragraph(f"Tél: {shipping.get('phone', '')}", styles['Normal']))
     if shipping.get('email'):
         elements.append(Paragraph(f"Email: {shipping.get('email')}", styles['Normal']))
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 20))
     
-    # Products Table
-    table_data = [['Produit', 'Qté', 'Prix Unit.', 'Total']]
+    # Products with Images
+    elements.append(Paragraph("<b>ARTICLES COMMANDÉS:</b>", styles['Heading3']))
+    elements.append(Spacer(1, 10))
+    
+    # Products Table with Image column
+    table_data = [['', 'Produit', 'Qté', 'Prix Unit.', 'Total']]
     
     for item in order.get('products', []):
-        name = item.get('name', 'Produit')[:40]  # Truncate long names
+        name = item.get('name', 'Produit')[:35]
         qty = item.get('quantity', 1)
         price = item.get('price', 0)
-        total = price * qty
+        total_price = price * qty
+        
+        # Try to get product image
+        img_cell = ''
+        try:
+            img_url = item.get('image', '')
+            if img_url and img_url.startswith('http'):
+                import urllib.request
+                import tempfile
+                img_path = f"/tmp/prod_{item.get('product_id', 'temp')}.jpg"
+                urllib.request.urlretrieve(img_url, img_path)
+                img_cell = Image(img_path, width=1.2*cm, height=1.2*cm)
+        except:
+            img_cell = ''
+        
         table_data.append([
+            img_cell,
             name,
             str(qty),
             f"{price:,.0f} FCFA".replace(',', ' '),
-            f"{total:,.0f} FCFA".replace(',', ' ')
+            f"{total_price:,.0f} FCFA".replace(',', ' ')
         ])
     
-    # Create table
-    table = Table(table_data, colWidths=[8*cm, 2*cm, 3.5*cm, 3.5*cm])
+    # Create table with image column
+    table = Table(table_data, colWidths=[1.5*cm, 7*cm, 1.5*cm, 3.5*cm, 3.5*cm])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0B0B0B')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('TOPPADDING', (0, 0), (-1, 0), 12),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
         ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F5F5F7')),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 9),
