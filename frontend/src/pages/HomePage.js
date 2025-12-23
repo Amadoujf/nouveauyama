@@ -81,9 +81,9 @@ export default function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1695822877321-15ef5412b82e?w=2000"
+            src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/lgreuub3_IMG_0618.png"
             alt="Hero"
-            className="w-full h-full object-cover opacity-30 dark:opacity-20"
+            className="w-full h-full object-cover opacity-40 dark:opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F5F5F7] dark:to-black" />
         </div>
