@@ -128,6 +128,61 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateProduct = async (e) => {
+    e.preventDefault();
+    setProductFormLoading(true);
+    
+    try {
+      const imageUrls = productForm.images
+        .split(",")
+        .map((url) => url.trim())
+        .filter((url) => url);
+
+      const productData = {
+        name: productForm.name,
+        description: productForm.description,
+        short_description: productForm.short_description,
+        price: parseInt(productForm.price),
+        original_price: productForm.original_price ? parseInt(productForm.original_price) : null,
+        category: productForm.category,
+        subcategory: productForm.subcategory || null,
+        images: imageUrls.length > 0 ? imageUrls : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"],
+        stock: parseInt(productForm.stock) || 0,
+        featured: productForm.featured,
+        is_new: productForm.is_new,
+        is_promo: productForm.is_promo,
+        specs: {},
+      };
+
+      await axios.post(`${API_URL}/api/products`, productData, {
+        withCredentials: true,
+      });
+
+      toast.success("Produit créé avec succès !");
+      setShowProductForm(false);
+      setProductForm({
+        name: "",
+        description: "",
+        short_description: "",
+        price: "",
+        original_price: "",
+        category: "electronique",
+        subcategory: "",
+        images: "",
+        stock: "",
+        featured: false,
+        is_new: false,
+        is_promo: false,
+      });
+      fetchData();
+    } catch (error) {
+      console.error("Error creating product:", error);
+      toast.error(error.response?.data?.detail || "Erreur lors de la création");
+    } finally {
+      setProductFormLoading(false);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId, orderStatus, paymentStatus) => {
     try {
       await axios.put(
