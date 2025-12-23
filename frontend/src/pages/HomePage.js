@@ -80,11 +80,11 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-black">
         {/* Background Image - Right Side */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent dark:from-black dark:via-black/90 dark:to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/20 dark:from-black dark:via-black/85 dark:to-black/20 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&q=80"
-            alt="Boutique premium YAMA+"
-            className="w-full h-full object-cover object-right"
+            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1920&q=80"
+            alt="Produits premium YAMA+"
+            className="w-full h-full object-cover object-center"
           />
         </div>
 
