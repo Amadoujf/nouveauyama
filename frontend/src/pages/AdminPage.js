@@ -630,7 +630,7 @@ export default function AdminPage() {
                       <div className="flex gap-3 pt-4">
                         <button
                           type="button"
-                          onClick={() => setShowProductForm(false)}
+                          onClick={() => { setShowProductForm(false); resetProductForm(); }}
                           className="flex-1 h-12 border border-black/10 dark:border-white/10 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                         >
                           Annuler
@@ -640,7 +640,10 @@ export default function AdminPage() {
                           disabled={productFormLoading}
                           className="flex-1 h-12 bg-black dark:bg-white text-white dark:text-black rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
-                          {productFormLoading ? "Création..." : "Créer le produit"}
+                          {productFormLoading 
+                            ? (editingProduct ? "Modification..." : "Création...") 
+                            : (editingProduct ? "Enregistrer les modifications" : "Créer le produit")
+                          }
                         </button>
                       </div>
                     </form>
