@@ -193,6 +193,9 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* Flash Sales Section */}
+      <FlashSalesSection />
+
       {/* Categories Section - Bento Grid */}
       <section className="section-padding bg-white dark:bg-[#0B0B0B]">
         <div className="container-lumina">
