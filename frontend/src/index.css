@@ -223,7 +223,7 @@
 
   /* Product Card */
   .product-card {
-    @apply group relative overflow-hidden rounded-3xl 
+    @apply relative overflow-hidden rounded-3xl 
            bg-white dark:bg-[#1C1C1E] 
            transition-all duration-500 
            hover:shadow-2xl;
