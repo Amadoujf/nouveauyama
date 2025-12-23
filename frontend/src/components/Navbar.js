@@ -82,10 +82,14 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               to="/"
-              className="flex items-center gap-2 text-xl font-semibold tracking-tight"
+              className="flex items-center gap-3"
               data-testid="nav-logo"
             >
-              <span className="text-[#1D1D1F] dark:text-white">Lumina</span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                alt="Groupe YAMA+" 
+                className="h-10 w-auto"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -245,7 +249,11 @@ export default function Navbar() {
           >
             <div className="container-lumina py-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-8">
-                <span className="text-xl font-semibold">Lumina</span>
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                  alt="Groupe YAMA+" 
+                  className="h-8 w-auto"
+                />
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full"
