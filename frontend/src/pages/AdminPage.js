@@ -200,30 +200,26 @@ export default function AdminPage() {
         specs: {},
       };
 
-      await axios.post(`${API_URL}/api/products`, productData, {
-        withCredentials: true,
-      });
+      if (editingProduct) {
+        // UPDATE existing product
+        await axios.put(`${API_URL}/api/products/${editingProduct.product_id}`, productData, {
+          withCredentials: true,
+        });
+        toast.success("Produit modifié avec succès !");
+      } else {
+        // CREATE new product
+        await axios.post(`${API_URL}/api/products`, productData, {
+          withCredentials: true,
+        });
+        toast.success("Produit créé avec succès !");
+      }
 
-      toast.success("Produit créé avec succès !");
       setShowProductForm(false);
-      setProductForm({
-        name: "",
-        description: "",
-        short_description: "",
-        price: "",
-        original_price: "",
-        category: "electronique",
-        subcategory: "",
-        images: "",
-        stock: "",
-        featured: false,
-        is_new: false,
-        is_promo: false,
-      });
+      resetProductForm();
       fetchData();
     } catch (error) {
-      console.error("Error creating product:", error);
-      toast.error(error.response?.data?.detail || "Erreur lors de la création");
+      console.error("Error saving product:", error);
+      toast.error(error.response?.data?.detail || "Erreur lors de l'enregistrement");
     } finally {
       setProductFormLoading(false);
     }
