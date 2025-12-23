@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Smartphone, Home, Sparkles, Sofa } from "lucide-react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
+import FlashSalesSection from "../components/FlashSalesSection";
 import { formatPrice } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
