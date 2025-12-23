@@ -9,6 +9,9 @@ import {
   CheckCircle,
   ArrowLeft,
   MessageCircle,
+  Tag,
+  X,
+  Loader2,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
