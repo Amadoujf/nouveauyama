@@ -64,7 +64,11 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-6">
-              <span className="text-2xl font-semibold">Lumina</span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                alt="Groupe YAMA+" 
+                className="h-10 w-auto mx-auto"
+              />
             </Link>
             <h1 className="text-3xl font-semibold tracking-tight mb-2">
               {isLogin ? "Bon retour" : "Créer un compte"}
