@@ -444,22 +444,18 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Flash Sales Section"
+    - "Similar Products"
+    - "Order Tracking Timeline"
     - "PDF Invoice Generation"
-    - "Search Functionality"
-    - "Wishlist Button on Product Page"
-    - "Admin Dashboard"
-    - "Discount Code at Checkout"
-    - "Newsletter Popup"
-    - "Product Reviews"
-  stuck_tasks:
-    - "Search Functionality"
-    - "Wishlist Button on Product Page"
-    - "Admin Dashboard"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
     message: "User requested comprehensive testing and verification of entire YAMA+ e-commerce site. Known bugs from previous testing: 1) Search overlay not accessible, 2) Wishlist button blocked by overlay, 3) Admin login doesn't navigate to dashboard. Also need to verify: Reviews flow, Newsletter discount code application at checkout. Please run full frontend and backend tests."
   - agent: "main"
     message: "FIXED PDF Invoice Logo Bug: User reported that the PDF invoice was showing Wave logo instead of YAMA+ logo. Root cause: hardcoded URL to wrong image file. Fix: Changed generate_invoice_pdf() in server.py to use local logo_yama.png file downloaded from user-provided image. Manual test confirms PDF generation works and displays 'GROUPE YAMA+' branding. Please test the /api/orders/{order_id}/invoice endpoint to verify the fix."
+  - agent: "main"
+    message: "IMPLEMENTED 3 NEW FEATURES: 1) Flash Sales Section with countdown timer - /api/flash-sales endpoint and FlashSalesSection component, 2) Similar Products on product pages - /api/products/{id}/similar endpoint and SimilarProducts component, 3) Order Tracking Timeline - OrderTimeline component with status history. New OrderDetailPage at /order/:orderId. Added flash sale management in admin. All APIs tested manually and working."
