@@ -989,6 +989,210 @@ async def update_order_status(
     
     return {"message": "Statut mis à jour"}
 
+# ============== INVOICE GENERATION ==============
+
+def generate_invoice_pdf(order: dict) -> io.BytesIO:
+    """Generate a professional PDF invoice for an order"""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.HexColor('#0B0B0B')
+    )
+    
+    header_style = ParagraphStyle(
+        'CustomHeader',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=colors.HexColor('#666666')
+    )
+    
+    # Header - Company Info
+    elements.append(Paragraph("YAMA+", title_style))
+    elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
+    elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 77 000 00 00", header_style))
+    elements.append(Spacer(1, 20))
+    
+    # Invoice Title
+    elements.append(Paragraph(f"<b>FACTURE N° {order['order_id'].upper()}</b>", ParagraphStyle(
+        'InvoiceTitle',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=20
+    )))
+    
+    # Order Date
+    order_date = order.get('created_at', datetime.now(timezone.utc))
+    if isinstance(order_date, str):
+        order_date = datetime.fromisoformat(order_date.replace('Z', '+00:00'))
+    
+    elements.append(Paragraph(f"<b>Date:</b> {order_date.strftime('%d/%m/%Y à %H:%M')}", styles['Normal']))
+    elements.append(Spacer(1, 20))
+    
+    # Customer Info
+    shipping = order.get('shipping', {})
+    elements.append(Paragraph("<b>FACTURER À:</b>", styles['Heading3']))
+    elements.append(Paragraph(f"{shipping.get('full_name', 'Client')}", styles['Normal']))
+    elements.append(Paragraph(f"{shipping.get('address', '')}", styles['Normal']))
+    elements.append(Paragraph(f"{shipping.get('city', '')}, {shipping.get('region', 'Dakar')}", styles['Normal']))
+    elements.append(Paragraph(f"Tél: {shipping.get('phone', '')}", styles['Normal']))
+    if shipping.get('email'):
+        elements.append(Paragraph(f"Email: {shipping.get('email')}", styles['Normal']))
+    elements.append(Spacer(1, 30))
+    
+    # Products Table
+    table_data = [['Produit', 'Qté', 'Prix Unit.', 'Total']]
+    
+    for item in order.get('products', []):
+        name = item.get('name', 'Produit')[:40]  # Truncate long names
+        qty = item.get('quantity', 1)
+        price = item.get('price', 0)
+        total = price * qty
+        table_data.append([
+            name,
+            str(qty),
+            f"{price:,.0f} FCFA".replace(',', ' '),
+            f"{total:,.0f} FCFA".replace(',', ' ')
+        ])
+    
+    # Create table
+    table = Table(table_data, colWidths=[8*cm, 2*cm, 3.5*cm, 3.5*cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0B0B0B')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('TOPPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F5F5F7')),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+        ('TOPPADDING', (0, 1), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E0E0E0')),
+    ]))
+    elements.append(table)
+    elements.append(Spacer(1, 20))
+    
+    # Totals
+    subtotal = order.get('subtotal', sum(p.get('price', 0) * p.get('quantity', 1) for p in order.get('products', [])))
+    shipping_cost = order.get('shipping_cost', 2500)
+    discount = order.get('discount', 0)
+    total = order.get('total', subtotal + shipping_cost - discount)
+    
+    totals_data = [
+        ['Sous-total:', f"{subtotal:,.0f} FCFA".replace(',', ' ')],
+        ['Livraison:', f"{shipping_cost:,.0f} FCFA".replace(',', ' ')],
+    ]
+    
+    if discount > 0:
+        totals_data.append(['Réduction:', f"-{discount:,.0f} FCFA".replace(',', ' ')])
+    
+    totals_data.append(['TOTAL:', f"{total:,.0f} FCFA".replace(',', ' ')])
+    
+    totals_table = Table(totals_data, colWidths=[13.5*cm, 3.5*cm])
+    totals_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('FONTSIZE', (0, -1), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.HexColor('#0B0B0B')),
+    ]))
+    elements.append(totals_table)
+    elements.append(Spacer(1, 30))
+    
+    # Payment Info
+    payment_method = order.get('payment_method', 'Non spécifié')
+    payment_labels = {
+        'wave': 'Wave',
+        'orange_money': 'Orange Money',
+        'card': 'Carte Bancaire',
+        'cash': 'Paiement à la livraison'
+    }
+    elements.append(Paragraph(f"<b>Mode de paiement:</b> {payment_labels.get(payment_method, payment_method)}", styles['Normal']))
+    
+    payment_status = order.get('payment_status', 'pending')
+    status_labels = {
+        'pending': '⏳ En attente',
+        'paid': '✅ Payé',
+        'failed': '❌ Échoué'
+    }
+    elements.append(Paragraph(f"<b>Statut du paiement:</b> {status_labels.get(payment_status, payment_status)}", styles['Normal']))
+    elements.append(Spacer(1, 40))
+    
+    # Footer
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#999999'),
+        alignment=1  # Center
+    )
+    elements.append(Paragraph("Merci pour votre achat chez YAMA+ !", footer_style))
+    elements.append(Paragraph("Pour toute question, contactez-nous sur WhatsApp: +221 77 000 00 00", footer_style))
+    elements.append(Paragraph("www.yama.sn", footer_style))
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+@api_router.get("/orders/{order_id}/invoice")
+async def get_order_invoice(order_id: str, request: Request):
+    """Generate and download invoice PDF for an order"""
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    
+    if not order:
+        raise HTTPException(status_code=404, detail="Commande non trouvée")
+    
+    # Generate PDF
+    pdf_buffer = generate_invoice_pdf(order)
+    
+    # Return as downloadable file
+    filename = f"facture_{order_id}.pdf"
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
+
+
+@api_router.get("/admin/orders/{order_id}/invoice")
+async def get_admin_order_invoice(order_id: str, user: User = Depends(require_admin)):
+    """Generate and download invoice PDF for an order (admin)"""
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    
+    if not order:
+        raise HTTPException(status_code=404, detail="Commande non trouvée")
+    
+    # Generate PDF
+    pdf_buffer = generate_invoice_pdf(order)
+    
+    # Return as downloadable file
+    filename = f"facture_{order_id}.pdf"
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
+
 @api_router.get("/admin/stats")
 async def get_admin_stats(user: User = Depends(require_admin)):
     total_orders = await db.orders.count_documents({})
