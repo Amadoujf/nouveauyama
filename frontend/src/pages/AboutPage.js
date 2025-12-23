@@ -31,11 +31,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <img 
-              src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
-              alt="Groupe YAMA+" 
-              className="h-16 w-auto mx-auto mb-8"
-            />
+            <p className="text-caption mb-4">À propos</p>
             <h1 className="heading-hero mb-6">
               Le shopping, autrement.
             </h1>

@@ -154,7 +154,7 @@ export default function AdminPage() {
           <Menu className="w-6 h-6" />
         </button>
         <img 
-          src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+          src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
           alt="Groupe YAMA+" 
           className="h-8 w-auto"
         />
@@ -180,7 +180,7 @@ export default function AdminPage() {
           <div className="flex items-center justify-between">
             <Link to="/admin" className="flex items-center gap-2">
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
                 className="h-8 w-auto"
               />
