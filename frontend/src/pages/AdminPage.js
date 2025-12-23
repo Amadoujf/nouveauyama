@@ -826,12 +826,24 @@ export default function AdminPage() {
                                 </select>
                               </td>
                               <td>
-                                <Link
-                                  to={`/order/${order.order_id}`}
-                                  className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg inline-flex"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Link>
+                                <div className="flex items-center gap-1">
+                                  <Link
+                                    to={`/order/${order.order_id}`}
+                                    className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg inline-flex"
+                                    title="Voir la commande"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Link>
+                                  <a
+                                    href={`${API_URL}/api/orders/${order.order_id}/invoice`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 rounded-lg inline-flex"
+                                    title="Télécharger la facture"
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                  </a>
+                                </div>
                               </td>
                             </tr>
                           );
