@@ -50,6 +50,7 @@ function PublicLayout({ children }) {
       {children}
       {!isAdminPage && <Footer />}
       <CartDrawer />
+      {!isAdminPage && <NewsletterPopup />}
     </>
   );
 }
