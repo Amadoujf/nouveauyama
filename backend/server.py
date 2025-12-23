@@ -941,6 +941,179 @@ async def get_order(order_id: str, request: Request):
     
     return order
 
+# ============== PAYTECH PAYMENT INTEGRATION ==============
+
+PAYTECH_API_URL = "https://paytech.sn/api/payment/request-payment"
+PAYTECH_CHECKOUT_URL = "https://paytech.sn/payment/checkout/"
+
+class PaymentRequest(BaseModel):
+    order_id: str
+    success_url: str
+    cancel_url: str
+
+class PaytechIPN(BaseModel):
+    type_event: str
+    custom_field: str
+    payment_method: Optional[str] = None
+    api_key_sha256: Optional[str] = None
+    api_secret_sha256: Optional[str] = None
+
+@api_router.post("/payments/paytech/initiate")
+async def initiate_paytech_payment(payment: PaymentRequest):
+    """Initiate a PayTech payment (Wave, Orange Money, Free Money, Card)"""
+    
+    # Get PayTech credentials
+    api_key = os.environ.get('PAYTECH_API_KEY', '')
+    api_secret = os.environ.get('PAYTECH_API_SECRET', '')
+    env = os.environ.get('PAYTECH_ENV', 'test')
+    
+    if not api_key or api_key == 'votre_cle_api':
+        raise HTTPException(status_code=500, detail="PayTech API non configurée. Veuillez ajouter vos clés API PayTech.")
+    
+    # Get order details
+    order = await db.orders.find_one({"order_id": payment.order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Commande non trouvée")
+    
+    # Prepare item names
+    items = order.get('items', order.get('products', []))
+    item_names = ", ".join([item.get('name', 'Produit')[:30] for item in items[:3]])
+    if len(items) > 3:
+        item_names += f" +{len(items) - 3} autres"
+    
+    # Build IPN URL (webhook for payment confirmation)
+    # In production, this should be your actual domain
+    frontend_url = os.environ.get('FRONTEND_URL', payment.success_url.rsplit('/', 1)[0])
+    ipn_url = f"{frontend_url}/api/payments/paytech/ipn"
+    
+    # Prepare PayTech request data
+    paytech_data = {
+        "item_name": item_names or "Commande YAMA+",
+        "item_price": str(int(order.get('total', 0))),
+        "currency": "XOF",
+        "ref_command": f"{payment.order_id}_{int(datetime.now().timestamp())}",
+        "command_name": f"Paiement de {order.get('total', 0):,.0f} FCFA - YAMA+".replace(',', ' '),
+        "env": env,
+        "success_url": payment.success_url,
+        "cancel_url": payment.cancel_url,
+        "ipn_url": ipn_url,
+        "custom_field": json.dumps({
+            "order_id": payment.order_id,
+            "amount": order.get('total', 0)
+        })
+    }
+    
+    # Make request to PayTech
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                PAYTECH_API_URL,
+                data=paytech_data,
+                headers={
+                    "API_KEY": api_key,
+                    "API_SECRET": api_secret,
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                timeout=30.0
+            )
+            
+            result = response.json()
+            
+            if 'token' in result:
+                checkout_url = f"{PAYTECH_CHECKOUT_URL}{result['token']}"
+                
+                # Store payment reference
+                await db.orders.update_one(
+                    {"order_id": payment.order_id},
+                    {"$set": {
+                        "paytech_token": result['token'],
+                        "paytech_ref": paytech_data['ref_command'],
+                        "payment_initiated_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                
+                return {
+                    "success": True,
+                    "checkout_url": checkout_url,
+                    "token": result['token']
+                }
+            else:
+                error_msg = result.get('error', [result.get('message', 'Erreur inconnue')])
+                if isinstance(error_msg, list):
+                    error_msg = error_msg[0] if error_msg else 'Erreur PayTech'
+                raise HTTPException(status_code=400, detail=f"Erreur PayTech: {error_msg}")
+                
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=500, detail=f"Erreur de connexion à PayTech: {str(e)}")
+
+
+@api_router.post("/payments/paytech/ipn")
+async def paytech_ipn_webhook(request: Request):
+    """Handle PayTech IPN (Instant Payment Notification) webhook"""
+    
+    try:
+        form_data = await request.form()
+        data = dict(form_data)
+        
+        type_event = data.get('type_event')
+        
+        if type_event == 'sale_complete':
+            # Verify API keys hash
+            api_key = os.environ.get('PAYTECH_API_KEY', '')
+            api_secret = os.environ.get('PAYTECH_API_SECRET', '')
+            
+            import hashlib
+            expected_api_hash = hashlib.sha256(api_key.encode()).hexdigest()
+            expected_secret_hash = hashlib.sha256(api_secret.encode()).hexdigest()
+            
+            received_api_hash = data.get('api_key_sha256', '')
+            received_secret_hash = data.get('api_secret_sha256', '')
+            
+            if expected_api_hash != received_api_hash or expected_secret_hash != received_secret_hash:
+                return JSONResponse(content={"status": "error", "message": "Invalid signature"}, status_code=401)
+            
+            # Parse custom field
+            custom_field = json.loads(data.get('custom_field', '{}'))
+            order_id = custom_field.get('order_id')
+            payment_method = data.get('payment_method', 'PayTech')
+            
+            if order_id:
+                # Update order status
+                await db.orders.update_one(
+                    {"order_id": order_id},
+                    {"$set": {
+                        "payment_status": "paid",
+                        "order_status": "processing",
+                        "payment_method_used": payment_method,
+                        "paid_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                
+                return JSONResponse(content={"status": "OK"})
+        
+        return JSONResponse(content={"status": "ignored"})
+        
+    except Exception as e:
+        logging.error(f"PayTech IPN error: {str(e)}")
+        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
+
+
+@api_router.get("/payments/paytech/verify/{order_id}")
+async def verify_paytech_payment(order_id: str):
+    """Check payment status for an order"""
+    
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Commande non trouvée")
+    
+    return {
+        "order_id": order_id,
+        "payment_status": order.get('payment_status', 'pending'),
+        "order_status": order.get('order_status', 'pending'),
+        "payment_method": order.get('payment_method_used'),
+        "paid_at": order.get('paid_at')
+    }
+
 # ============== ADMIN ROUTES ==============
 
 @api_router.get("/admin/orders")
