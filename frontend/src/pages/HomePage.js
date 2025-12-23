@@ -78,15 +78,6 @@ export default function HomePage() {
     <main className="min-h-screen" data-testid="home-page">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F5F5F7] dark:bg-black">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/lgreuub3_IMG_0618.png"
-            alt="Hero"
-            className="w-full h-full object-cover opacity-40 dark:opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F5F5F7] dark:to-black" />
-        </div>
 
         {/* Hero Content */}
         <div className="relative container-lumina text-center pt-20">
