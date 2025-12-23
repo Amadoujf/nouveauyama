@@ -50,20 +50,20 @@ const heroImages = [
     alt: "Shopping bags élégants"
   },
   {
-    url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80",
-    alt: "Flat lay tech et accessoires"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=1920&q=80",
-    alt: "Shopping lifestyle"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1920&q=80",
-    alt: "E-commerce moderne"
+    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&q=80",
+    alt: "Boutique moderne"
   },
   {
     url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80",
     alt: "Mode et lifestyle premium"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=1920&q=80",
+    alt: "Shopping premium"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80",
+    alt: "Fashion lifestyle"
   }
 ];
 
