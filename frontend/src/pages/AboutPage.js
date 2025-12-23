@@ -31,12 +31,16 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <p className="text-caption mb-4">À propos</p>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+              alt="Groupe YAMA+" 
+              className="h-16 w-auto mx-auto mb-8"
+            />
             <h1 className="heading-hero mb-6">
               Le shopping, autrement.
             </h1>
             <p className="text-body-lg">
-              Lumina est né d'une vision simple : offrir aux Sénégalais une 
+              YAMA+ est né d'une vision simple : offrir aux Sénégalais une 
               expérience d'achat en ligne à la hauteur de leurs attentes. 
               Premium, fiable et sans compromis.
             </p>
@@ -59,7 +63,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  Fondée à Dakar, Lumina redéfinit l'expérience d'achat en ligne 
+                  Fondée à Dakar, YAMA+ redéfinit l'expérience d'achat en ligne 
                   au Sénégal. Nous croyons que chaque Sénégalais mérite d'accéder 
                   à des produits de qualité, présentés avec élégance et livrés 
                   avec fiabilité.
@@ -70,7 +74,7 @@ export default function AboutPage() {
                   catégorie est pensée pour répondre aux besoins réels de nos clients.
                 </p>
                 <p>
-                  Chez Lumina, nous ne vendons pas simplement des produits. 
+                  Chez YAMA+, nous ne vendons pas simplement des produits. 
                   Nous créons une expérience. Une expérience où la qualité, 
                   la confiance et le service sont au cœur de chaque interaction.
                 </p>
