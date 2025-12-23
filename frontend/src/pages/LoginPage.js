@@ -65,7 +65,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-6">
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
                 className="h-10 w-auto mx-auto"
               />

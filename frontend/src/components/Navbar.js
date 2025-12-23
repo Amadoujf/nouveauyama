@@ -86,7 +86,7 @@ export default function Navbar() {
               data-testid="nav-logo"
             >
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
                 className="h-10 w-auto"
               />
@@ -250,7 +250,7 @@ export default function Navbar() {
             <div className="container-lumina py-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-8">
                 <img 
-                  src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                  src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                   alt="Groupe YAMA+" 
                   className="h-8 w-auto"
                 />
