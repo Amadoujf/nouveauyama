@@ -1191,22 +1191,28 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         textColor=colors.HexColor('#666666')
     )
     
-    # Try to add logo
-    try:
-        # Use the local YAMA+ logo
-        logo_path = Path(__file__).parent / "logo_yama.png"
-        
-        # Create header with logo - larger size for better visibility
-        logo_img = Image(str(logo_path), width=4*cm, height=4*cm)
-        header_data = [[logo_img, Paragraph("<b>GROUPE YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
-        header_table = Table(header_data, colWidths=[2*cm, 10*cm])
-        header_table.setStyle(TableStyle([
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ]))
-        elements.append(header_table)
-    except Exception as e:
-        # Fallback to text header if logo fails
+    # Add logo header
+    logo_path = ROOT_DIR / "logo_yama.png"
+    logging.info(f"Invoice logo path: {logo_path}, exists: {logo_path.exists()}")
+    
+    if logo_path.exists():
+        try:
+            # Create header with YAMA+ logo
+            logo_img = Image(str(logo_path), width=3.5*cm, height=3.5*cm)
+            header_data = [[logo_img, Paragraph("<b>GROUPE YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
+            header_table = Table(header_data, colWidths=[4.5*cm, 12*cm])
+            header_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ]))
+            elements.append(header_table)
+            logging.info("Logo added to invoice successfully")
+        except Exception as e:
+            logging.error(f"Error adding logo to invoice: {e}")
+            elements.append(Paragraph("GROUPE YAMA+", title_style))
+            elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
+    else:
+        logging.warning(f"Logo file not found at {logo_path}")
         elements.append(Paragraph("GROUPE YAMA+", title_style))
         elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
     
