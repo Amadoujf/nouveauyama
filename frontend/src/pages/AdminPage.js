@@ -706,15 +706,24 @@ export default function AdminPage() {
                             </td>
                             <td>
                               <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleEditProduct(product)}
+                                  className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-lg"
+                                  title="Modifier"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
                                 <Link
                                   to={`/product/${product.product_id}`}
                                   className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg"
+                                  title="Voir"
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Link>
                                 <button
                                   onClick={() => handleDeleteProduct(product.product_id)}
-                                  className="p-2 hover:bg-red-50 text-red-500 rounded-lg"
+                                  className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg"
+                                  title="Supprimer"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
