@@ -101,3 +101,344 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "YAMA+ - Site e-commerce premium style Apple pour le Sénégal. Vente de produits électronique, électroménager, décoration, beauté. Fonctionnalités: Auth JWT/Google, Admin Panel, Panier, Wishlist, Reviews, Newsletter, Dark Mode, Paiements (Wave, Orange Money, CB, Cash)"
+
+backend:
+  - task: "User Authentication (JWT)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "JWT auth working - registration, login, token validation"
+
+  - task: "Google OAuth Authentication"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Google OAuth configured via Emergent, needs frontend flow testing"
+
+  - task: "Products API (CRUD)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All product endpoints working - list, detail, create, update, delete"
+
+  - task: "Cart API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Cart operations working - add, update, remove, get"
+
+  - task: "Wishlist API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Wishlist endpoints functional"
+
+  - task: "Orders API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Order creation and retrieval working"
+
+  - task: "Reviews API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Review endpoints exist, needs full flow testing"
+
+  - task: "Newsletter API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Newsletter subscription works, discount code generation exists but checkout integration missing"
+
+  - task: "Admin Stats API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Admin stats endpoint returning data"
+
+  - task: "Contact Form API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Contact form submission working"
+
+frontend:
+  - task: "Homepage with Hero Carousel"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/HomePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Hero carousel with 5 AI-generated original images, auto-rotate every 3 seconds"
+
+  - task: "Navigation & Menu"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Navbar.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All navigation links working"
+
+  - task: "Search Functionality"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/Navbar.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "BUG: Search icon opens modal but search input field not accessible"
+
+  - task: "Category Pages"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CategoryPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Category pages display products correctly"
+
+  - task: "Product Detail Page"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/ProductPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Product page shows all info and pricing"
+
+  - task: "Wishlist Button on Product Page"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/ProductPage.js"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "BUG: Overlay prevents clicking wishlist button on product page"
+
+  - task: "Cart & Drawer"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/CartDrawer.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Cart drawer opens and displays items"
+
+  - task: "Checkout Page"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CheckoutPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Checkout flow complete with shipping form and payment methods"
+
+  - task: "Discount Code at Checkout"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/pages/CheckoutPage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NOT IMPLEMENTED: Newsletter discount code cannot be applied at checkout"
+
+  - task: "Authentication Pages (Login/Register)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/LoginPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Login and register forms present"
+
+  - task: "Admin Dashboard"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/AdminPage.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "BUG: Admin login form submits but doesn't navigate to admin dashboard"
+
+  - task: "Dark Mode"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Navbar.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Dark mode toggle works"
+
+  - task: "Newsletter Popup"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/NewsletterPopup.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Popup appears, subscription works, generates discount code"
+
+  - task: "Product Reviews"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ProductReviews.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Review component exists, needs full flow testing with logged-in user"
+
+  - task: "WhatsApp Integration"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/ProductPage.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "WhatsApp floating button and order button present"
+
+  - task: "Static Pages (About, Contact, FAQ)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/AboutPage.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All static pages load correctly"
+
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Search Functionality"
+    - "Wishlist Button on Product Page"
+    - "Admin Dashboard"
+    - "Discount Code at Checkout"
+    - "Newsletter Popup"
+    - "Product Reviews"
+  stuck_tasks:
+    - "Search Functionality"
+    - "Wishlist Button on Product Page"
+    - "Admin Dashboard"
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "User requested comprehensive testing and verification of entire YAMA+ e-commerce site. Known bugs from previous testing: 1) Search overlay not accessible, 2) Wishlist button blocked by overlay, 3) Admin login doesn't navigate to dashboard. Also need to verify: Reviews flow, Newsletter discount code application at checkout. Please run full frontend and backend tests."
