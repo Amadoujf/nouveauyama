@@ -11,18 +11,34 @@ import {
   Sun,
   Moon,
   ChevronDown,
+  Smartphone,
+  Home,
+  Sofa,
+  Sparkles,
+  Star,
+  Percent,
+  Info,
+  Phone,
+  HelpCircle,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { cn } from "../lib/utils";
 
 const navItems = [
-  { name: "Électronique", href: "/category/electronique" },
-  { name: "Électroménager", href: "/category/electromenager" },
-  { name: "Décoration", href: "/category/decoration" },
-  { name: "Beauté", href: "/category/beaute" },
-  { name: "Nouveautés", href: "/nouveautes" },
-  { name: "Promotions", href: "/promotions" },
+  { name: "Électronique", href: "/category/electronique", icon: Smartphone },
+  { name: "Électroménager", href: "/category/electromenager", icon: Home },
+  { name: "Décoration", href: "/category/decoration", icon: Sofa },
+  { name: "Beauté", href: "/category/beaute", icon: Sparkles },
+  { name: "Nouveautés", href: "/nouveautes", icon: Star },
+  { name: "Promotions", href: "/promotions", icon: Percent },
+];
+
+const secondaryNavItems = [
+  { name: "À propos", href: "/a-propos", icon: Info },
+  { name: "Contact", href: "/contact", icon: Phone },
+  { name: "Aide / FAQ", href: "/aide", icon: HelpCircle },
 ];
 
 export default function Navbar() {
