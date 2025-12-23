@@ -63,7 +63,7 @@ const heroImages = [
   },
   {
     url: "/hero-images/hero-5.png",
-    alt: "Lifestyle premium - Tech et accessoires mode"
+    alt: "Beauté - Parfums et cosmétiques premium"
   }
 ];
 
