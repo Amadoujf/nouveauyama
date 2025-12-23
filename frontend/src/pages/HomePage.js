@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Smartphone, Home, Sparkles, Sofa } from "lucide-react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
