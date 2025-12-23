@@ -364,6 +364,78 @@ class LuminaAPITester:
         self.log_test("Submit contact form", success,
                      f"Message: {data.get('message', 'No message')}" if success else f"Error: {data}")
 
+    def test_pdf_invoice_generation(self):
+        """Test PDF invoice generation with YAMA+ logo"""
+        print("\n📄 Testing PDF Invoice Generation...")
+        
+        # Test with existing order ID from the review request
+        test_order_ids = ["ORD-F1215A06", "ORD-2C32A04F", "ORD-34DD43CC"]
+        
+        for order_id in test_order_ids:
+            try:
+                # Test invoice endpoint
+                url = f"{self.base_url}/api/orders/{order_id}/invoice"
+                response = self.session.get(url)
+                
+                if response.status_code == 200:
+                    # Check if response is PDF
+                    content_type = response.headers.get('content-type', '')
+                    if 'application/pdf' in content_type:
+                        # Check PDF content for YAMA+ branding
+                        pdf_content = response.content
+                        
+                        # Basic check - PDF should contain YAMA+ text
+                        if b'GROUPE YAMA+' in pdf_content or b'YAMA+' in pdf_content:
+                            self.log_test(f"PDF Invoice Generation - {order_id}", True, 
+                                        f"PDF generated successfully with YAMA+ branding (Size: {len(pdf_content)} bytes)")
+                            
+                            # Save a sample PDF for manual verification
+                            with open(f"/tmp/test_invoice_{order_id}.pdf", "wb") as f:
+                                f.write(pdf_content)
+                            print(f"    Sample PDF saved to /tmp/test_invoice_{order_id}.pdf")
+                            break
+                        else:
+                            self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                        "PDF generated but may not contain YAMA+ branding")
+                    else:
+                        self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                    f"Response is not PDF format: {content_type}")
+                elif response.status_code == 404:
+                    print(f"    Order {order_id} not found, trying next...")
+                    continue
+                else:
+                    self.log_test(f"PDF Invoice Generation - {order_id}", False, 
+                                f"HTTP {response.status_code}: {response.text[:100]}")
+                    
+            except Exception as e:
+                self.log_test(f"PDF Invoice Generation - {order_id}", False, f"Exception: {str(e)}")
+        
+        # If no existing orders work, try with our test order
+        if self.test_order_id:
+            try:
+                url = f"{self.base_url}/api/orders/{self.test_order_id}/invoice"
+                response = self.session.get(url)
+                
+                if response.status_code == 200:
+                    content_type = response.headers.get('content-type', '')
+                    if 'application/pdf' in content_type:
+                        pdf_content = response.content
+                        if b'GROUPE YAMA+' in pdf_content or b'YAMA+' in pdf_content:
+                            self.log_test(f"PDF Invoice Generation - {self.test_order_id}", True, 
+                                        f"PDF generated successfully with YAMA+ branding (Size: {len(pdf_content)} bytes)")
+                        else:
+                            self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
+                                        "PDF generated but may not contain YAMA+ branding")
+                    else:
+                        self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
+                                    f"Response is not PDF format: {content_type}")
+                else:
+                    self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, 
+                                f"HTTP {response.status_code}: {response.text[:100]}")
+                    
+            except Exception as e:
+                self.log_test(f"PDF Invoice Generation - {self.test_order_id}", False, f"Exception: {str(e)}")
+
     def run_all_tests(self):
         """Run all test suites"""
         print("🚀 Starting Lumina Senegal Backend API Tests")
