@@ -54,16 +54,16 @@ const heroImages = [
     alt: "Décoration - Intérieur moderne"
   },
   {
-    url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80",
-    alt: "Mobilier - Salon élégant"
+    url: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=1920&q=80",
+    alt: "Beauté - Parfums et cosmétiques"
   },
   {
-    url: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=1920&q=80",
-    alt: "Électroménager - Cuisine moderne"
+    url: "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?auto=format&fit=crop&w=1920&q=80",
+    alt: "Électroménager - Cuisine design"
   },
   {
-    url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1920&q=80",
-    alt: "Smartphone et accessoires tech"
+    url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1920&q=80",
+    alt: "Tech - Smartphone moderne"
   }
 ];
 
