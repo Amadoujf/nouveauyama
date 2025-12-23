@@ -529,6 +529,123 @@ async def delete_product(product_id: str, user: User = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Produit non trouvé")
     return {"message": "Produit supprimé"}
 
+# ============== FLASH SALES ROUTES ==============
+
+@api_router.get("/flash-sales")
+async def get_flash_sales():
+    """Get all active flash sale products"""
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Find products with active flash sales
+    products = await db.products.find(
+        {
+            "is_flash_sale": True,
+            "flash_sale_end": {"$gt": now}
+        },
+        {"_id": 0}
+    ).sort("flash_sale_end", 1).to_list(20)
+    
+    for product in products:
+        if isinstance(product.get('created_at'), str):
+            product['created_at'] = datetime.fromisoformat(product['created_at'])
+        if isinstance(product.get('updated_at'), str):
+            product['updated_at'] = datetime.fromisoformat(product['updated_at'])
+    
+    return products
+
+@api_router.post("/admin/flash-sales/{product_id}")
+async def create_flash_sale(
+    product_id: str,
+    request: Request,
+    user: User = Depends(require_admin)
+):
+    """Create or update a flash sale for a product"""
+    body = await request.json()
+    flash_sale_price = body.get("flash_sale_price")
+    flash_sale_end = body.get("flash_sale_end")  # ISO datetime string
+    
+    if not flash_sale_price or not flash_sale_end:
+        raise HTTPException(status_code=400, detail="Prix et date de fin requis")
+    
+    result = await db.products.update_one(
+        {"product_id": product_id},
+        {
+            "$set": {
+                "is_flash_sale": True,
+                "flash_sale_price": flash_sale_price,
+                "flash_sale_end": flash_sale_end,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    return {"message": "Vente flash créée"}
+
+@api_router.delete("/admin/flash-sales/{product_id}")
+async def remove_flash_sale(product_id: str, user: User = Depends(require_admin)):
+    """Remove flash sale from a product"""
+    result = await db.products.update_one(
+        {"product_id": product_id},
+        {
+            "$set": {
+                "is_flash_sale": False,
+                "flash_sale_price": None,
+                "flash_sale_end": None,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    return {"message": "Vente flash supprimée"}
+
+# ============== SIMILAR PRODUCTS ROUTE ==============
+
+@api_router.get("/products/{product_id}/similar")
+async def get_similar_products(product_id: str, limit: int = 6):
+    """Get similar products based on category"""
+    # Get the current product
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    # Find products in the same category, excluding current product
+    similar = await db.products.find(
+        {
+            "category": product["category"],
+            "product_id": {"$ne": product_id}
+        },
+        {"_id": 0}
+    ).limit(limit).to_list(limit)
+    
+    # If not enough, fill with featured products
+    if len(similar) < limit:
+        more_needed = limit - len(similar)
+        existing_ids = [p["product_id"] for p in similar] + [product_id]
+        
+        featured = await db.products.find(
+            {
+                "product_id": {"$nin": existing_ids},
+                "featured": True
+            },
+            {"_id": 0}
+        ).limit(more_needed).to_list(more_needed)
+        
+        similar.extend(featured)
+    
+    for p in similar:
+        if isinstance(p.get('created_at'), str):
+            p['created_at'] = datetime.fromisoformat(p['created_at'])
+        if isinstance(p.get('updated_at'), str):
+            p['updated_at'] = datetime.fromisoformat(p['updated_at'])
+    
+    return similar
+
 # ============== REVIEWS ROUTES ==============
 
 @api_router.get("/products/{product_id}/reviews")
