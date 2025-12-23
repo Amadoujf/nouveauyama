@@ -1157,6 +1157,7 @@ async def update_order_status(
     body = await request.json()
     order_status = body.get("order_status")
     payment_status = body.get("payment_status")
+    note = body.get("note", "")
     
     update_doc = {}
     if order_status:
@@ -1167,7 +1168,20 @@ async def update_order_status(
     if not update_doc:
         raise HTTPException(status_code=400, detail="Aucune mise à jour fournie")
     
-    result = await db.orders.update_one({"order_id": order_id}, {"$set": update_doc})
+    # Add to status history
+    history_entry = {
+        "status": order_status or payment_status,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": note
+    }
+    
+    result = await db.orders.update_one(
+        {"order_id": order_id}, 
+        {
+            "$set": update_doc,
+            "$push": {"status_history": history_entry}
+        }
+    )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     
