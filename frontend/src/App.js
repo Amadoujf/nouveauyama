@@ -8,6 +8,7 @@ import { WishlistProvider } from "./contexts/WishlistContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
+import NewsletterPopup from "./components/NewsletterPopup";
 
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
