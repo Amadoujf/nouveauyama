@@ -26,14 +26,21 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      let user;
       if (isLogin) {
-        await login(formData.email, formData.password);
+        user = await login(formData.email, formData.password);
         toast.success("Connexion réussie");
       } else {
-        await register(formData.name, formData.email, formData.password, formData.phone);
+        user = await register(formData.name, formData.email, formData.password, formData.phone);
         toast.success("Compte créé avec succès");
       }
-      navigate(from, { replace: true });
+      
+      // Redirect admin to admin dashboard
+      if (user?.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate(from === "/" || from === "/login" ? "/" : from, { replace: true });
+      }
     } catch (error) {
       const message = error.response?.data?.detail || "Une erreur est survenue";
       toast.error(message);
