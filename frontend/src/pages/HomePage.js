@@ -82,7 +82,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/30 dark:from-black dark:via-black/95 dark:to-black/30 z-10" />
           <img
-            src="https://images.pexels.com/photos/7007167/pexels-photo-7007167.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            src="https://images.pexels.com/photos/6995253/pexels-photo-6995253.jpeg?auto=compress&cs=tinysrgb&w=1920"
             alt="Cliente heureuse"
             className="w-full h-full object-cover object-center"
           />
