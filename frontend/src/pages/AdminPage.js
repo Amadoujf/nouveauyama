@@ -426,8 +426,183 @@ export default function AdminPage() {
                       className="w-full h-10 pl-10 pr-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] outline-none"
                     />
                   </div>
+                  <button
+                    onClick={() => setShowProductForm(true)}
+                    className="flex items-center gap-2 px-4 h-10 bg-black dark:bg-white text-white dark:text-black rounded-xl font-medium hover:opacity-90 transition-opacity"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Ajouter</span>
+                  </button>
                 </div>
               </div>
+
+              {/* Product Form Modal */}
+              {showProductForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-white dark:bg-[#1C1C1E] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                  >
+                    <div className="sticky top-0 bg-white dark:bg-[#1C1C1E] border-b border-black/5 dark:border-white/5 p-6 flex items-center justify-between">
+                      <h2 className="text-xl font-semibold">Nouveau Produit</h2>
+                      <button
+                        onClick={() => setShowProductForm(false)}
+                        className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    <form onSubmit={handleCreateProduct} className="p-6 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Nom du produit *</label>
+                        <input
+                          type="text"
+                          required
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                          className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                          placeholder="iPhone 15 Pro Max"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Description courte *</label>
+                        <input
+                          type="text"
+                          required
+                          value={productForm.short_description}
+                          onChange={(e) => setProductForm({ ...productForm, short_description: e.target.value })}
+                          className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                          placeholder="Puce A17 Pro. Titane. Caméra 48MP."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Description complète *</label>
+                        <textarea
+                          required
+                          value={productForm.description}
+                          onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                          rows={3}
+                          className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent resize-none"
+                          placeholder="Description détaillée du produit..."
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Prix (FCFA) *</label>
+                          <input
+                            type="number"
+                            required
+                            value={productForm.price}
+                            onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                            className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                            placeholder="1299000"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Prix barré (optionnel)</label>
+                          <input
+                            type="number"
+                            value={productForm.original_price}
+                            onChange={(e) => setProductForm({ ...productForm, original_price: e.target.value })}
+                            className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                            placeholder="1499000"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Catégorie *</label>
+                          <select
+                            value={productForm.category}
+                            onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                            className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                          >
+                            <option value="electronique">Électronique</option>
+                            <option value="electromenager">Électroménager</option>
+                            <option value="decoration">Décoration & Mobilier</option>
+                            <option value="beaute">Beauté & Bien-être</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Stock *</label>
+                          <input
+                            type="number"
+                            required
+                            value={productForm.stock}
+                            onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                            className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent"
+                            placeholder="10"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">URLs des images (séparées par des virgules)</label>
+                        <textarea
+                          value={productForm.images}
+                          onChange={(e) => setProductForm({ ...productForm, images: e.target.value })}
+                          rows={2}
+                          className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent resize-none text-sm"
+                          placeholder="https://exemple.com/image1.jpg, https://exemple.com/image2.jpg"
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={productForm.featured}
+                            onChange={(e) => setProductForm({ ...productForm, featured: e.target.checked })}
+                            className="w-5 h-5 rounded"
+                          />
+                          <span className="text-sm">Mis en avant</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={productForm.is_new}
+                            onChange={(e) => setProductForm({ ...productForm, is_new: e.target.checked })}
+                            className="w-5 h-5 rounded"
+                          />
+                          <span className="text-sm">Nouveau</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={productForm.is_promo}
+                            onChange={(e) => setProductForm({ ...productForm, is_promo: e.target.checked })}
+                            className="w-5 h-5 rounded"
+                          />
+                          <span className="text-sm">En promo</span>
+                        </label>
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowProductForm(false)}
+                          className="flex-1 h-12 border border-black/10 dark:border-white/10 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={productFormLoading}
+                          className="flex-1 h-12 bg-black dark:bg-white text-white dark:text-black rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          {productFormLoading ? "Création..." : "Créer le produit"}
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                </div>
+              )}
 
               <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden">
                 {loading ? (
