@@ -111,14 +111,37 @@ export default function HomePage() {
     <main className="min-h-screen" data-testid="home-page">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-black">
-        {/* Background Image - Right Side */}
+        {/* Animated Background Images Carousel */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20 dark:from-black dark:via-black/90 dark:to-black/20 z-10" />
-          <img
-            src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=1920&q=80"
-            alt="Flat lay produits premium YAMA+"
-            className="w-full h-full object-cover object-center"
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={heroImages[currentImageIndex].url}
+              alt={heroImages[currentImageIndex].alt}
+              className="absolute w-full h-full object-cover object-center"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+            />
+          </AnimatePresence>
+        </div>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-24 right-10 z-20 flex gap-2">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentImageIndex 
+                  ? "bg-black dark:bg-white w-6" 
+                  : "bg-black/30 dark:bg-white/30 hover:bg-black/50 dark:hover:bg-white/50"
+              }`}
+              aria-label={`Slide ${index + 1}`}
+            />
+          ))}
         </div>
 
         {/* Hero Content */}
