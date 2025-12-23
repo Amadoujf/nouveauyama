@@ -1047,7 +1047,7 @@ async def get_categories():
 
 @api_router.post("/seed")
 async def seed_database():
-    """Seed the database with sample products"""
+    """Seed the database with sample products and admin user"""
     
     # Check if already seeded
     existing = await db.products.count_documents({})
@@ -1055,6 +1055,21 @@ async def seed_database():
         return {"message": "Base de données déjà initialisée", "count": existing}
     
     now = datetime.now(timezone.utc).isoformat()
+    
+    # Create default admin user
+    admin_exists = await db.users.find_one({"email": "admin@yama.sn"})
+    if not admin_exists:
+        admin_doc = {
+            "user_id": f"user_{uuid.uuid4().hex[:12]}",
+            "email": "admin@yama.sn",
+            "name": "Admin YAMA+",
+            "phone": "+221770000000",
+            "password": hash_password("admin123"),
+            "role": "admin",
+            "picture": None,
+            "created_at": now
+        }
+        await db.users.insert_one(admin_doc)
     
     products = [
         # Électronique
