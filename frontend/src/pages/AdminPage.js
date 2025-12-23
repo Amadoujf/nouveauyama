@@ -469,7 +469,7 @@ export default function AdminPage() {
                     />
                   </div>
                   <button
-                    onClick={() => setShowProductForm(true)}
+                    onClick={handleNewProduct}
                     className="flex items-center gap-2 px-4 h-10 bg-black dark:bg-white text-white dark:text-black rounded-xl font-medium hover:opacity-90 transition-opacity"
                   >
                     <Plus className="w-4 h-4" />
@@ -487,9 +487,11 @@ export default function AdminPage() {
                     className="bg-white dark:bg-[#1C1C1E] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                   >
                     <div className="sticky top-0 bg-white dark:bg-[#1C1C1E] border-b border-black/5 dark:border-white/5 p-6 flex items-center justify-between">
-                      <h2 className="text-xl font-semibold">Nouveau Produit</h2>
+                      <h2 className="text-xl font-semibold">
+                        {editingProduct ? "Modifier le Produit" : "Nouveau Produit"}
+                      </h2>
                       <button
-                        onClick={() => setShowProductForm(false)}
+                        onClick={() => { setShowProductForm(false); resetProductForm(); }}
                         className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full"
                       >
                         <X className="w-5 h-5" />
