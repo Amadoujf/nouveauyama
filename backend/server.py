@@ -510,6 +510,154 @@ async def delete_product(product_id: str, user: User = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Produit non trouvé")
     return {"message": "Produit supprimé"}
 
+# ============== REVIEWS ROUTES ==============
+
+@api_router.get("/products/{product_id}/reviews")
+async def get_product_reviews(product_id: str):
+    """Get all reviews for a product"""
+    reviews = await db.reviews.find(
+        {"product_id": product_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    # Calculate average rating
+    total_rating = sum(r["rating"] for r in reviews) if reviews else 0
+    avg_rating = round(total_rating / len(reviews), 1) if reviews else 0
+    
+    # Rating distribution
+    distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    for r in reviews:
+        distribution[r["rating"]] = distribution.get(r["rating"], 0) + 1
+    
+    return {
+        "reviews": reviews,
+        "total_reviews": len(reviews),
+        "average_rating": avg_rating,
+        "distribution": distribution
+    }
+
+@api_router.post("/products/{product_id}/reviews")
+async def create_review(product_id: str, review_data: ReviewCreate, user: User = Depends(require_auth)):
+    """Create a review for a product"""
+    # Check if product exists
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    # Check if user already reviewed this product
+    existing_review = await db.reviews.find_one({
+        "product_id": product_id,
+        "user_id": user.user_id
+    })
+    if existing_review:
+        raise HTTPException(status_code=400, detail="Vous avez déjà donné votre avis sur ce produit")
+    
+    # Check if user purchased this product (verified purchase)
+    user_orders = await db.orders.find({
+        "user_id": user.user_id,
+        "items.product_id": product_id,
+        "payment_status": "paid"
+    }).to_list(1)
+    verified_purchase = len(user_orders) > 0
+    
+    # Validate rating
+    if review_data.rating < 1 or review_data.rating > 5:
+        raise HTTPException(status_code=400, detail="La note doit être entre 1 et 5")
+    
+    review_id = f"review_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+    
+    review_doc = {
+        "review_id": review_id,
+        "product_id": product_id,
+        "user_id": user.user_id,
+        "user_name": user.name,
+        "user_picture": user.picture,
+        "rating": review_data.rating,
+        "title": review_data.title,
+        "comment": review_data.comment,
+        "verified_purchase": verified_purchase,
+        "helpful_count": 0,
+        "created_at": now.isoformat()
+    }
+    
+    await db.reviews.insert_one(review_doc)
+    
+    return {"message": "Avis publié avec succès", "review_id": review_id, "verified_purchase": verified_purchase}
+
+@api_router.post("/reviews/{review_id}/helpful")
+async def mark_review_helpful(review_id: str, request: Request):
+    """Mark a review as helpful"""
+    result = await db.reviews.update_one(
+        {"review_id": review_id},
+        {"$inc": {"helpful_count": 1}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Avis non trouvé")
+    return {"message": "Merci pour votre retour"}
+
+@api_router.delete("/reviews/{review_id}")
+async def delete_review(review_id: str, user: User = Depends(require_auth)):
+    """Delete a review (own review or admin)"""
+    review = await db.reviews.find_one({"review_id": review_id}, {"_id": 0})
+    if not review:
+        raise HTTPException(status_code=404, detail="Avis non trouvé")
+    
+    if review["user_id"] != user.user_id and user.role != "admin":
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    await db.reviews.delete_one({"review_id": review_id})
+    return {"message": "Avis supprimé"}
+
+# ============== NEWSLETTER ROUTES ==============
+
+@api_router.post("/newsletter/subscribe")
+async def subscribe_newsletter(data: NewsletterSubscribe):
+    """Subscribe to newsletter"""
+    # Check if already subscribed
+    existing = await db.newsletter.find_one({"email": data.email})
+    if existing:
+        return {"message": "Vous êtes déjà inscrit à notre newsletter", "already_subscribed": True}
+    
+    # Generate promo code
+    promo_code = f"WELCOME{uuid.uuid4().hex[:6].upper()}"
+    
+    subscriber_doc = {
+        "subscriber_id": f"sub_{uuid.uuid4().hex[:12]}",
+        "email": data.email,
+        "name": data.name,
+        "promo_code": promo_code,
+        "discount_percent": 10,
+        "promo_used": False,
+        "subscribed_at": datetime.now(timezone.utc).isoformat(),
+        "active": True
+    }
+    
+    await db.newsletter.insert_one(subscriber_doc)
+    
+    return {
+        "message": "Inscription réussie ! Voici votre code promo",
+        "promo_code": promo_code,
+        "discount_percent": 10,
+        "already_subscribed": False
+    }
+
+@api_router.get("/newsletter/validate/{promo_code}")
+async def validate_promo_code(promo_code: str):
+    """Validate a promo code"""
+    subscriber = await db.newsletter.find_one({"promo_code": promo_code, "active": True}, {"_id": 0})
+    if not subscriber:
+        raise HTTPException(status_code=404, detail="Code promo invalide")
+    
+    if subscriber.get("promo_used"):
+        raise HTTPException(status_code=400, detail="Ce code promo a déjà été utilisé")
+    
+    return {
+        "valid": True,
+        "discount_percent": subscriber["discount_percent"],
+        "message": f"-{subscriber['discount_percent']}% sur votre commande"
+    }
+
 # ============== CART ROUTES ==============
 
 @api_router.get("/cart")
