@@ -44,6 +44,24 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Product form state
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [productFormLoading, setProductFormLoading] = useState(false);
+  const [productForm, setProductForm] = useState({
+    name: "",
+    description: "",
+    short_description: "",
+    price: "",
+    original_price: "",
+    category: "electronique",
+    subcategory: "",
+    images: "",
+    stock: "",
+    featured: false,
+    is_new: false,
+    is_promo: false,
+  });
 
   const currentPage = location.pathname.split("/").pop() || "admin";
 
