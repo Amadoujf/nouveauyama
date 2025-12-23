@@ -31,9 +31,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6">
-              <span className="text-2xl font-semibold tracking-tight">
-                Lumina
-              </span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/5wsfuon7_6BCAC1FE-93B6-4459-AE63-2C81996A6325.png" 
+                alt="Groupe YAMA+" 
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               Le shopping, autrement. Électronique, maison et essentiels du
@@ -182,7 +184,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-black/10 dark:border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Lumina Senegal. Tous droits réservés.
+              © {new Date().getFullYear()} Groupe YAMA+. Tous droits réservés.
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Livraison</span>
