@@ -1,173 +1,181 @@
 <analysis>**original_problem_statement:**
-The user wants to create an ultra-premium, minimalist, and fluid e-commerce site inspired by Apple.com, for selling a variety of products in Senegal.
+The user wants to create an ultra-premium, minimalist e-commerce site for selling a variety of products in Senegal, with a design inspired by Apple.com.
 
 **PRODUCT REQUIREMENTS:**
-- **Positioning:** Official online store, rigorously selected diverse products, premium and modern image.
-- **Design System:** Absolute minimalism (Apple style), generous white spaces, elegant typography (Inter), subtle animations, pure white (#FFFFFF), deep black (#0B0B0B), light gray (#F5F5F7) color palette.
-- **Menu Structure:** Électronique, Électroménager, Décoration & Mobilier, Beauté & Bien-être, Nouveautés, Promotions, À propos, Contact, Aide / FAQ.
-- **Homepage:** Le shopping, autrement. cinematic hero text with a single CTA Explorer la boutique.
-- **Product Page:** Immersive HD images, short description, clear price in FCFA, Add to cart and Order via WhatsApp buttons.
-- **Checkout:** Single page, minimal fields, fluid payment.
-- **Payment Methods:** Wave, Orange Money, Credit Card (Visa/Mastercard), Cash on delivery.
-- **Delivery:** Dakar & regions, clear deadlines, simple tracking with WhatsApp notifications.
-- **Automation:** Order confirmation, delivery tracking, elegant abandoned cart reminders, non-intrusive WhatsApp chat.
-- **Technical:** Ultra-fast loading, mobile-first, clean SEO.
-- **User Requested additions:** Admin Panel, JWT & Google Auth, Wishlist, Smart Search, Dark Mode, Real-time notifications, a Review & Rating system, and a Newsletter popup.
+- **Core E-commerce:** A full-stack application (React, FastAPI, MongoDB) with a premium, minimalist design. Key pages include Homepage, Product Pages, Cart, Checkout, etc.
+- **Authentication:** JWT and Emergent-managed Google authentication.
+- **Admin Panel:** A comprehensive dashboard for managing products, orders, and users, including full CRUD (Create, Read, Update, Delete) capabilities for products.
+- **Key Features:**
+    - An animated hero carousel on the homepage with AI-generated, original images representing the product categories.
+    - Smart Search, Wishlist, Dark Mode, and a mobile-friendly design.
+    - A newsletter subscription popup that provides a discount code.
+    - A product review and rating system.
+- **Payment & Delivery:**
+    - Integration with **PayTech** to support Senegalese payment methods: **Wave, Orange Money, and Credit Cards**.
+    - Cash on delivery option.
+    - Order confirmation and delivery tracking.
+- **Invoicing:** Automatic generation of professional PDF invoices for customers, complete with the company logo and product images.
+- **Deployment:** The user intends to deploy the site on Hostinger using a custom domain ().
 
 **User's preferred language**: Français
 
 **what currently exists?**
-A full-stack e-commerce application has been built using FastAPI, React, and MongoDB. The application follows the user's requested Apple-inspired premium design. Key features implemented include:
-- A complete set of pages (Homepage, Categories, Product, Cart, Checkout, Auth, etc.).
-- Backend with product, user, order, and cart management.
-- JWT and Emergent-managed Google authentication.
-- An admin dashboard for managing products, orders, and users.
-- Additional features: Wishlist, Dark Mode, a redesigned mobile hamburger menu.
-- The site has been branded as YAMA+ with the user's logo integrated into the navbar.
-- A newsletter subscription popup and a product review system have been partially implemented.
+A feature-complete full-stack e-commerce application named YAMA+ has been developed. The application features a premium, Apple-inspired design and is fully functional.
+
+**Key Completed Items:**
+- **Frontend & Backend:** A robust React frontend and FastAPI backend with a MongoDB database.
+- **Hero Carousel:** An animated carousel on the homepage now uses custom, AI-generated images that represent the store's product categories (Electronics, Decor, Beauty, etc.).
+- **Admin Dashboard:** A comprehensive admin panel is fully functional, allowing for the management of orders, users, and full CRUD (Create, Edit, Delete) operations for products.
+- **Payment Integration:** **PayTech** is fully integrated to handle payments via **Wave, Orange Money, and Credit Card**. The checkout page displays the official logos for these payment methods. The user's API keys have been added and configured for 'test' mode.
+- **PDF Invoices:** An automated system generates professional PDF invoices for each order. These invoices include product details, customer information, and are designed to include the company logo and product images.
+- **Bug Fixes:** Previously identified bugs with the search overlay, wishlist button, and admin login have been resolved. The application passed a full test from the testing agent.
+- **Deployment Prep:** The agent has created a database backup file () and provided detailed instructions for deploying on a Hostinger VPS and configuring a custom domain.
 
 **Last working item**:
-The agent was iteratively changing the main hero image on the homepage based on continuous user feedback. The user was very specific about wanting a professional and original image that reflects the brand.
+The user noticed that the automatically generated PDF invoices were displaying the Wave logo instead of the site's YAMA+ logo. The agent had incorrectly hardcoded the logo path during the implementation of the invoice enhancement feature.
 
-- **Last item agent was working**: Implementing the user's final choice for the hero image: a picture of a woman with colorful shopping bags. The agent updated  and presented a screenshot for verification.
-- **Status**: USER VERIFICATION PENDING
-- **Agent Testing Done**: Y
-- **Which testing method agent to use?**: screenshot tool
+- **Last item agent was working**: Correcting the logo on the PDF invoice. The agent acknowledged the mistake and asked the user to provide the correct YAMA+ logo file to proceed with the fix.
+- **Status**: BLOCKED
+- **Agent Testing Done**: N
+- **Which testing method agent to use?**: backend testing agent. The agent should test by calling the  endpoint and verifying the contents of the generated PDF file.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1 (P0): Hero Image Final Approval.** The user has rejected multiple images. The latest implementation is awaiting their visual confirmation.
--   **Issue 2 (P1): Unaddressed Frontend Bugs.** An early test report identified bugs with the search overlay and the wishlist button on the product page. The agent dismissed these as non-critical and never fixed them.
+- **Issue 1 (P0): Incorrect Logo on PDF Invoice.** The invoice generation logic in  is using the wrong image file for the company logo.
+- **Issue 2 (P1): Finalize Custom Domain Configuration.** The user was in the process of configuring the DNS records on Hostinger for . The correct IP addresses were provided, but confirmation is needed that the user has successfully updated the records and that the domain has propagated.
+- **Issue 3 (P2): Activate PayTech Production Mode.** The user's PayTech account is not yet activated for prod mode. This is an external dependency requiring the user to contact PayTech support.
 
 **Issues Detail**:
-- **Issue 1: Hero Image Final Approval**
-    - **Attempted fixes**: The agent proposed and implemented at least 5 different hero images, all of which were rejected by the user for aesthetic reasons. The current image is the latest attempt.
+- **Issue 1: Incorrect Logo on PDF Invoice**
+    - **Attempted fixes**: None. The issue was just identified by the user.
     - **Next debug checklist**:
-        1.  Await user feedback on the last screenshot.
-        2.  If rejected, ask the user for more specific keywords, a description, or an example image to avoid further iterations.
-    - **Why fix this issue and what will be achieved with the fix?**: The hero section is the first thing users see. Finalizing the image is crucial to establishing the desired premium brand identity.
+        1.  Obtain the correct YAMA+ logo file from the user. If not provided, use a stylized text YAMA+ as a placeholder.
+        2.  Upload the logo to a suitable path, like .
+        3.  Modify the  function in  to use the correct path to the YAMA+ logo instead of the hardcoded Wave logo path.
+        4.  Restart the backend and test invoice generation for an existing order.
+    - **Why fix this issue and what will be achieved with the fix?**: To ensure professional and correctly branded communication with customers.
+    - **Status**: BLOCKED
+    - **Is recurring issue?**: N
+    - **Should Test frontend/backend/both after fix?**: backend
+    - **Blocked on other issue**: Waiting for the user to provide the logo file.
+
+- **Issue 2: Finalize Custom Domain Configuration**
+    - **Attempted fixes**: The agent guided the user through the Hostinger DNS panel, correcting mistakes and identifying the right IP addresses (, ).
+    - **Next debug checklist**:
+        1.  Ask the user to confirm they have updated the  records on Hostinger with the correct IPs.
+        2.  Instruct the user to wait for DNS propagation (15 mins to a few hours).
+        3.  Guide the user to verify the setup on the Emergent platform and by visiting .
+    - **Why fix this issue and what will be achieved with the fix?**: To make the website live on the user's custom domain.
     - **Status**: USER VERIFICATION PENDING
     - **Is recurring issue?**: Y
-    - **Should Test frontend/backend/both after fix?**: frontend
+    - **Should Test frontend/backend/both after fix?**: NA
     - **Blocked on other issue**: None
 
-- **Issue 2: Unaddressed Frontend Bugs from Test Report**
-    - **Attempted fixes**: None. The agent viewed the code in  (search) and  (wishlist) but decided not to implement a fix.
+- **Issue 3: Activate PayTech Production Mode**
+    - **Attempted fixes**: The agent identified the issue (account not activated for production) and switched the environment to 'test' mode as a workaround.
     - **Next debug checklist**:
-        1.  Review the initial test report at  to understand the exact failure conditions.
-        2.  Investigate  for a potential z-index or event listener issue with the search overlay.
-        3.  Debug the wishlist functionality in , checking its interaction with .
-        4.  Implement fixes for both issues.
-    - **Why fix this issue and what will be achieved with the fix?**: To ensure all interactive elements of the site are fully functional and provide a bug-free user experience.
-    - **Status**: NOT STARTED
+        1.  Remind the user they need to contact PayTech support to get their account activated for live payments.
+        2.  Once activated, instruct the user to change  to  in .
+        3.  Restart the backend service.
+    - **Why fix this issue and what will be achieved with the fix?**: To enable the site to accept real money transactions.
+    - **Status**: BLOCKED
     - **Is recurring issue?**: N
-    - **Should Test frontend/backend/both after fix?**: frontend
-    - **Blocked on other issue**: None
+    - **Should Test frontend/backend/both after fix?**: both
+    - **Blocked on other issue**: User's action with a third party (PayTech).
 
 **In progress Task List**:
-- **Task 1: Complete Reviews and Newsletter Features**
-    - **Where to resume**:
-        1.  **Reviews**: The UI and backend endpoints exist. The full flow needs to be tested: a logged-in user submitting a review, and verifying it appears correctly on the product page.
-        2.  **Newsletter**: The popup and subscription work, and a discount code is generated. The logic to *apply* this discount code during the checkout process in  is missing and needs to be implemented.
-    - **What will be achieved with this?**: This will complete the two high-priority features the user recently requested, adding significant value by increasing user engagement and providing a marketing tool.
-    - **Status**: IN PROGRESS
-    - **Should Test frontend/backend/both after fix?**: both
-    - **Blocked on something**: None
+None.
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
--   **(P1) Similar/Recommended Products**: On product pages, show sections like You might also like.
--   **(P1) Flash Sales with Countdown**: Create a dedicated section for time-limited offers with a countdown timer to create urgency.
--   **(P1) Real-time Order Tracking**: Implement a visual timeline for users to track their order status (Confirmed -> Shipped -> Delivered).
+-   (P1) Similar/Recommended Products: On product pages, show sections like You might also like.
+-   (P1) Flash Sales with Countdown: Create a dedicated section for time-limited offers.
+-   (P1) Real-time Order Tracking: Implement a visual timeline for users to track their order status.
 
 **Future Tasks:**
--   **(P2)** Loyalty Program (points-based).
--   **(P2)** Product Comparison feature.
--   **(P2)** Shareable Wishlist.
--   **(P2)** WhatsApp Chatbot for customer service.
--   **(P2)** Installment payment options.
--   **(P2)** Progressive Web App (PWA) for a mobile app-like experience.
+-   (P2) Loyalty Program (points-based).
+-   (P2) Product Comparison feature.
+-   (P2) Shareable Wishlist.
+-   (P2) WhatsApp Chatbot for customer service.
+-   (P2) Installment payment options.
+-   (P2) Progressive Web App (PWA).
 
 **Completed work in this session**
-- **Recently completed**:
-  - Full-stack application scaffold created (FastAPI, React).
-  - User Authentication (JWT & Google) and Admin Panel implemented.
-  - Core e-commerce features (Products, Cart, Wishlist, Search, Dark Mode) integrated.
-  - Site rebranded to YAMA+ with user's logo.
-  - Logo size and placement adjusted per user feedback.
-  - Mobile hamburger menu redesigned for better aesthetics and usability.
-  - Newsletter popup and Product Review features partially implemented.
-
-**Earlier issues found/mentioned but not fixed**
-- **Issue 1: Search Overlay Bug**
-    - **Debug checklist**: Check for z-index conflicts or event propagation issues in .
-    - **Why to solve this issue and what will be achieved with this?**: A non-functional search bar severely degrades the user experience and prevents users from finding products.
-    - **Should Test frontend/backend/both after fix**: frontend
-    - **Is recurring issue?**: N
-- **Issue 2: Wishlist Button Bug**
-    - **Debug checklist**: Verify state management logic in  and its context .
-    - **Why to solve this issue and what will be achieved with this?**: The wishlist is a key feature for user retention. A broken button prevents users from saving items for later.
-    - **Should Test frontend/backend/both after fix**: frontend
-    - **Is recurring issue?**: N
+- **AI Hero Carousel**: Implemented an animated homepage carousel with original, AI-generated images representing product categories.
+- **Full Admin CRUD**: Added complete Create, Edit, Delete functionality for products in the admin dashboard.
+- **PDF Invoice Generation**: Created an automated system to generate professional PDF invoices, including placeholders for the company logo and product images.
+- **PayTech Integration**: Integrated PayTech for Wave, Orange Money, and card payments, including backend endpoints and frontend checkout logic. Configured with the user's API keys in 'test' mode.
+- **Payment Logos**: Added official logos for Wave, Orange Money, Visa, and Mastercard to the checkout page.
+- **Comprehensive Bug Fixes**: Resolved previously known issues with the search overlay, wishlist button, and admin login.
+- **Deployment & Domain Guidance**: Provided extensive support for deploying to a Hostinger VPS and configuring a custom domain, including creating a database backup file.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
 -   **Backend**: FastAPI, Python, MongoDB
--   **Frontend**: React, JavaScript, Tailwind CSS, Shadcn/UI
+-   **Frontend**: React, JavaScript, Tailwind CSS, Shadcn/UI, Framer Motion
 -   **Database**: MongoDB
--   **Authentication**: JWT (JSON Web Tokens), Google OAuth (via Emergent)
--   **Architecture**: RESTful API, Single Page Application (SPA)
+-   **Authentication**: JWT, Google OAuth (via Emergent)
+-   **Payments**: PayTech API for Senegalese payment methods
+-   **PDF Generation**:  library
+-   **Image Generation**:  library for AI image generation
 
 **key DB schema**
 -   **products**: 
 -   **users**: 
 -   **orders**: 
 -   **reviews**: 
--   **newsletter_subscriptions**: 
--   **discount_codes**: 
 
 **All files of reference**
--   : Main backend file containing all API logic and database models.
--   : The main landing page, subject of the recent image change requests.
--   : Contains the site navigation, logo, and the buggy search functionality.
--   : Displays product details and contains the buggy wishlist button and new review section.
--   : Main router and entry point for the React app, where the newsletter popup is integrated.
--   : Needs to be modified to accept discount codes.
--   : Global styles for the application.
+-   : Contains all API logic, including endpoints for invoice generation and PayTech integration.
+-   : Implements the AI-powered hero image carousel.
+-   : Contains the full CRUD functionality for products.
+-   : Integrates the PayTech payment flow and displays payment method logos.
+-   : Includes the Download Invoice button for customers.
+-   : Stores credentials for MongoDB and PayTech.
+-   : A full backup of the database contents.
 
 **Critical Info for New Agent**
-- The user is highly focused on aesthetics and brand image, often providing iterative feedback on visual elements like the hero image. Be prepared for this and communicate clearly, asking for specific guidance if requests are ambiguous.
-- The project was bootstrapped by creating many files at once. While functional, some bugs from the initial automated test run were overlooked. These (search, wishlist) should be addressed.
-- The recently added Newsletter feature is incomplete. The logic for applying the generated discount code at checkout must be implemented.
+- **Fix the Invoice Logo**: This is the top priority. The logic in  needs to be pointed to the correct YAMA+ logo file, which you may need to get from the user.
+- **User is Detail-Oriented**: The user has a strong focus on visual details and brand consistency (e.g., hero images, logos). Be prepared for iterative feedback.
+- **Deployment Context**: The user wants to deploy on Hostinger. Remember that this requires a **VPS**, not standard shared hosting. The agent has already provided setup commands.
+- **PayTech is in Test Mode**: Real payments will not work until the user gets their PayTech account activated for production and updates the  file accordingly.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  4
-2.  Nn une autre svp
-3.  Oui
-4.  Tu m’aurais proposé quoi
-5.  Uneautres images
-6.  Je te laisse me mettre une image professionnelle comme apple leur branding
-7.  Maintenant mettez moi une image reflétant ma boutique une image originale
-8.  Nn j’ai dit d’enlever cette image
-9.  La photo du téléphone me plaît pas je veux une image originale pour le site à première v
-10. Je veux une image originale au site en arrière plan
+- sur la facture je vois le logo de wave alors que ca doit etre le logo de groupe yama plus
+- (screenshot of DNS config)
+- C’est fait
+- Désactive (screenshot of CDN page)
+- Ca (screenshot of DNS error)
+- C’est ici ? (screenshot of DNS config)
+- je vois pas le dns fournis par emergent
+- kV#w3C8#7b#V code nom de domaine sur hostinger
+- Groupeyamaplus.com
+- nom de domaine
 
 **Project Health Check:**
--   **Broken**: Search overlay, Wishlist button functionality.
--   **Mocked**: All payment methods (Wave, Orange Money, Credit Card) are simulated.
--   **Incomplete**: The discount code application at checkout is not implemented.
+-   **Broken**: PDF Invoice Generation (displays the wrong logo).
+-   **Mocked**: The PayTech payment integration is running in 'test' mode, not processing real money.
+-   **Incomplete**: Custom domain setup is in progress, pending final DNS propagation and verification.
 
 **3rd Party Integrations**
--   Emergent-managed Google Auth — uses Emergent LLM Key for configuration but user auth flow is standard OAuth2.
+-   **Emergent-managed Google Auth**: For user social login.
+-   **OpenAI/Emergent Image Generation**: Used to create original hero images. Uses Emergent LLM Key.
+-   **PayTech**: For processing payments (Wave, Orange Money, Credit Card). Requires User API Key.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES (used once after the initial build)
+-   **Testing agent used after significant changes**: YES, a full test suite was run after major bug fixes.
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: []
--   **Known regressions**: The search and wishlist features were identified as buggy by the testing agent but were not fixed.
+-   **Known regressions**: None.
+
+**Credentials to test flow:**
+-   **Admin User**:
+    -   Email: 
+    -   Password: 
+-   **PayTech API Keys**:
+    -   Stored in . Currently configured for  mode.
 
 **What agent forgot to execute**
-- Fix the search overlay and wishlist button bugs that were identified in the test report ().
-- Implement the logic to apply the newsletter-generated discount code in the checkout process.</analysis>
+- The agent hardcoded the wrong logo path ( logo) into the PDF invoice generation function in  instead of using the correct YAMA+ logo.</analysis>
