@@ -47,23 +47,23 @@ const categories = [
 const heroImages = [
   {
     url: "https://images.pexels.com/photos/5632388/pexels-photo-5632388.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Shopping caddie moderne"
+  },
+  {
+    url: "https://images.pexels.com/photos/5650026/pexels-photo-5650026.jpeg?auto=compress&cs=tinysrgb&w=1920",
     alt: "Shopping bags colorés"
   },
   {
-    url: "https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Shopping lifestyle premium"
+    url: "https://images.pexels.com/photos/3965557/pexels-photo-3965557.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Lifestyle shopping"
   },
   {
-    url: "https://images.pexels.com/photos/3965545/pexels-photo-3965545.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Flat lay accessoires"
+    url: "https://images.pexels.com/photos/5632402/pexels-photo-5632402.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Shopping premium"
   },
   {
-    url: "https://images.pexels.com/photos/5632381/pexels-photo-5632381.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Shopping experience"
-  },
-  {
-    url: "https://images.pexels.com/photos/6567607/pexels-photo-6567607.jpeg?auto=compress&cs=tinysrgb&w=1920",
-    alt: "Fashion shopping"
+    url: "https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    alt: "Fashion shopping bags"
   }
 ];
 
