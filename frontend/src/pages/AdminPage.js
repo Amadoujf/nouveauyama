@@ -20,6 +20,7 @@ import {
   X,
   FileText,
   Download,
+  Zap,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
