@@ -136,6 +136,34 @@ class ContactMessage(BaseModel):
     subject: str
     message: str
 
+# ============== REVIEWS MODELS ==============
+
+class ReviewCreate(BaseModel):
+    product_id: str
+    rating: int  # 1-5
+    title: str
+    comment: str
+
+class Review(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    review_id: str
+    product_id: str
+    user_id: str
+    user_name: str
+    user_picture: Optional[str] = None
+    rating: int
+    title: str
+    comment: str
+    verified_purchase: bool = False
+    helpful_count: int = 0
+    created_at: datetime
+
+# ============== NEWSLETTER MODEL ==============
+
+class NewsletterSubscribe(BaseModel):
+    email: EmailStr
+    name: Optional[str] = None
+
 # ============== AUTH HELPERS ==============
 
 def hash_password(password: str) -> str:
