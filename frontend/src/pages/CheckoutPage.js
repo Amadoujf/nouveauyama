@@ -483,18 +483,22 @@ export default function CheckoutPage() {
                         onChange={handleChange}
                         className="sr-only"
                       />
-                      {method.logo ? (
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                      {method.color ? (
+                        <div className={`w-10 h-10 ${method.color} ${method.textColor} rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0`}>
+                          {method.letter}
+                        </div>
+                      ) : method.logo ? (
+                        <div className="flex items-center gap-1 flex-shrink-0">
                           <img 
                             src={method.logo} 
                             alt={method.name} 
-                            className="h-10 w-10 object-contain rounded-lg"
+                            className="h-8 w-auto object-contain"
                           />
                           {method.logo2 && (
                             <img 
                               src={method.logo2} 
                               alt="Visa" 
-                              className="h-8 w-auto object-contain"
+                              className="h-6 w-auto object-contain"
                             />
                           )}
                         </div>
