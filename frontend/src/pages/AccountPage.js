@@ -136,7 +136,7 @@ export default function AccountPage() {
                     <div className="text-center py-12">
                       <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground mb-4">
-                        Vous n'avez pas encore de commandes
+                        Vous n&apos;avez pas encore de commandes
                       </p>
                       <Link to="/" className="btn-primary">
                         Commencer mes achats
