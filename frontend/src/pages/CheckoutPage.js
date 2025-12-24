@@ -487,17 +487,38 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Ville *</label>
+                  <div className="relative">
+                    <label className="block text-sm font-medium mb-2">Quartier / Ville *</label>
                     <input
                       type="text"
                       name="city"
                       value={formData.city}
-                      onChange={handleChange}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      onFocus={() => formData.city.length > 1 && formData.region === "Dakar" && setShowNeighborhoods(true)}
+                      onBlur={() => setTimeout(() => setShowNeighborhoods(false), 200)}
                       required
+                      placeholder={formData.region === "Dakar" ? "Ex: Fass, Médina, Parcelles..." : "Votre ville"}
                       className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors"
                       data-testid="checkout-city"
+                      autoComplete="off"
                     />
+                    
+                    {/* Autocomplete dropdown */}
+                    {showNeighborhoods && filteredNeighborhoods.length > 0 && (
+                      <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                        {filteredNeighborhoods.map((neighborhood, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => selectNeighborhood(neighborhood)}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-white/10 flex items-center gap-2"
+                          >
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            {neighborhood}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -516,6 +537,33 @@ export default function CheckoutPage() {
                       ))}
                     </select>
                   </div>
+
+                  {/* Shipping cost display */}
+                  {formData.city && (
+                    <div className="md:col-span-2">
+                      <div className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl",
+                        shippingInfo.isRange 
+                          ? "bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300"
+                          : "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300"
+                      )}>
+                        <Truck className="w-5 h-5" />
+                        <div className="flex-1">
+                          {calculatingShipping ? (
+                            <span className="text-sm flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Calcul des frais...
+                            </span>
+                          ) : (
+                            <>
+                              <span className="font-medium">{shippingInfo.message}</span>
+                              <span className="text-xs block opacity-70">Zone: {shippingInfo.label}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-2">
