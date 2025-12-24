@@ -1889,6 +1889,11 @@ async def create_order(order_data: OrderCreate, request: Request):
     if user:
         await db.carts.delete_one({"user_id": user.user_id})
     
+    # Send order confirmation email (async, don't wait)
+    shipping_email = order_doc.get("shipping", {}).get("email")
+    if shipping_email:
+        asyncio.create_task(send_order_confirmation_email(shipping_email, order_doc))
+    
     order_doc["created_at"] = now
     return order_doc
 
