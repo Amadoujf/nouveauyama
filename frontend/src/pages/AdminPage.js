@@ -926,6 +926,11 @@ export default function AdminPage() {
               </div>
             </>
           )}
+
+          {/* Email Campaigns Page */}
+          {currentPage === "email" && (
+            <EmailCampaignsPage />
+          )}
         </div>
       </main>
     </div>
