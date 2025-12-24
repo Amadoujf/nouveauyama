@@ -637,14 +637,55 @@ export default function AdminPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">URLs des images (séparées par des virgules)</label>
-                        <textarea
-                          value={productForm.images}
-                          onChange={(e) => setProductForm({ ...productForm, images: e.target.value })}
-                          rows={2}
-                          className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent resize-none text-sm"
-                          placeholder="https://exemple.com/image1.jpg, https://exemple.com/image2.jpg"
-                        />
+                        <label className="block text-sm font-medium mb-2">Images du produit</label>
+                        
+                        {/* Image Preview Grid */}
+                        {productForm.images.length > 0 && (
+                          <div className="grid grid-cols-4 gap-2 mb-3">
+                            {productForm.images.map((img, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={img.startsWith('/api') ? `${API_URL}${img}` : img}
+                                  alt={`Image ${index + 1}`}
+                                  className="w-full aspect-square object-cover rounded-lg"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(index)}
+                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Upload Button */}
+                        <label className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl cursor-pointer hover:border-black/40 dark:hover:border-white/40 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={uploadingImage}
+                          />
+                          {uploadingImage ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span>Upload en cours...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-5 h-5" />
+                              <span>Cliquez pour ajouter des images</span>
+                            </>
+                          )}
+                        </label>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          JPG, PNG, WebP ou GIF. Max 5MB par image.
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap gap-4">
