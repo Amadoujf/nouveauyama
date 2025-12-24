@@ -88,13 +88,51 @@ export default function AdminPage() {
       original_price: "",
       category: "electronique",
       subcategory: "",
-      images: "",
+      images: [],
       stock: "",
       featured: false,
       is_new: false,
       is_promo: false,
     });
     setEditingProduct(null);
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImage(true);
+    const newImages = [...productForm.images];
+
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post(`${API_URL}/api/upload/image`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.data.success) {
+          newImages.push(response.data.url);
+        }
+      } catch (error) {
+        toast.error(`Erreur upload: ${error.response?.data?.detail || 'Erreur'}`);
+      }
+    }
+
+    setProductForm({ ...productForm, images: newImages });
+    setUploadingImage(false);
+  };
+
+  // Remove image from list
+  const handleRemoveImage = (index) => {
+    const newImages = productForm.images.filter((_, i) => i !== index);
+    setProductForm({ ...productForm, images: newImages });
   };
 
   // Open form for editing
@@ -108,7 +146,7 @@ export default function AdminPage() {
       original_price: product.original_price?.toString() || "",
       category: product.category || "electronique",
       subcategory: product.subcategory || "",
-      images: product.images?.join(", ") || "",
+      images: product.images || [],
       stock: product.stock?.toString() || "",
       featured: product.featured || false,
       is_new: product.is_new || false,
