@@ -21,10 +21,12 @@ import {
   FileText,
   Download,
   Zap,
+  Mail,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
+import EmailCampaignsPage from "./EmailCampaignsPage";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -34,6 +36,7 @@ const menuItems = [
   { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
   { id: "users", label: "Utilisateurs", icon: Users, href: "/admin/users" },
+  { id: "email", label: "Campagnes Email", icon: Mail, href: "/admin/email" },
 ];
 
 export default function AdminPage() {
