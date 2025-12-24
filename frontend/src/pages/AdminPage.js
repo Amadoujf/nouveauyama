@@ -229,10 +229,10 @@ export default function AdminPage() {
     setProductFormLoading(true);
     
     try {
-      const imageUrls = productForm.images
-        .split(",")
-        .map((url) => url.trim())
-        .filter((url) => url);
+      // Use images array directly (already URLs from upload)
+      const imageUrls = Array.isArray(productForm.images) 
+        ? productForm.images 
+        : productForm.images.split(",").map((url) => url.trim()).filter((url) => url);
 
       const productData = {
         name: productForm.name,
@@ -253,7 +253,7 @@ export default function AdminPage() {
       if (editingProduct) {
         // UPDATE existing product
         await axios.put(`${API_URL}/api/products/${editingProduct.product_id}`, productData, {
-          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Produit modifié avec succès !");
       } else {
