@@ -899,7 +899,8 @@ async def check_spin_eligibility(email: str):
 async def spin_wheel(data: SpinRequest):
     """Spin the wheel and get a prize"""
     # Check game is active
-    if datetime.now(timezone.utc).isoformat() > GAME_CONFIG["end_date"]:
+    end_date = datetime.fromisoformat(GAME_CONFIG["end_date"].replace("Z", "+00:00"))
+    if datetime.now(timezone.utc) > end_date:
         raise HTTPException(status_code=400, detail="Le jeu est terminé")
     
     # Check eligibility
