@@ -488,6 +488,71 @@ async def logout(request: Request, response: Response):
     response.delete_cookie(key="session_token", path="/")
     return {"message": "Déconnexion réussie"}
 
+# ============== IMAGE UPLOAD ==============
+
+# Create uploads directory
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
+
+@api_router.post("/upload/image")
+async def upload_image(file: UploadFile = File(...), user: User = Depends(require_admin)):
+    """Upload an image and return its URL"""
+    
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Type de fichier non supporté. Utilisez JPG, PNG, WebP ou GIF.")
+    
+    # Generate unique filename
+    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    filepath = UPLOADS_DIR / filename
+    
+    # Save file
+    try:
+        content = await file.read()
+        
+        # Limit file size to 5MB
+        if len(content) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 5MB)")
+        
+        with open(filepath, "wb") as f:
+            f.write(content)
+        
+        # Return the URL
+        # In production, this would be a full URL to your domain
+        image_url = f"/api/uploads/{filename}"
+        
+        return {"success": True, "url": image_url, "filename": filename}
+    
+    except Exception as e:
+        logging.error(f"Error uploading image: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'upload")
+
+@api_router.get("/uploads/{filename}")
+async def get_uploaded_image(filename: str):
+    """Serve uploaded images"""
+    filepath = UPLOADS_DIR / filename
+    
+    if not filepath.exists():
+        raise HTTPException(status_code=404, detail="Image non trouvée")
+    
+    # Determine content type
+    ext = filename.split(".")[-1].lower()
+    content_types = {
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "png": "image/png",
+        "webp": "image/webp",
+        "gif": "image/gif"
+    }
+    content_type = content_types.get(ext, "image/jpeg")
+    
+    with open(filepath, "rb") as f:
+        content = f.read()
+    
+    return Response(content=content, media_type=content_type)
+
 # ============== PRODUCTS ROUTES ==============
 
 @api_router.get("/products", response_model=List[Product])
