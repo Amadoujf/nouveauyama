@@ -27,6 +27,7 @@ import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
 import EmailCampaignsPage from "./EmailCampaignsPage";
+import FlashSalesAdminPage from "./FlashSalesAdminPage";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
