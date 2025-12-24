@@ -183,6 +183,24 @@ class NewsletterSubscribe(BaseModel):
     email: EmailStr
     name: Optional[str] = None
 
+# ============== SPIN WHEEL GAME MODEL ==============
+
+class SpinResult(BaseModel):
+    spin_id: str
+    user_id: Optional[str] = None
+    email: str
+    prize_type: str  # discount_5, discount_10, discount_20, free_shipping, jersey
+    prize_label: str
+    prize_code: Optional[str] = None
+    spin_type: str  # newsletter, purchase
+    claimed: bool = False
+    created_at: datetime
+
+class SpinRequest(BaseModel):
+    email: EmailStr
+    name: Optional[str] = None
+    jersey_name: Optional[str] = None  # For jersey winners
+
 # ============== AUTH HELPERS ==============
 
 def hash_password(password: str) -> str:
