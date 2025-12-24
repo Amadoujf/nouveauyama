@@ -828,7 +828,7 @@ SPIN_PRIZES = [
 # Game configuration
 GAME_CONFIG = {
     "name": "Roue CAN 2025",
-    "end_date": "2025-02-15T23:59:59Z",  # End of CAN
+    "end_date": "2026-02-28T23:59:59Z",  # Extended for demo
     "max_jerseys": 10,  # Maximum jerseys to give away
     "min_purchase_for_spin": 25000,  # FCFA
 }
