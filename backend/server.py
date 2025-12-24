@@ -44,6 +44,97 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'lumina-senegal-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 168  # 7 days
 
+# Store Configuration
+STORE_ADDRESS = "Fass Paillote, Dakar, Sénégal"
+
+# Delivery Zones Configuration
+DELIVERY_ZONES = {
+    "zone_1500": {
+        "price": 1500,
+        "label": "Dakar Centre",
+        "areas": [
+            "dakar", "dakar centre", "centre-ville", "médina", "medina", "fass", "fass paillote",
+            "colobane", "point e", "fann", "cité keur gorgui", "keur gorgui", "hlm"
+        ]
+    },
+    "zone_2000": {
+        "price": 2000,
+        "label": "Dakar Proche",
+        "areas": [
+            "castor", "liberté", "liberte", "liberté 6", "sicap", "dieuppeul", "mermoz",
+            "grand dakar", "niarry tally", "niaye tally", "foire", "mariste", "ouakam",
+            "sacré-cœur", "sacre coeur", "sacré coeur", "grand yoff"
+        ]
+    },
+    "zone_2500": {
+        "price": 2500,
+        "label": "Dakar Étendu",
+        "areas": [
+            "parcelles assainies", "parcelles", "fadia", "ngor", "almadies", "les almadies",
+            "pikine", "yarakh", "golf", "golf sud"
+        ]
+    },
+    "zone_3000": {
+        "price": 3000,
+        "label": "Banlieue",
+        "areas": [
+            "guédiawaye", "guediawaye", "thiaroye", "diamaguène", "diamaguene",
+            "fass mbao", "sicap mbao", "keur mbaye fall"
+        ]
+    },
+    "zone_4000": {
+        "price": 4000,
+        "label": "Région Dakar",
+        "areas": [
+            "rufisque", "bargny", "diamniadio", "sébikotane", "sebikotane",
+            "lac rose", "sangalkam"
+        ]
+    },
+    "zone_5000": {
+        "price": 5000,
+        "label": "Zone Éloignée",
+        "range": "4000-5000",
+        "areas": [
+            "keur massar", "zac mbao", "yeumbeul", "malika"
+        ]
+    },
+    "autre_region": {
+        "price": 3500,
+        "label": "Autre Région",
+        "areas": []  # Default for areas not in Dakar
+    }
+}
+
+def calculate_shipping_cost(city: str, address: str = "") -> dict:
+    """Calculate shipping cost based on city/area"""
+    search_text = f"{city} {address}".lower().strip()
+    
+    # Check each zone
+    for zone_id, zone_data in DELIVERY_ZONES.items():
+        if zone_id == "autre_region":
+            continue
+        for area in zone_data["areas"]:
+            if area in search_text:
+                result = {
+                    "zone": zone_id,
+                    "zone_label": zone_data["label"],
+                    "shipping_cost": zone_data["price"],
+                    "message": f"Livraison {zone_data['label']}: {zone_data['price']:,} FCFA".replace(',', ' ')
+                }
+                # Special case for zone_5000
+                if zone_id == "zone_5000":
+                    result["message"] = f"Livraison Zone Éloignée: entre 4 000 et 5 000 FCFA"
+                    result["is_range"] = True
+                return result
+    
+    # Default to autre région
+    return {
+        "zone": "autre_region",
+        "zone_label": "Autre Région",
+        "shipping_cost": 3500,
+        "message": "Livraison Autre Région: 3 500 FCFA"
+    }
+
 app = FastAPI(title="Lumina Senegal E-Commerce API")
 api_router = APIRouter(prefix="/api")
 
