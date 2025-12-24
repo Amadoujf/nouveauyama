@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
+import GameFloatingButton from "./components/GameFloatingButton";
 
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
