@@ -855,10 +855,14 @@ async def get_game_config():
     jerseys_won = await db.spins.count_documents({"prize_type": "jersey"})
     total_spins = await db.spins.count_documents({})
     
+    # Check if game is active
+    end_date = datetime.fromisoformat(GAME_CONFIG["end_date"].replace("Z", "+00:00"))
+    is_active = datetime.now(timezone.utc) < end_date
+    
     return {
         "name": GAME_CONFIG["name"],
         "end_date": GAME_CONFIG["end_date"],
-        "active": datetime.now(timezone.utc).isoformat() < GAME_CONFIG["end_date"],
+        "active": is_active,
         "jerseys_remaining": max(0, GAME_CONFIG["max_jerseys"] - jerseys_won),
         "total_jerseys": GAME_CONFIG["max_jerseys"],
         "total_spins": total_spins,
