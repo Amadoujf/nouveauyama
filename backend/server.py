@@ -2110,6 +2110,130 @@ async def verify_paytech_payment(order_id: str):
 
 # ============== ADMIN ROUTES ==============
 
+@api_router.get("/admin/analytics")
+async def get_analytics(
+    period: str = "month",  # day, week, month, year
+    user: User = Depends(require_admin)
+):
+    """Get comprehensive analytics data"""
+    now = datetime.now(timezone.utc)
+    
+    # Define period start
+    if period == "day":
+        period_start = now - timedelta(days=1)
+    elif period == "week":
+        period_start = now - timedelta(weeks=1)
+    elif period == "month":
+        period_start = now - timedelta(days=30)
+    else:  # year
+        period_start = now - timedelta(days=365)
+    
+    period_start_str = period_start.isoformat()
+    
+    # Get orders in period
+    orders_in_period = await db.orders.find({
+        "created_at": {"$gte": period_start_str}
+    }, {"_id": 0}).to_list(10000)
+    
+    # Calculate metrics
+    total_orders = len(orders_in_period)
+    total_revenue = sum(o.get("total", 0) for o in orders_in_period)
+    paid_orders = [o for o in orders_in_period if o.get("payment_status") == "paid"]
+    paid_revenue = sum(o.get("total", 0) for o in paid_orders)
+    
+    # Orders by status
+    status_counts = {}
+    for order in orders_in_period:
+        status = order.get("order_status", "unknown")
+        status_counts[status] = status_counts.get(status, 0) + 1
+    
+    # Orders by day (for chart)
+    daily_data = {}
+    for order in orders_in_period:
+        date_str = order.get("created_at", "")[:10]  # YYYY-MM-DD
+        if date_str:
+            if date_str not in daily_data:
+                daily_data[date_str] = {"orders": 0, "revenue": 0}
+            daily_data[date_str]["orders"] += 1
+            daily_data[date_str]["revenue"] += order.get("total", 0)
+    
+    # Sort daily data
+    daily_chart = [
+        {"date": date, "orders": data["orders"], "revenue": data["revenue"]}
+        for date, data in sorted(daily_data.items())
+    ]
+    
+    # Top products
+    product_sales = {}
+    for order in orders_in_period:
+        for item in order.get("items", []):
+            pid = item.get("product_id", item.get("name", "unknown"))
+            if pid not in product_sales:
+                product_sales[pid] = {
+                    "product_id": pid,
+                    "name": item.get("name", "Produit"),
+                    "quantity": 0,
+                    "revenue": 0
+                }
+            product_sales[pid]["quantity"] += item.get("quantity", 1)
+            product_sales[pid]["revenue"] += item.get("price", 0) * item.get("quantity", 1)
+    
+    top_products = sorted(product_sales.values(), key=lambda x: x["revenue"], reverse=True)[:10]
+    
+    # Payment methods breakdown
+    payment_methods = {}
+    for order in orders_in_period:
+        method = order.get("payment_method", "unknown")
+        payment_methods[method] = payment_methods.get(method, 0) + 1
+    
+    # Get comparison with previous period
+    prev_period_start = period_start - (now - period_start)
+    prev_orders = await db.orders.find({
+        "created_at": {"$gte": prev_period_start.isoformat(), "$lt": period_start_str}
+    }, {"_id": 0, "total": 1}).to_list(10000)
+    prev_revenue = sum(o.get("total", 0) for o in prev_orders)
+    prev_order_count = len(prev_orders)
+    
+    # Calculate growth
+    revenue_growth = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue > 0 else 0
+    orders_growth = ((total_orders - prev_order_count) / prev_order_count * 100) if prev_order_count > 0 else 0
+    
+    # Customer stats
+    total_customers = await db.users.count_documents({})
+    newsletter_subs = await db.newsletter.count_documents({"active": True})
+    
+    # Low stock products
+    low_stock = await db.products.find(
+        {"stock": {"$lte": 5, "$gt": 0}},
+        {"_id": 0, "product_id": 1, "name": 1, "stock": 1}
+    ).to_list(20)
+    
+    out_of_stock = await db.products.count_documents({"stock": {"$lte": 0}})
+    
+    return {
+        "period": period,
+        "summary": {
+            "total_orders": total_orders,
+            "total_revenue": total_revenue,
+            "paid_revenue": paid_revenue,
+            "average_order_value": total_revenue // total_orders if total_orders > 0 else 0,
+            "revenue_growth": round(revenue_growth, 1),
+            "orders_growth": round(orders_growth, 1)
+        },
+        "orders_by_status": status_counts,
+        "payment_methods": payment_methods,
+        "daily_chart": daily_chart[-30:],  # Last 30 days
+        "top_products": top_products,
+        "customers": {
+            "total": total_customers,
+            "newsletter_subscribers": newsletter_subs
+        },
+        "inventory": {
+            "low_stock_products": low_stock,
+            "out_of_stock_count": out_of_stock
+        }
+    }
+
 @api_router.get("/admin/orders")
 async def get_all_orders(
     status: Optional[str] = None,
