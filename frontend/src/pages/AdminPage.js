@@ -22,6 +22,9 @@ import {
   Download,
   Zap,
   Mail,
+  Upload,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
