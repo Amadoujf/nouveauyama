@@ -1738,6 +1738,13 @@ async def initiate_paytech_payment(payment: PaymentRequest):
     if not order:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     
+    # Get total amount - ensure it's the correct value
+    total_amount = order.get('total', 0)
+    logging.info(f"PayTech payment for order {payment.order_id}: total={total_amount} FCFA")
+    
+    if total_amount <= 0:
+        raise HTTPException(status_code=400, detail="Montant de commande invalide")
+    
     # Prepare item names
     items = order.get('items', order.get('products', []))
     item_names = ", ".join([item.get('name', 'Produit')[:30] for item in items[:3]])
@@ -1745,26 +1752,27 @@ async def initiate_paytech_payment(payment: PaymentRequest):
         item_names += f" +{len(items) - 3} autres"
     
     # Build IPN URL (webhook for payment confirmation)
-    # In production, this should be your actual domain
     frontend_url = os.environ.get('FRONTEND_URL', payment.success_url.rsplit('/', 1)[0])
     ipn_url = f"{frontend_url}/api/payments/paytech/ipn"
     
     # Prepare PayTech request data
     paytech_data = {
         "item_name": item_names or "Commande YAMA+",
-        "item_price": str(int(order.get('total', 0))),
+        "item_price": str(int(total_amount)),
         "currency": "XOF",
         "ref_command": f"{payment.order_id}_{int(datetime.now().timestamp())}",
-        "command_name": f"Paiement de {order.get('total', 0):,.0f} FCFA - YAMA+".replace(',', ' '),
+        "command_name": f"Commande YAMA+ - {total_amount:,.0f} FCFA".replace(',', ' '),
         "env": env,
         "success_url": payment.success_url,
         "cancel_url": payment.cancel_url,
         "ipn_url": ipn_url,
         "custom_field": json.dumps({
             "order_id": payment.order_id,
-            "amount": order.get('total', 0)
+            "amount": total_amount
         })
     }
+    
+    logging.info(f"PayTech request data: item_price={paytech_data['item_price']}, env={env}")
     
     # Make request to PayTech
     async with httpx.AsyncClient() as client:
