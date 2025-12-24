@@ -932,6 +932,11 @@ export default function AdminPage() {
           {currentPage === "email" && (
             <EmailCampaignsPage />
           )}
+
+          {/* Flash Sales Admin Page */}
+          {currentPage === "flash-sales" && (
+            <FlashSalesAdminPage />
+          )}
         </div>
       </main>
     </div>
