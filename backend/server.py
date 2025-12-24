@@ -1066,6 +1066,369 @@ async def get_jersey_winners():
     
     return winners
 
+# ============== EMAIL CAMPAIGN ROUTES ==============
+
+def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
+    """Generate a beautiful HTML email template"""
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f7;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f7; padding: 40px 20px;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <!-- Header -->
+                        <tr>
+                            <td style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%); padding: 30px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">{title}</h1>
+                                <p style="color: #888888; margin: 8px 0 0 0; font-size: 14px;">Votre boutique premium au Sénégal</p>
+                            </td>
+                        </tr>
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 40px 30px;">
+                                {content}
+                            </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr>
+                            <td style="background-color: #f8f8f8; padding: 25px 30px; text-align: center; border-top: 1px solid #eee;">
+                                <p style="color: #666666; font-size: 12px; margin: 0;">
+                                    © 2025 GROUPE YAMA+ - Tous droits réservés
+                                </p>
+                                <p style="color: #999999; font-size: 11px; margin: 10px 0 0 0;">
+                                    Dakar, Sénégal | WhatsApp: +221 77 000 00 00
+                                </p>
+                                <p style="margin: 15px 0 0 0;">
+                                    <a href="https://groupeyamaplus.com" style="color: #007AFF; text-decoration: none; font-size: 12px;">Visiter notre site</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+
+async def send_email_async(to: str, subject: str, html: str) -> dict:
+    """Send email using Resend API asynchronously"""
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [to],
+            "subject": subject,
+            "html": html
+        }
+        result = await asyncio.to_thread(resend.Emails.send, params)
+        return {"success": True, "email_id": result.get("id")}
+    except Exception as e:
+        logging.error(f"Failed to send email to {to}: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@api_router.post("/admin/email/send")
+async def send_single_email(data: SingleEmailRequest, user: User = Depends(require_admin)):
+    """Send a single email"""
+    html = get_email_template(data.html_content)
+    result = await send_email_async(data.to, data.subject, html)
+    
+    if not result["success"]:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return {"message": "Email envoyé", "email_id": result["email_id"]}
+
+@api_router.get("/admin/campaigns")
+async def get_campaigns(user: User = Depends(require_admin)):
+    """Get all email campaigns"""
+    campaigns = await db.campaigns.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return campaigns
+
+@api_router.post("/admin/campaigns")
+async def create_campaign(data: CampaignCreate, user: User = Depends(require_admin)):
+    """Create a new email campaign"""
+    campaign_doc = {
+        "campaign_id": f"CAMP-{uuid.uuid4().hex[:8].upper()}",
+        "name": data.name,
+        "subject": data.subject,
+        "content": data.content,
+        "status": "draft",
+        "target_audience": data.target_audience,
+        "scheduled_at": data.scheduled_at,
+        "sent_at": None,
+        "total_recipients": 0,
+        "sent_count": 0,
+        "open_count": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.campaigns.insert_one(campaign_doc)
+    del campaign_doc["_id"]
+    
+    return campaign_doc
+
+@api_router.get("/admin/campaigns/{campaign_id}")
+async def get_campaign(campaign_id: str, user: User = Depends(require_admin)):
+    """Get a specific campaign"""
+    campaign = await db.campaigns.find_one({"campaign_id": campaign_id}, {"_id": 0})
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campagne non trouvée")
+    return campaign
+
+@api_router.put("/admin/campaigns/{campaign_id}")
+async def update_campaign(campaign_id: str, data: CampaignCreate, user: User = Depends(require_admin)):
+    """Update a campaign"""
+    result = await db.campaigns.update_one(
+        {"campaign_id": campaign_id, "status": "draft"},
+        {"$set": {
+            "name": data.name,
+            "subject": data.subject,
+            "content": data.content,
+            "target_audience": data.target_audience,
+            "scheduled_at": data.scheduled_at
+        }}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Campagne non trouvée ou déjà envoyée")
+    
+    return {"message": "Campagne mise à jour"}
+
+@api_router.delete("/admin/campaigns/{campaign_id}")
+async def delete_campaign(campaign_id: str, user: User = Depends(require_admin)):
+    """Delete a campaign"""
+    result = await db.campaigns.delete_one({"campaign_id": campaign_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Campagne non trouvée")
+    return {"message": "Campagne supprimée"}
+
+@api_router.post("/admin/campaigns/{campaign_id}/send")
+async def send_campaign(campaign_id: str, user: User = Depends(require_admin)):
+    """Send a campaign to all subscribers"""
+    campaign = await db.campaigns.find_one({"campaign_id": campaign_id}, {"_id": 0})
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campagne non trouvée")
+    
+    if campaign["status"] == "sent":
+        raise HTTPException(status_code=400, detail="Cette campagne a déjà été envoyée")
+    
+    # Get recipients based on target audience
+    if campaign["target_audience"] == "newsletter":
+        recipients = await db.newsletter.find({"active": True}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+    elif campaign["target_audience"] == "customers":
+        recipients = await db.users.find({}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+    else:  # all
+        newsletter_subs = await db.newsletter.find({"active": True}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+        users = await db.users.find({}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+        
+        # Merge and dedupe by email
+        email_map = {}
+        for r in newsletter_subs + users:
+            email_map[r["email"]] = r
+        recipients = list(email_map.values())
+    
+    if not recipients:
+        raise HTTPException(status_code=400, detail="Aucun destinataire trouvé")
+    
+    # Update campaign status
+    await db.campaigns.update_one(
+        {"campaign_id": campaign_id},
+        {"$set": {
+            "status": "sending",
+            "total_recipients": len(recipients),
+            "sent_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Send emails
+    html_template = get_email_template(campaign["content"])
+    sent_count = 0
+    errors = []
+    
+    for recipient in recipients:
+        result = await send_email_async(recipient["email"], campaign["subject"], html_template)
+        if result["success"]:
+            sent_count += 1
+        else:
+            errors.append({"email": recipient["email"], "error": result["error"]})
+        
+        # Small delay to avoid rate limiting
+        await asyncio.sleep(0.1)
+    
+    # Update final status
+    await db.campaigns.update_one(
+        {"campaign_id": campaign_id},
+        {"$set": {
+            "status": "sent",
+            "sent_count": sent_count
+        }}
+    )
+    
+    return {
+        "message": f"Campagne envoyée à {sent_count}/{len(recipients)} destinataires",
+        "sent_count": sent_count,
+        "total_recipients": len(recipients),
+        "errors": errors[:10] if errors else []  # Return first 10 errors
+    }
+
+@api_router.post("/admin/campaigns/{campaign_id}/test")
+async def send_test_email(campaign_id: str, request: Request, user: User = Depends(require_admin)):
+    """Send a test email to admin"""
+    body = await request.json()
+    test_email = body.get("email", user.email)
+    
+    campaign = await db.campaigns.find_one({"campaign_id": campaign_id}, {"_id": 0})
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campagne non trouvée")
+    
+    html = get_email_template(campaign["content"])
+    result = await send_email_async(test_email, f"[TEST] {campaign['subject']}", html)
+    
+    if not result["success"]:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return {"message": f"Email test envoyé à {test_email}"}
+
+@api_router.get("/admin/email/stats")
+async def get_email_stats(user: User = Depends(require_admin)):
+    """Get email statistics"""
+    total_campaigns = await db.campaigns.count_documents({})
+    sent_campaigns = await db.campaigns.count_documents({"status": "sent"})
+    
+    pipeline = [
+        {"$match": {"status": "sent"}},
+        {"$group": {
+            "_id": None,
+            "total_sent": {"$sum": "$sent_count"},
+            "total_recipients": {"$sum": "$total_recipients"}
+        }}
+    ]
+    
+    stats = await db.campaigns.aggregate(pipeline).to_list(1)
+    
+    newsletter_count = await db.newsletter.count_documents({"active": True})
+    user_count = await db.users.count_documents({})
+    
+    return {
+        "total_campaigns": total_campaigns,
+        "sent_campaigns": sent_campaigns,
+        "total_emails_sent": stats[0]["total_sent"] if stats else 0,
+        "newsletter_subscribers": newsletter_count,
+        "registered_users": user_count
+    }
+
+# Email templates for automatic emails
+async def send_welcome_email(email: str, name: str = ""):
+    """Send welcome email to new subscriber"""
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Bienvenue chez YAMA+ ! 🎉</h2>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
+        Bonjour{' ' + name if name else ''}, 
+    </p>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
+        Merci de rejoindre la famille YAMA+ ! Vous recevrez désormais nos meilleures offres et nouveautés en avant-première.
+    </p>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 25px 0;">
+        En cadeau de bienvenue, profitez de <strong style="color: #00A651;">10% de réduction</strong> sur votre première commande !
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+            <td style="background-color: #1a1a1a; padding: 15px 30px; border-radius: 8px;">
+                <a href="https://groupeyamaplus.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                    Découvrir nos produits →
+                </a>
+            </td>
+        </tr>
+    </table>
+    """
+    html = get_email_template(content)
+    await send_email_async(email, "Bienvenue chez GROUPE YAMA+ ! 🎉", html)
+
+async def send_order_confirmation_email(email: str, order: dict):
+    """Send order confirmation email"""
+    items_html = ""
+    for item in order.get("items", []):
+        items_html += f"""
+        <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                {item.get('name', 'Produit')} × {item.get('quantity', 1)}
+            </td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">
+                {item.get('price', 0):,} FCFA
+            </td>
+        </tr>
+        """
+    
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Commande confirmée ! ✅</h2>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
+        Merci pour votre commande <strong>#{order.get('order_id', '')}</strong>
+    </p>
+    <p style="color: #666; margin: 0 0 25px 0;">
+        Nous préparons votre colis avec soin. Vous recevrez un email quand il sera expédié.
+    </p>
+    
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px;">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #1a1a1a;">Article</th>
+                <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #1a1a1a;">Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+            {items_html}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td style="padding: 15px 0; font-weight: bold;">Total</td>
+                <td style="padding: 15px 0; text-align: right; font-weight: bold; font-size: 18px;">
+                    {order.get('total', 0):,} FCFA
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+            <td style="background-color: #1a1a1a; padding: 15px 30px; border-radius: 8px;">
+                <a href="https://groupeyamaplus.com/order/{order.get('order_id', '')}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                    Suivre ma commande →
+                </a>
+            </td>
+        </tr>
+    </table>
+    """
+    html = get_email_template(content)
+    await send_email_async(email, f"Commande #{order.get('order_id', '')} confirmée ✅", html)
+
+async def send_shipping_email(email: str, order_id: str, tracking_info: str = ""):
+    """Send shipping notification email"""
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Votre colis est en route ! 🚚</h2>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
+        Bonne nouvelle ! Votre commande <strong>#{order_id}</strong> a été expédiée.
+    </p>
+    <p style="color: #666; margin: 0 0 25px 0;">
+        {tracking_info if tracking_info else "Vous recevrez votre colis dans les prochains jours."}
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+            <td style="background-color: #00A651; padding: 15px 30px; border-radius: 8px;">
+                <a href="https://groupeyamaplus.com/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                    Suivre mon colis →
+                </a>
+            </td>
+        </tr>
+    </table>
+    """
+    html = get_email_template(content)
+    await send_email_async(email, f"Votre commande #{order_id} est en route ! 🚚", html)
+
 # ============== CART ROUTES ==============
 
 @api_router.get("/cart")
