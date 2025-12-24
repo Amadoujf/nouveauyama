@@ -41,7 +41,7 @@ const menuItems = [
 ];
 
 export default function AdminPage() {
-  const { user, logout, isAdmin, isAuthenticated } = useAuth();
+  const { user, token, logout, isAdmin, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null); // For edit mode
   const [productFormLoading, setProductFormLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [productForm, setProductForm] = useState({
     name: "",
     description: "",
@@ -65,7 +66,7 @@ export default function AdminPage() {
     original_price: "",
     category: "electronique",
     subcategory: "",
-    images: "",
+    images: [],
     stock: "",
     featured: false,
     is_new: false,
