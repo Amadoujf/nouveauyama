@@ -38,7 +38,7 @@ export default function GameFloatingButton() {
           setIsGameOpen(true);
           setShowPulse(false);
         }}
-        className="fixed bottom-24 right-6 z-40 w-16 h-16 bg-green-600 hover:bg-green-700 rounded-full shadow-lg flex items-center justify-center text-white transition-colors"
+        className="fixed bottom-24 right-6 z-[80] w-16 h-16 bg-green-600 hover:bg-green-700 rounded-full shadow-lg flex items-center justify-center text-white transition-colors"
         aria-label="Jouer pour gagner"
       >
         {showPulse && (
