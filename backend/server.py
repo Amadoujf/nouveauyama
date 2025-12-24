@@ -1586,6 +1586,60 @@ async def send_shipping_email(email: str, order_id: str, tracking_info: str = ""
     html = get_email_template(content)
     await send_email_async(email, f"Votre commande #{order_id} est en route ! 🚚", html)
 
+# ============== DELIVERY ZONES ROUTES ==============
+
+@api_router.get("/delivery/zones")
+async def get_delivery_zones():
+    """Get all delivery zones with prices"""
+    zones = []
+    for zone_id, zone_data in DELIVERY_ZONES.items():
+        zones.append({
+            "id": zone_id,
+            "label": zone_data["label"],
+            "price": zone_data["price"],
+            "areas": zone_data["areas"][:10] if zone_data["areas"] else [],  # Sample areas
+            "is_range": zone_data.get("range") is not None
+        })
+    return {
+        "store_address": STORE_ADDRESS,
+        "zones": zones
+    }
+
+@api_router.post("/delivery/calculate")
+async def calculate_delivery(request: Request):
+    """Calculate shipping cost based on address"""
+    body = await request.json()
+    city = body.get("city", "")
+    address = body.get("address", "")
+    region = body.get("region", "")
+    
+    # If region is not Dakar, it's autre région
+    if region and region.lower() not in ["dakar", "région de dakar", "region de dakar"]:
+        return {
+            "zone": "autre_region",
+            "zone_label": "Autre Région",
+            "shipping_cost": 3500,
+            "message": "Livraison Autre Région: 3 500 FCFA"
+        }
+    
+    result = calculate_shipping_cost(city, address)
+    return result
+
+@api_router.get("/delivery/calculate")
+async def calculate_delivery_get(city: str = "", address: str = "", region: str = ""):
+    """Calculate shipping cost based on address (GET version)"""
+    # If region is not Dakar, it's autre région
+    if region and region.lower() not in ["dakar", "région de dakar", "region de dakar"]:
+        return {
+            "zone": "autre_region",
+            "zone_label": "Autre Région",
+            "shipping_cost": 3500,
+            "message": "Livraison Autre Région: 3 500 FCFA"
+        }
+    
+    result = calculate_shipping_cost(city, address)
+    return result
+
 # ============== CART ROUTES ==============
 
 @api_router.get("/cart")
