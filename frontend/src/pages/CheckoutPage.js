@@ -14,6 +14,8 @@ import {
   Loader2,
   FileText,
   Download,
+  MapPin,
+  Info,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -27,6 +29,23 @@ import { cn } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221770000000";
+const STORE_ADDRESS = "Fass Paillote, Dakar";
+
+// Dakar neighborhoods for autocomplete
+const DAKAR_NEIGHBORHOODS = [
+  // Zone 1500
+  "Dakar Centre", "Médina", "Fass", "Fass Paillote", "Colobane", "Point E", "Fann", "Keur Gorgui", "HLM",
+  // Zone 2000
+  "Castor", "Liberté 6", "SICAP", "Dieuppeul", "Mermoz", "Grand Dakar", "Niarry Tally", "Foire", "Mariste", "Ouakam", "Sacré-Cœur", "Grand Yoff",
+  // Zone 2500
+  "Parcelles Assainies", "Fadia", "Ngor", "Almadies", "Pikine", "Yarakh", "Golf Sud",
+  // Zone 3000
+  "Guédiawaye", "Thiaroye", "Diamaguène", "Fass Mbao", "SICAP Mbao", "Keur Mbaye Fall",
+  // Zone 4000
+  "Rufisque", "Bargny", "Diamniadio", "Sébikotane", "Lac Rose", "Sangalkam",
+  // Zone 5000
+  "Keur Massar", "Zac Mbao", "Yeumbeul", "Malika"
+];
 
 const paymentMethods = [
   { 
