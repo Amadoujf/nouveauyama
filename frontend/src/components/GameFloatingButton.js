@@ -52,7 +52,7 @@ export default function GameFloatingButton() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        className="fixed bottom-[7.5rem] right-24 z-40 hidden md:block"
+        className="fixed bottom-[7.5rem] right-24 z-[80] hidden md:block"
       >
         <div className="bg-black dark:bg-white text-white dark:text-black text-xs font-medium px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
           🎁 Gagnez un maillot CAN !
