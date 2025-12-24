@@ -104,6 +104,18 @@ export default function CheckoutPage() {
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
   
+  // Shipping calculation state
+  const [shippingInfo, setShippingInfo] = useState({
+    cost: 2500,
+    zone: "zone_2500",
+    label: "Dakar",
+    message: "",
+    isRange: false
+  });
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
+  const [showNeighborhoods, setShowNeighborhoods] = useState(false);
+  const [filteredNeighborhoods, setFilteredNeighborhoods] = useState([]);
+  
   const [formData, setFormData] = useState({
     full_name: user?.name || "",
     phone: user?.phone || "",
@@ -126,7 +138,58 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  const shippingCost = formData.region === "Dakar" ? 2500 : 3500;
+  // Calculate shipping when city or region changes
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (!formData.city && !formData.address) return;
+      
+      setCalculatingShipping(true);
+      try {
+        const response = await axios.post(`${API_URL}/api/delivery/calculate`, {
+          city: formData.city,
+          address: formData.address,
+          region: formData.region
+        });
+        
+        setShippingInfo({
+          cost: response.data.shipping_cost,
+          zone: response.data.zone,
+          label: response.data.zone_label,
+          message: response.data.message,
+          isRange: response.data.is_range || false
+        });
+      } catch (error) {
+        console.error("Error calculating shipping:", error);
+      } finally {
+        setCalculatingShipping(false);
+      }
+    };
+
+    const timeoutId = setTimeout(calculateShipping, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.city, formData.address, formData.region]);
+
+  // Filter neighborhoods for autocomplete
+  const handleCityChange = (value) => {
+    setFormData({ ...formData, city: value });
+    
+    if (value.length > 1 && formData.region === "Dakar") {
+      const filtered = DAKAR_NEIGHBORHOODS.filter(n => 
+        n.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredNeighborhoods(filtered);
+      setShowNeighborhoods(filtered.length > 0);
+    } else {
+      setShowNeighborhoods(false);
+    }
+  };
+
+  const selectNeighborhood = (neighborhood) => {
+    setFormData({ ...formData, city: neighborhood });
+    setShowNeighborhoods(false);
+  };
+
+  const shippingCost = shippingInfo.cost;
   const subtotal = cart.total;
   const discount = appliedPromo ? Math.round(subtotal * (appliedPromo.discount_percent / 100)) : 0;
   const total = subtotal - discount + shippingCost;
