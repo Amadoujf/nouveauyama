@@ -301,7 +301,7 @@ export default function EmailCampaignsPage({ onBack }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Objet de l'email</label>
+              <label className="block text-sm font-medium mb-2">Objet de l&apos;email</label>
               <input
                 type="text"
                 value={formData.subject}
