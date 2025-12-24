@@ -108,6 +108,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
+    token,
     loading,
     isAuthenticated: !!user,
     isAdmin,
