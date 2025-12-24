@@ -2168,6 +2168,14 @@ async def update_order_status(
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     
+    # Send shipping notification email if status changed to shipped
+    if order_status == "shipped":
+        order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+        if order:
+            shipping_email = order.get("shipping", {}).get("email")
+            if shipping_email:
+                asyncio.create_task(send_shipping_email(shipping_email, order_id, note))
+    
     return {"message": "Statut mis à jour"}
 
 # ============== INVOICE GENERATION ==============
