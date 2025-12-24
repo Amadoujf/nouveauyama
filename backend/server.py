@@ -8,6 +8,7 @@ import logging
 import io
 import json
 import hashlib
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
@@ -16,6 +17,7 @@ from datetime import datetime, timezone, timedelta
 import httpx
 import bcrypt
 import jwt
+import resend
 
 # PDF Generation
 from reportlab.lib.pagesizes import A4
@@ -26,6 +28,10 @@ from reportlab.lib.units import cm, mm
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Resend configuration
+resend.api_key = os.environ.get("RESEND_API_KEY")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
