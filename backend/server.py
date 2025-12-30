@@ -2034,6 +2034,9 @@ async def create_order(order_data: OrderCreate, request: Request):
     if shipping_email:
         asyncio.create_task(send_order_confirmation_email(shipping_email, order_doc))
     
+    # Send notification to admin
+    asyncio.create_task(send_admin_order_notification(order_doc))
+    
     order_doc["created_at"] = now
     return order_doc
 
