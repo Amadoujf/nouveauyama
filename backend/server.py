@@ -1024,6 +1024,39 @@ async def get_similar_products(product_id: str, limit: int = 6):
     
     return similar
 
+@api_router.get("/products/{product_id}/frequently-bought")
+async def get_frequently_bought(product_id: str):
+    """Get products frequently bought together - based on same category and price range"""
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        return []
+    
+    # Find complementary products in same category or related categories
+    category = product.get("category", "")
+    price = product.get("price", 0)
+    
+    # Products in similar price range (±50%)
+    min_price = int(price * 0.3)
+    max_price = int(price * 1.5)
+    
+    # Find products that complement this one
+    bundles = await db.products.find({
+        "product_id": {"$ne": product_id},
+        "category": category,
+        "price": {"$gte": min_price, "$lte": max_price},
+        "stock": {"$gt": 0}
+    }, {"_id": 0}).limit(3).to_list(3)
+    
+    # If not enough, get from other categories
+    if len(bundles) < 2:
+        more = await db.products.find({
+            "product_id": {"$ne": product_id, "$nin": [p["product_id"] for p in bundles]},
+            "stock": {"$gt": 0}
+        }, {"_id": 0}).limit(3 - len(bundles)).to_list(3)
+        bundles.extend(more)
+    
+    return bundles[:3]
+
 # ============== REVIEWS ROUTES ==============
 
 @api_router.get("/products/{product_id}/reviews")
