@@ -32,6 +32,7 @@ import {
 } from "../components/ui/accordion";
 import ProductReviews from "../components/ProductReviews";
 import SimilarProducts from "../components/SimilarProducts";
+import SEO from "../components/SEO";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221770000000";
