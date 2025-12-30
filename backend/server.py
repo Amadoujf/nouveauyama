@@ -174,7 +174,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    """Rate limiting middleware to prevent abuse"""
+    """Rate limiting middleware to prevent abuse with memory management"""
     async def dispatch(self, request: Request, call_next):
         # Skip rate limiting for static files
         if not request.url.path.startswith("/api/"):
@@ -187,6 +187,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             client_ip = forwarded_for.split(",")[0].strip()
         
         current_time = time.time()
+        
+        # Clean up old entries to prevent memory bloat
+        if len(rate_limit_storage) > MAX_RATE_LIMIT_ENTRIES:
+            expired_keys = [
+                key for key, data in rate_limit_storage.items()
+                if current_time > data["reset_time"]
+            ]
+            for key in expired_keys[:100]:  # Remove up to 100 expired entries
+                del rate_limit_storage[key]
+        
         client_data = rate_limit_storage[client_ip]
         
         # Reset counter if window has passed
