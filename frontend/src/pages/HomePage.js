@@ -200,6 +200,9 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* Trust Banner */}
+      <TrustBanner />
+
       {/* Flash Sales Section */}
       <FlashSalesSection />
 
