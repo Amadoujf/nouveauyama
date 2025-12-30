@@ -76,6 +76,7 @@ function AppRouter() {
 
       {/* Admin */}
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin/analytics" element={<AdminPage />} />
       <Route path="/admin/products" element={<AdminPage />} />
       <Route path="/admin/orders" element={<AdminPage />} />
       <Route path="/admin/users" element={<AdminPage />} />
