@@ -528,6 +528,254 @@ async def require_admin(request: Request) -> User:
         raise HTTPException(status_code=403, detail="Accès administrateur requis")
     return user
 
+# ============== MAILERLITE SERVICE ==============
+
+class MailerLiteService:
+    """Service for interacting with MailerLite API for abandoned cart automation"""
+    
+    def __init__(self):
+        self.api_key = MAILERLITE_API_KEY
+        self.base_url = MAILERLITE_API_URL
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+        self.abandoned_cart_group_id = None  # Will be set when group is created/found
+    
+    async def _make_request(self, method: str, endpoint: str, data: dict = None) -> dict:
+        """Make an async request to MailerLite API"""
+        url = f"{self.base_url}/{endpoint}"
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.request(
+                    method,
+                    url,
+                    json=data,
+                    headers=self.headers,
+                    timeout=aiohttp.ClientTimeout(total=30)
+                ) as response:
+                    response_text = await response.text()
+                    
+                    if response.status in [200, 201]:
+                        return {"success": True, "data": json.loads(response_text) if response_text else {}}
+                    elif response.status == 429:
+                        logger.warning("MailerLite rate limit reached")
+                        return {"success": False, "error": "Rate limit exceeded", "status": 429}
+                    else:
+                        logger.error(f"MailerLite API error: {response.status} - {response_text}")
+                        return {"success": False, "error": response_text, "status": response.status}
+        except asyncio.TimeoutError:
+            logger.error("MailerLite API timeout")
+            return {"success": False, "error": "Request timeout"}
+        except Exception as e:
+            logger.error(f"MailerLite API exception: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    async def get_or_create_abandoned_cart_group(self) -> str:
+        """Get or create the abandoned cart group in MailerLite"""
+        if self.abandoned_cart_group_id:
+            return self.abandoned_cart_group_id
+        
+        # List existing groups
+        result = await self._make_request("GET", "groups?filter[name]=Panier%20Abandonne")
+        
+        if result["success"] and result.get("data", {}).get("data"):
+            groups = result["data"]["data"]
+            if groups:
+                self.abandoned_cart_group_id = groups[0]["id"]
+                return self.abandoned_cart_group_id
+        
+        # Create new group if not found
+        create_result = await self._make_request("POST", "groups", {
+            "name": "Panier Abandonne"
+        })
+        
+        if create_result["success"]:
+            self.abandoned_cart_group_id = create_result["data"]["data"]["id"]
+            return self.abandoned_cart_group_id
+        
+        raise Exception("Failed to get or create MailerLite group for abandoned carts")
+    
+    async def add_subscriber_to_abandoned_cart(
+        self,
+        email: str,
+        name: str = "",
+        cart_items: list = None,
+        cart_total: int = 0,
+        cart_url: str = ""
+    ) -> dict:
+        """Add a subscriber to the abandoned cart group with custom fields"""
+        
+        # Get or create the abandoned cart group
+        group_id = await self.get_or_create_abandoned_cart_group()
+        
+        # Format cart items for email
+        items_text = ""
+        if cart_items:
+            items_text = ", ".join([
+                f"{item.get('name', 'Produit')} x{item.get('quantity', 1)}"
+                for item in cart_items[:5]  # Limit to first 5 items
+            ])
+        
+        # Create or update subscriber with custom fields
+        subscriber_data = {
+            "email": email,
+            "fields": {
+                "name": name or "",
+                "company": STORE_NAME,  # Using company field for store name
+            },
+            "groups": [group_id],
+            "status": "active"
+        }
+        
+        result = await self._make_request("POST", "subscribers", subscriber_data)
+        
+        if result["success"]:
+            subscriber_id = result["data"]["data"]["id"]
+            
+            # Log the abandoned cart event
+            await db.abandoned_cart_emails.insert_one({
+                "email": email,
+                "subscriber_id": subscriber_id,
+                "cart_items": cart_items,
+                "cart_total": cart_total,
+                "sent_at": datetime.now(timezone.utc).isoformat(),
+                "status": "sent_to_mailerlite"
+            })
+            
+            logger.info(f"Added {email} to MailerLite abandoned cart group")
+            return {"success": True, "subscriber_id": subscriber_id}
+        
+        return result
+    
+    async def remove_from_abandoned_cart_group(self, email: str) -> dict:
+        """Remove subscriber from abandoned cart group (when they complete purchase)"""
+        if not self.abandoned_cart_group_id:
+            await self.get_or_create_abandoned_cart_group()
+        
+        # Get subscriber by email
+        result = await self._make_request("GET", f"subscribers/{email}")
+        
+        if result["success"]:
+            subscriber_id = result["data"]["data"]["id"]
+            # Remove from group
+            remove_result = await self._make_request(
+                "DELETE",
+                f"subscribers/{subscriber_id}/groups/{self.abandoned_cart_group_id}"
+            )
+            return remove_result
+        
+        return {"success": False, "error": "Subscriber not found"}
+
+# Initialize MailerLite service
+mailerlite_service = MailerLiteService()
+
+# ============== ABANDONED CART DETECTION ==============
+
+async def detect_and_process_abandoned_carts():
+    """Background task to detect abandoned carts and trigger MailerLite automation"""
+    try:
+        logger.info("Running abandoned cart detection...")
+        
+        # Calculate cutoff time (carts not updated in the last X hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=ABANDONED_CART_TIMEOUT_HOURS)
+        cutoff_iso = cutoff_time.isoformat()
+        
+        # Find carts that:
+        # 1. Have items
+        # 2. Haven't been updated in X hours
+        # 3. Belong to logged-in users (have user_id)
+        # 4. Haven't already been processed
+        abandoned_carts = await db.carts.find({
+            "user_id": {"$ne": None},
+            "items": {"$exists": True, "$ne": []},
+            "updated_at": {"$lt": cutoff_iso},
+            "abandoned_email_sent": {"$ne": True}
+        }, {"_id": 0}).to_list(100)
+        
+        processed_count = 0
+        
+        for cart in abandoned_carts:
+            user_id = cart.get("user_id")
+            if not user_id:
+                continue
+            
+            # Get user info
+            user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+            if not user or not user.get("email"):
+                continue
+            
+            email = user["email"]
+            name = user.get("name", "")
+            
+            # Check if we already sent an email to this user recently
+            recent_email = await db.abandoned_cart_emails.find_one({
+                "email": email,
+                "sent_at": {"$gt": (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()}
+            })
+            
+            if recent_email:
+                logger.info(f"Skipping {email} - already sent email in last 24h")
+                continue
+            
+            # Get cart items with product details
+            cart_items_with_details = []
+            cart_total = 0
+            
+            for item in cart.get("items", []):
+                product = await db.products.find_one(
+                    {"product_id": item["product_id"]},
+                    {"_id": 0, "name": 1, "price": 1, "images": 1}
+                )
+                if product:
+                    item_data = {
+                        "product_id": item["product_id"],
+                        "name": product.get("name", "Produit"),
+                        "quantity": item.get("quantity", 1),
+                        "price": product.get("price", 0),
+                        "image": product.get("images", [""])[0] if product.get("images") else ""
+                    }
+                    cart_items_with_details.append(item_data)
+                    cart_total += item_data["price"] * item_data["quantity"]
+            
+            if not cart_items_with_details:
+                continue
+            
+            # Add to MailerLite
+            result = await mailerlite_service.add_subscriber_to_abandoned_cart(
+                email=email,
+                name=name,
+                cart_items=cart_items_with_details,
+                cart_total=cart_total,
+                cart_url=f"https://groupeyamaplus.com/checkout"
+            )
+            
+            if result.get("success"):
+                # Mark cart as processed
+                await db.carts.update_one(
+                    {"cart_id": cart.get("cart_id")},
+                    {"$set": {"abandoned_email_sent": True, "abandoned_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                processed_count += 1
+                logger.info(f"Sent abandoned cart email for {email}")
+        
+        logger.info(f"Abandoned cart detection complete. Processed {processed_count} carts.")
+        
+        # Log stats
+        await db.abandoned_cart_stats.insert_one({
+            "run_at": datetime.now(timezone.utc).isoformat(),
+            "carts_checked": len(abandoned_carts),
+            "emails_sent": processed_count
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in abandoned cart detection: {str(e)}")
+
+# Initialize scheduler
+scheduler = AsyncIOScheduler()
+
 # ============== AUTH ROUTES ==============
 
 @api_router.post("/auth/register")
