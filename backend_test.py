@@ -796,19 +796,26 @@ class YAMAPhase3Tester:
 
     def run_all_tests(self):
         """Run all test suites"""
-        print("🚀 Starting YAMA+ Phase 3 Features Backend API Tests")
+        print("🚀 Starting YAMA+ MailerLite Abandoned Cart Integration Tests")
         print("=" * 60)
         
-        # Run tests in order
+        # Run essential tests first
         self.test_health_check()
+        self.test_auth_login()
+        self.test_auth_me()
+        
+        # Main focus: MailerLite Abandoned Cart Integration
+        print("\n📧 MAILERLITE ABANDONED CART INTEGRATION TESTING")
+        print("=" * 50)
+        self.test_mailerlite_abandoned_cart_integration()
+        
+        # Run other critical tests
         self.test_database_seeding()
         self.test_categories()
         self.test_products()
         self.test_flash_sales()
         self.test_similar_products()
         self.test_auth_registration()
-        self.test_auth_login()
-        self.test_auth_me()
         self.test_cart_operations()
         self.test_wishlist_operations()
         
