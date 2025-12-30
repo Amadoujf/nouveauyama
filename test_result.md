@@ -105,6 +105,18 @@
 user_problem_statement: "YAMA+ - Site e-commerce premium style Apple pour le Sénégal. Vente de produits électronique, électroménager, décoration, beauté. Fonctionnalités: Auth JWT/Google, Admin Panel, Panier, Wishlist, Reviews, Newsletter, Dark Mode, Paiements (Wave, Orange Money, CB, Cash)"
 
 backend:
+  - task: "Products API Backend Fix"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG: Products API endpoints returning 500 errors due to missing 'description' field in product model validation. Error: 'Field required' for description field. This affects /api/products?category=electronique, /api/products?featured=true, /api/products?is_promo=true, /api/products?is_new=true. All product-related functionality broken."
+
   - task: "User Authentication (JWT)"
     implemented: true
     working: true
