@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import GameFloatingButton from "./components/GameFloatingButton";
+import { CompareFloatingBar } from "./components/ProductComparison";
 
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
@@ -22,12 +23,15 @@ import NewProductsPage from "./pages/NewProductsPage";
 import PromotionsPage from "./pages/PromotionsPage";
 import SearchPage from "./pages/SearchPage";
 import WishlistPage from "./pages/WishlistPage";
+import SharedWishlistPage from "./pages/SharedWishlistPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import FAQPage from "./pages/FAQPage";
 import AccountPage from "./pages/AccountPage";
 import AdminPage from "./pages/AdminPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
+import ProductComparisonPage from "./components/ProductComparison";
+import LoyaltyPage from "./components/LoyaltyProgram";
 
 import "./App.css";
 
