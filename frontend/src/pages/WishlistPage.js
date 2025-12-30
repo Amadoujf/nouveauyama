@@ -1,15 +1,50 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { formatPrice } from "../lib/utils";
-import { Heart, ShoppingBag, Trash2 } from "lucide-react";
+import { Heart, ShoppingBag, Trash2, Share2, Copy, Check } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, loading } = useWishlist();
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
+  const [shareLink, setShareLink] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/wishlist/share`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const fullUrl = `${window.location.origin}${response.data.share_url}`;
+      setShareLink(fullUrl);
+      toast.success("Lien de partage créé !");
+    } catch (error) {
+      toast.error("Erreur lors de la création du lien");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const copyShareLink = () => {
+    if (shareLink) {
+      navigator.clipboard.writeText(shareLink);
+      setCopied(true);
+      toast.success("Lien copié !");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
