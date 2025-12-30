@@ -224,12 +224,9 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-white dark:bg-black"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setIsSearchOpen(false);
-            }}
+            className="fixed inset-0 z-[100] bg-white dark:bg-black overflow-auto"
           >
-            <div className="container-lumina py-6 h-full">
+            <div className="container-lumina py-6 min-h-full">
               <div className="flex items-center justify-between mb-8">
                 <span className="text-lg font-medium">Rechercher</span>
                 <button
@@ -244,11 +241,12 @@ export default function Navbar() {
                 <div className="flex items-center gap-4">
                   <Search className="w-8 h-8 text-muted-foreground flex-shrink-0" />
                   <input
+                    ref={(input) => input && input.focus()}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Que recherchez-vous ?"
-                    className="w-full text-2xl md:text-4xl lg:text-5xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/40 focus:ring-0"
+                    className="w-full text-2xl md:text-4xl lg:text-5xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/40 focus:ring-0 focus:outline-none"
                     autoFocus
                     data-testid="search-input"
                   />
