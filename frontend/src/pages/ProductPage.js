@@ -368,8 +368,13 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Similar Products Section */}
+        {/* Frequently Bought Together */}
         <div className="container-lumina">
+          <FrequentlyBoughtTogether productId={productId} currentProduct={product} />
+        </div>
+
+        {/* Similar Products Section */}
+        <div className="container-lumina mt-8">
           <SimilarProducts productId={productId} category={product?.category} />
         </div>
 
