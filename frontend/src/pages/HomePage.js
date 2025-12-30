@@ -111,6 +111,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen" data-testid="home-page">
+      <SEO 
+        title={null}
+        description="GROUPE YAMA+ - Votre boutique premium au Sénégal. Électronique, électroménager, décoration et beauté. Livraison rapide à Dakar. Paiement Wave, Orange Money, Free Money."
+        url="/"
+      />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-black">
         {/* Animated Background Images Carousel */}
