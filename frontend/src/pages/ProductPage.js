@@ -373,10 +373,39 @@ export default function ProductPage() {
         </div>
 
         {/* Reviews Section */}
-        <div className="container-lumina pb-16">
+        <div className="container-lumina pb-24 lg:pb-16">
           <ProductReviews productId={productId} />
         </div>
       </section>
+
+      {/* Mobile Sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white dark:bg-[#1C1C1E] border-t border-black/10 dark:border-white/10 p-4 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground line-clamp-1">{product.name}</p>
+            <p className="font-bold text-lg">{formatPrice(product.price)}</p>
+          </div>
+          <button
+            onClick={() => toggleWishlist(product.product_id)}
+            className={cn(
+              "p-3 rounded-xl border transition-colors flex-shrink-0",
+              inWishlist
+                ? "border-red-500 text-red-500"
+                : "border-black/10 dark:border-white/10"
+            )}
+          >
+            <Heart className={cn("w-5 h-5", inWishlist && "fill-current")} />
+          </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={cartLoading || product.stock === 0}
+            className="btn-primary flex-1 flex items-center justify-center gap-2"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            {product.stock === 0 ? "Rupture" : "Ajouter"}
+          </button>
+        </div>
+      </div>
     </main>
   );
 }
