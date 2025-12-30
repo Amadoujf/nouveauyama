@@ -233,6 +233,40 @@ function AppRouter() {
         }
       />
 
+      {/* Policy Pages */}
+      <Route
+        path="/livraison"
+        element={
+          <PublicLayout>
+            <DeliveryPolicyPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/retours"
+        element={
+          <PublicLayout>
+            <ReturnPolicyPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/cgv"
+        element={
+          <PublicLayout>
+            <TermsPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/confidentialite"
+        element={
+          <PublicLayout>
+            <PrivacyPolicyPage />
+          </PublicLayout>
+        }
+      />
+
       {/* 404 */}
       <Route
         path="*"
