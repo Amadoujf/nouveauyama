@@ -1023,6 +1023,11 @@ export default function AdminPage() {
           {currentPage === "flash-sales" && (
             <FlashSalesAdminPage />
           )}
+
+          {/* Analytics Dashboard */}
+          {currentPage === "analytics" && (
+            <AnalyticsDashboard />
+          )}
         </div>
       </main>
     </div>
