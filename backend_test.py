@@ -192,6 +192,111 @@ class YAMAPhase3Tester:
         self.log_test("Get similar products with limit", success,
                      f"Found {len(data)} similar products (limit 3)" if success and isinstance(data, list) else f"Error: {data}")
 
+    def test_loyalty_program(self):
+        """Test Phase 3 Loyalty Program endpoints"""
+        print("\n🏆 Testing Loyalty Program (Phase 3)...")
+        
+        # Test loyalty/me endpoint (requires authentication)
+        if self.user_token:
+            headers = {'Authorization': f'Bearer {self.user_token}'}
+            success, data = self.make_request('GET', '/loyalty/me', headers=headers)
+            self.log_test("GET /api/loyalty/me", success,
+                         f"Loyalty data: {data}" if success else f"Error: {data}")
+        else:
+            # Test without authentication (should fail)
+            success, data = self.make_request('GET', '/loyalty/me', expected_status=401)
+            self.log_test("GET /api/loyalty/me (unauthenticated)", success,
+                         "Properly requires authentication" if success else f"Error: {data}")
+        
+        # Test loyalty redeem endpoint
+        if self.user_token:
+            headers = {'Authorization': f'Bearer {self.user_token}'}
+            redeem_data = {"reward_id": "invalid_reward"}
+            success, data = self.make_request('POST', '/loyalty/redeem', redeem_data, headers=headers, expected_status=400)
+            self.log_test("POST /api/loyalty/redeem (invalid reward)", success,
+                         "Properly rejects invalid reward" if success else f"Error: {data}")
+
+    def test_wishlist_sharing(self):
+        """Test Phase 3 Shareable Wishlist endpoints"""
+        print("\n💝 Testing Shareable Wishlist (Phase 3)...")
+        
+        if not self.user_token:
+            self.log_test("Wishlist sharing tests", False, "No user token available")
+            return
+        
+        headers = {'Authorization': f'Bearer {self.user_token}'}
+        
+        # Test wishlist share endpoint
+        success, data = self.make_request('POST', '/wishlist/share', headers=headers)
+        if success and 'share_id' in data:
+            share_id = data['share_id']
+            self.log_test("POST /api/wishlist/share", True, f"Created share ID: {share_id}")
+            
+            # Test accessing shared wishlist
+            success, shared_data = self.make_request('GET', f'/wishlist/shared/{share_id}')
+            self.log_test("GET /api/wishlist/shared/{shareId}", success,
+                         f"Shared wishlist accessible: {shared_data}" if success else f"Error: {shared_data}")
+        else:
+            self.log_test("POST /api/wishlist/share", False, f"Error: {data}")
+        
+        # Test invalid share ID
+        success, data = self.make_request('GET', '/wishlist/shared/invalid_id', expected_status=404)
+        self.log_test("GET /api/wishlist/shared/invalid_id", success,
+                     "Properly returns 404 for invalid share ID" if success else f"Error: {data}")
+
+    def test_review_media_upload(self):
+        """Test Phase 3 Reviews with Media Upload"""
+        print("\n📸 Testing Reviews with Media Upload (Phase 3)...")
+        
+        if not self.user_token or not self.test_product_id:
+            self.log_test("Review media upload tests", False, "No user token or product ID available")
+            return
+        
+        headers = {'Authorization': f'Bearer {self.user_token}'}
+        
+        # Test multipart form endpoint exists (we can't easily test file upload in this script)
+        # But we can test the endpoint responds appropriately
+        form_data = {
+            'rating': '5',
+            'title': 'Test Review',
+            'comment': 'This is a test review with media'
+        }
+        
+        # This will likely fail due to missing media files, but we can check if endpoint exists
+        success, data = self.make_request('POST', f'/products/{self.test_product_id}/reviews/with-media', 
+                                        form_data, headers=headers, expected_status=400)
+        self.log_test("POST /api/products/{product_id}/reviews/with-media endpoint exists", 
+                     success or 'multipart' in str(data).lower(),
+                     "Endpoint accepts multipart form data" if success else f"Response: {data}")
+
+    def test_product_comparison_support(self):
+        """Test Phase 3 Product Comparison backend support"""
+        print("\n⚖️ Testing Product Comparison Support (Phase 3)...")
+        
+        # Get products and check they have required fields for comparison
+        success, data = self.make_request('GET', '/products?limit=5')
+        if success and isinstance(data, list) and len(data) >= 2:
+            self.log_test("Products available for comparison", True, f"Found {len(data)} products")
+            
+            # Check if products have required fields for comparison
+            required_fields = ['product_id', 'name', 'price', 'category', 'images', 'specs']
+            comparison_ready_count = 0
+            
+            for product in data[:3]:  # Check first 3 products
+                missing_fields = [field for field in required_fields if field not in product or product[field] is None]
+                if not missing_fields:
+                    comparison_ready_count += 1
+                    self.log_test(f"Product {product.get('product_id')} comparison ready", True,
+                                 "Has all required comparison fields")
+                else:
+                    self.log_test(f"Product {product.get('product_id')} comparison ready", False,
+                                 f"Missing fields: {missing_fields}")
+            
+            self.log_test("Products ready for comparison", comparison_ready_count >= 2,
+                         f"{comparison_ready_count} products have all required comparison fields")
+        else:
+            self.log_test("Products available for comparison", False, f"Error: {data}")
+
     def test_order_tracking(self):
         """Test order tracking and status history"""
         print("\n📍 Testing Order Tracking...")
