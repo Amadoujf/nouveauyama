@@ -275,13 +275,16 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/components/Navbar.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
       - working: false
         agent: "testing"
         comment: "BUG: Search icon opens modal but search input field not accessible"
+      - working: false
+        agent: "testing"
+        comment: "VERIFIED BUG: Search modal opens correctly when clicking search icon, but search input field inside modal is not accessible for typing. Modal displays 'Que recherchez-vous ?' placeholder and popular searches (iPhone, Samsung, Écouteurs, etc.) but input field cannot be focused or typed into."
 
   - task: "Category Pages"
     implemented: true
