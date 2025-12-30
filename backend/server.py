@@ -756,6 +756,9 @@ async def get_products(
     limit: int = 50,
     skip: int = 0
 ):
+    # Enforce maximum limit to prevent memory issues
+    limit = min(limit, 100)
+    
     query = {}
     
     if category:
@@ -772,7 +775,29 @@ async def get_products(
             {"description": {"$regex": search, "$options": "i"}}
         ]
     
-    products = await db.products.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
+    # Use projection to limit data transfer and memory usage
+    projection = {
+        "_id": 0,
+        "product_id": 1,
+        "name": 1,
+        "short_description": 1,
+        "price": 1,
+        "original_price": 1,
+        "category": 1,
+        "subcategory": 1,
+        "images": {"$slice": 2},  # Limit to first 2 images
+        "stock": 1,
+        "featured": 1,
+        "is_new": 1,
+        "is_promo": 1,
+        "is_flash_sale": 1,
+        "flash_sale_price": 1,
+        "flash_sale_end": 1,
+        "created_at": 1,
+        "updated_at": 1
+    }
+    
+    products = await db.products.find(query, projection).skip(skip).limit(limit).to_list(limit)
     
     for product in products:
         for field in ['created_at', 'updated_at']:
