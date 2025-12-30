@@ -2768,6 +2768,63 @@ async def get_categories():
         {"id": "beaute", "name": "Beauté & Bien-être", "icon": "Sparkles"}
     ]
 
+# ============== SEO - SITEMAP ==============
+
+@api_router.get("/sitemap.xml")
+async def get_sitemap():
+    """Generate dynamic sitemap.xml"""
+    base_url = "https://groupeyamaplus.com"
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    
+    # Static pages
+    static_pages = [
+        {"loc": "/", "priority": "1.0", "changefreq": "daily"},
+        {"loc": "/category/electronique", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/category/electromenager", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/category/decoration", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/category/beaute", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/nouveautes", "priority": "0.8", "changefreq": "daily"},
+        {"loc": "/promotions", "priority": "0.8", "changefreq": "daily"},
+        {"loc": "/a-propos", "priority": "0.5", "changefreq": "monthly"},
+        {"loc": "/contact", "priority": "0.5", "changefreq": "monthly"},
+        {"loc": "/aide", "priority": "0.5", "changefreq": "monthly"},
+    ]
+    
+    # Get all products
+    products = await db.products.find({}, {"product_id": 1, "updated_at": 1}).to_list(1000)
+    
+    # Build XML
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Add static pages
+    for page in static_pages:
+        xml_content += f'''  <url>
+    <loc>{base_url}{page["loc"]}</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>{page["changefreq"]}</changefreq>
+    <priority>{page["priority"]}</priority>
+  </url>\n'''
+    
+    # Add product pages
+    for product in products:
+        product_date = product.get("updated_at", now)
+        if isinstance(product_date, str):
+            product_date = product_date[:10]
+        else:
+            product_date = product_date.strftime("%Y-%m-%d") if hasattr(product_date, 'strftime') else now
+        
+        xml_content += f'''  <url>
+    <loc>{base_url}/product/{product["product_id"]}</loc>
+    <lastmod>{product_date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>\n'''
+    
+    xml_content += '</urlset>'
+    
+    return Response(content=xml_content, media_type="application/xml")
+
 # ============== SEED DATA ==============
 
 @api_router.post("/seed")
