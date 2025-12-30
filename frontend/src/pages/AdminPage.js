@@ -838,15 +838,26 @@ export default function AdminPage() {
             <>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className="text-2xl font-semibold">Commandes</h1>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Rechercher..."
-                    className="w-full h-10 pl-10 pr-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] outline-none"
-                  />
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`${API_URL}/api/admin/export/orders`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Exporter CSV
+                  </a>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Rechercher..."
+                      className="w-full h-10 pl-10 pr-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
