@@ -41,6 +41,11 @@ load_dotenv(ROOT_DIR / '.env')
 resend.api_key = os.environ.get("RESEND_API_KEY")
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
 
+# MailerLite Configuration
+MAILERLITE_API_KEY = os.environ.get("MAILERLITE_API_KEY")
+MAILERLITE_API_URL = "https://connect.mailerlite.com/api"
+ABANDONED_CART_TIMEOUT_HOURS = 1  # Send email after 1 hour of inactivity
+
 # MongoDB connection with optimized settings
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(
