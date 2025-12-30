@@ -33,6 +33,10 @@ import AdminPage from "./pages/AdminPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import ProductComparisonPage from "./components/ProductComparison";
 import LoyaltyPage from "./components/LoyaltyProgram";
+import DeliveryPolicyPage from "./pages/DeliveryPolicyPage";
+import ReturnPolicyPage from "./pages/ReturnPolicyPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 
 import "./App.css";
 
