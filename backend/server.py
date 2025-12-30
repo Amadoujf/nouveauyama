@@ -3560,7 +3560,21 @@ async def seed_database():
         }
     ]
     
-    await db.products.insert_many(products)
+    # Insert products in smaller batches to reduce memory pressure
+    batch_size = 5
+    total_products = len(products)
+    
+    for i in range(0, total_products, batch_size):
+        batch = products[i:i + batch_size]
+        await db.products.insert_many(batch)
+        # Clear batch from memory
+        del batch
+        # Small delay to prevent overwhelming the database
+        await asyncio.sleep(0.1)
+    
+    # Clear products list from memory
+    del products
+    gc.collect()
     
     # Create admin user
     admin_exists = await db.users.find_one({"email": "admin@lumina.sn"})
@@ -3577,7 +3591,29 @@ async def seed_database():
         }
         await db.users.insert_one(admin_doc)
     
-    return {"message": "Base de données initialisée", "products": len(products)}
+    # Set up flash sales for 4 products to reduce memory usage
+    flash_sale_end = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+    flash_sale_updates = [
+        {"product_id": "prod_iphone15pro", "flash_sale_price": 650000},
+        {"product_id": "prod_macbook_air", "flash_sale_price": 999000},
+        {"product_id": "prod_airpods_pro", "flash_sale_price": 149000},
+        {"product_id": "prod_samsung_tv", "flash_sale_price": 1299000}
+    ]
+    
+    for update in flash_sale_updates:
+        await db.products.update_one(
+            {"product_id": update["product_id"]},
+            {
+                "$set": {
+                    "is_flash_sale": True,
+                    "flash_sale_price": update["flash_sale_price"],
+                    "flash_sale_end": flash_sale_end,
+                    "updated_at": now
+                }
+            }
+        )
+    
+    return {"message": "Base de données initialisée", "products": total_products, "flash_sales": len(flash_sale_updates)}
 
 # ============== ROOT ==============
 
