@@ -570,6 +570,117 @@ class YAMAPhase3Tester:
         self.log_test("Submit contact form", success,
                      f"Message: {data.get('message', 'No message')}" if success else f"Error: {data}")
 
+    def test_mailerlite_abandoned_cart_integration(self):
+        """Test MailerLite Abandoned Cart Integration endpoints"""
+        print("\n📧 Testing MailerLite Abandoned Cart Integration...")
+        
+        if not self.admin_token:
+            self.log_test("MailerLite Abandoned Cart Integration", False, "No admin token available")
+            return
+        
+        headers = {'Authorization': f'Bearer {self.admin_token}'}
+        
+        # Test 1: GET /api/admin/abandoned-carts/stats - Get statistics
+        success, data = self.make_request('GET', '/admin/abandoned-carts/stats', headers=headers)
+        if success:
+            required_stats = ['abandoned_carts', 'total_emails_sent', 'emails_sent_today', 'automation_interval_hours', 'cart_timeout_hours']
+            missing_stats = [stat for stat in required_stats if stat not in data]
+            if not missing_stats:
+                self.log_test("GET /api/admin/abandoned-carts/stats", True, 
+                             f"Stats: {data.get('abandoned_carts', 0)} carts, {data.get('total_emails_sent', 0)} emails sent, interval: {data.get('automation_interval_hours', 0)}h")
+            else:
+                self.log_test("GET /api/admin/abandoned-carts/stats", False, 
+                             f"Missing required stats: {missing_stats}")
+        else:
+            self.log_test("GET /api/admin/abandoned-carts/stats", False, f"Error: {data}")
+        
+        # Test 2: GET /api/admin/abandoned-carts - List all abandoned carts
+        success, data = self.make_request('GET', '/admin/abandoned-carts', headers=headers)
+        if success:
+            if isinstance(data, list):
+                self.log_test("GET /api/admin/abandoned-carts", True, 
+                             f"Found {len(data)} abandoned carts")
+                
+                # Check structure of abandoned cart data if any exist
+                if data:
+                    cart = data[0]
+                    required_fields = ['cart_id', 'user_id', 'items', 'updated_at']
+                    missing_fields = [field for field in required_fields if field not in cart]
+                    if not missing_fields:
+                        self.log_test("Abandoned cart data structure", True, 
+                                     f"Cart has all required fields: {list(cart.keys())}")
+                    else:
+                        self.log_test("Abandoned cart data structure", False, 
+                                     f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("GET /api/admin/abandoned-carts", False, 
+                             f"Expected list, got: {type(data)}")
+        else:
+            self.log_test("GET /api/admin/abandoned-carts", False, f"Error: {data}")
+        
+        # Test 3: POST /api/admin/abandoned-carts/trigger - Manually trigger detection
+        success, data = self.make_request('POST', '/admin/abandoned-carts/trigger', headers=headers)
+        if success:
+            if 'message' in data:
+                self.log_test("POST /api/admin/abandoned-carts/trigger", True, 
+                             f"Trigger response: {data.get('message')}")
+            else:
+                self.log_test("POST /api/admin/abandoned-carts/trigger", False, 
+                             "No message in response")
+        else:
+            self.log_test("POST /api/admin/abandoned-carts/trigger", False, f"Error: {data}")
+        
+        # Test 4: GET /api/admin/abandoned-carts/emails - List sent emails
+        success, data = self.make_request('GET', '/admin/abandoned-carts/emails', headers=headers)
+        if success:
+            if isinstance(data, list):
+                self.log_test("GET /api/admin/abandoned-carts/emails", True, 
+                             f"Found {len(data)} sent emails")
+                
+                # Check structure of email data if any exist
+                if data:
+                    email = data[0]
+                    required_fields = ['email', 'subscriber_id', 'cart_items', 'sent_at']
+                    missing_fields = [field for field in required_fields if field not in email]
+                    if not missing_fields:
+                        self.log_test("Sent email data structure", True, 
+                                     f"Email has all required fields: {list(email.keys())}")
+                    else:
+                        self.log_test("Sent email data structure", False, 
+                                     f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("GET /api/admin/abandoned-carts/emails", False, 
+                             f"Expected list, got: {type(data)}")
+        else:
+            self.log_test("GET /api/admin/abandoned-carts/emails", False, f"Error: {data}")
+        
+        # Test 5: POST /api/admin/abandoned-carts/send/{cart_id} - Send email for specific cart
+        # First try with a non-existent cart ID to test error handling
+        success, data = self.make_request('POST', '/admin/abandoned-carts/send/nonexistent_cart', 
+                                        headers=headers, expected_status=404)
+        self.log_test("POST /api/admin/abandoned-carts/send/{cart_id} (non-existent)", success,
+                     "Properly returns 404 for non-existent cart" if success else f"Error: {data}")
+        
+        # Test authentication requirement for all endpoints
+        print("\n🔒 Testing Authentication Requirements...")
+        
+        # Test without authentication (should fail with 401)
+        endpoints_to_test = [
+            '/admin/abandoned-carts/stats',
+            '/admin/abandoned-carts',
+            '/admin/abandoned-carts/emails'
+        ]
+        
+        for endpoint in endpoints_to_test:
+            success, data = self.make_request('GET', endpoint, expected_status=401)
+            self.log_test(f"Authentication required for {endpoint}", success,
+                         "Properly requires authentication" if success else f"Error: {data}")
+        
+        # Test trigger endpoint without auth
+        success, data = self.make_request('POST', '/admin/abandoned-carts/trigger', expected_status=401)
+        self.log_test("Authentication required for trigger endpoint", success,
+                     "Properly requires authentication" if success else f"Error: {data}")
+
     def test_pdf_invoice_generation(self):
         """Test PDF invoice generation with YAMA+ logo"""
         print("\n📄 Testing PDF Invoice Generation...")
