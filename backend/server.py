@@ -38,9 +38,18 @@ load_dotenv(ROOT_DIR / '.env')
 resend.api_key = os.environ.get("RESEND_API_KEY")
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
 
-# MongoDB connection
+# MongoDB connection with optimized settings
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(
+    mongo_url,
+    maxPoolSize=10,  # Limit connection pool size
+    minPoolSize=1,
+    maxIdleTimeMS=30000,  # Close idle connections after 30s
+    serverSelectionTimeoutMS=5000,  # Faster timeout
+    socketTimeoutMS=20000,  # Socket timeout
+    connectTimeoutMS=10000,  # Connection timeout
+    retryWrites=True
+)
 db = client[os.environ['DB_NAME']]
 
 # JWT Configuration
