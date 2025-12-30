@@ -74,6 +74,17 @@ export default function ProductCard({ product, index = 0 }) {
           >
             <Heart className={cn("w-5 h-5", inWishlist && "fill-current")} />
           </button>
+          <button
+            onClick={handleCompareClick}
+            className={cn(
+              "p-2.5 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-lg transition-all hover:scale-110",
+              inCompare && "text-primary bg-primary/10"
+            )}
+            aria-label={inCompare ? "Retirer de la comparaison" : "Comparer"}
+            data-testid={`compare-btn-${product.product_id}`}
+          >
+            <Scale className="w-5 h-5" />
+          </button>
           <Link
             to={`/product/${product.product_id}`}
             className="p-2.5 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-lg transition-all hover:scale-110"
