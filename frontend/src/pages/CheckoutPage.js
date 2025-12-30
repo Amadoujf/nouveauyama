@@ -59,6 +59,13 @@ const paymentMethods = [
     logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
   },
   { 
+    id: "free_money", 
+    name: "Free Money", 
+    color: "bg-[#00A651]",
+    textColor: "text-white",
+    letter: "F"
+  },
+  { 
     id: "card", 
     name: "Carte bancaire", 
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png",
