@@ -149,10 +149,11 @@ api_router = APIRouter(prefix="/api")
 
 # ============== SECURITY MIDDLEWARE ==============
 
-# Rate limiting storage
+# Rate limiting storage with memory cleanup
 rate_limit_storage = defaultdict(lambda: {"count": 0, "reset_time": 0})
 RATE_LIMIT_REQUESTS = 100  # requests per window
 RATE_LIMIT_WINDOW = 60  # seconds
+MAX_RATE_LIMIT_ENTRIES = 1000  # Prevent memory bloat
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses"""
