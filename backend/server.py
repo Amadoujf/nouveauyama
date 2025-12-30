@@ -3795,7 +3795,31 @@ async def root():
 
 @api_router.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check with memory monitoring"""
+    import psutil
+    import gc
+    
+    # Force garbage collection
+    gc.collect()
+    
+    # Get memory usage
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    memory_mb = memory_info.rss / 1024 / 1024
+    
+    # Check database connection
+    try:
+        await db.command("ping")
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "memory_mb": round(memory_mb, 2),
+        "database": db_status,
+        "rate_limit_entries": len(rate_limit_storage)
+    }
 
 # Include router
 app.include_router(api_router)
