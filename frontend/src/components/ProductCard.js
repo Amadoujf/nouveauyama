@@ -1,17 +1,30 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Scale } from "lucide-react";
 import { formatPrice, calculateDiscount, truncateText } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
+import { useProductComparison } from "./ProductComparison";
 import { cn } from "../lib/utils";
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart, loading: cartLoading } = useCart();
   const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
+  const { addToCompare, removeFromCompare, isInCompare } = useProductComparison();
   
   const discount = calculateDiscount(product.original_price, product.price);
   const inWishlist = isInWishlist(product.product_id);
+  const inCompare = isInCompare(product.product_id);
+
+  const handleCompareClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inCompare) {
+      removeFromCompare(product.product_id);
+    } else {
+      addToCompare(product);
+    }
+  };
 
   return (
     <motion.div
