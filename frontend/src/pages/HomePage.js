@@ -252,7 +252,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* New Arrivals - Compact Section */}
       <section className="section-padding bg-[#F5F5F7] dark:bg-[#1C1C1E]">
         <div className="container-lumina">
           <motion.div
@@ -262,10 +262,10 @@ export default function HomePage() {
             className="flex items-end justify-between mb-12"
           >
             <div>
-              <p className="text-caption mb-4">Sélection</p>
-              <h2 className="heading-section">Produits vedettes</h2>
+              <p className="text-caption mb-4">Nouveautés</p>
+              <h2 className="heading-section">Découvrez nos dernières arrivées</h2>
             </div>
-            <Link to="/category/electronique" className="btn-ghost hidden md:flex">
+            <Link to="/nouveautes" className="btn-ghost hidden md:flex">
               Tout voir
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -279,14 +279,16 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product, index) => (
+              {featuredProducts.filter(p => p.is_new).slice(0, 4).map((product, index) => (
+                <ProductCard key={product.product_id} product={product} index={index} />
+              )) || featuredProducts.slice(0, 4).map((product, index) => (
                 <ProductCard key={product.product_id} product={product} index={index} />
               ))}
             </div>
           )}
 
           <Link
-            to="/category/electronique"
+            to="/nouveautes"
             className="btn-ghost mt-8 mx-auto md:hidden"
           >
             Tout voir
