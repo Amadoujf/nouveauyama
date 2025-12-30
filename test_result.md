@@ -462,10 +462,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Full E2E Testing - All Features"
-    - "Game Button Color Change"
-    - "Trust Banner Carousel"
-  stuck_tasks: []
+    - "Products API Backend Fix"
+    - "Admin Dashboard Access"
+    - "Search Input Accessibility"
+  stuck_tasks:
+    - "Products API Backend Fix"
+    - "Admin Dashboard Access"
   test_all: true
   test_priority: "high_first"
 
