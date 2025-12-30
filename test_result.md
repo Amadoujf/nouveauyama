@@ -444,11 +444,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Footer Contact Email Update"
-    - "Free Money Payment Method"
-    - "Admin Order Notifications"
-    - "Analytics Dashboard"
-    - "Order Status Update Emails"
+    - "Phase 4: WhatsApp Button and PWA"
+    - "Animated Flash Sales Section"
+    - "Service Worker and PWA functionality"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
