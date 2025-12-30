@@ -3318,6 +3318,75 @@ async def get_all_users(
     total = await db.users.count_documents({})
     return {"users": users, "total": total}
 
+@api_router.get("/admin/export/orders")
+async def export_orders_csv(user: User = Depends(require_admin)):
+    """Export all orders as CSV"""
+    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    if not orders:
+        return Response(content="Aucune commande", media_type="text/plain")
+    
+    # Create CSV content
+    import io
+    output = io.StringIO()
+    output.write("order_id,date,client,email,telephone,adresse,ville,total,statut,methode_paiement\n")
+    
+    for order in orders:
+        shipping = order.get("shipping", {})
+        date = order.get("created_at", "")[:10] if order.get("created_at") else ""
+        row = [
+            order.get("order_id", ""),
+            date,
+            shipping.get("full_name", "").replace(",", " "),
+            shipping.get("email", ""),
+            shipping.get("phone", ""),
+            shipping.get("address", "").replace(",", " "),
+            shipping.get("city", ""),
+            str(order.get("total", 0)),
+            order.get("order_status", ""),
+            order.get("payment_method", "")
+        ]
+        output.write(",".join(row) + "\n")
+    
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=commandes_yama.csv"}
+    )
+
+@api_router.get("/admin/export/clients")
+async def export_clients_csv(user: User = Depends(require_admin)):
+    """Export all clients as CSV"""
+    users = await db.users.find({}, {"_id": 0, "password": 0}).sort("created_at", -1).to_list(1000)
+    
+    if not users:
+        return Response(content="Aucun client", media_type="text/plain")
+    
+    import io
+    output = io.StringIO()
+    output.write("user_id,nom,email,telephone,date_inscription,role,commandes\n")
+    
+    for u in users:
+        # Count orders for this user
+        order_count = await db.orders.count_documents({"user_id": u.get("user_id")})
+        date = u.get("created_at", "")[:10] if u.get("created_at") else ""
+        row = [
+            u.get("user_id", ""),
+            u.get("name", "").replace(",", " "),
+            u.get("email", ""),
+            u.get("phone", ""),
+            date,
+            u.get("role", "customer"),
+            str(order_count)
+        ]
+        output.write(",".join(row) + "\n")
+    
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=clients_yama.csv"}
+    )
+
 # ============== CONTACT ROUTES ==============
 
 @api_router.post("/contact")
