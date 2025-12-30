@@ -3210,6 +3210,10 @@ async def seed_database():
     if existing > 0:
         return {"message": "Base de données déjà initialisée", "count": existing}
     
+    # Limit memory usage by processing in smaller batches
+    import gc
+    gc.collect()  # Force garbage collection before seeding
+    
     now = datetime.now(timezone.utc).isoformat()
     
     # Create default admin user
