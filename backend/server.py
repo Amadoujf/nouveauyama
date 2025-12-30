@@ -4349,6 +4349,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_event():
+    """Start the abandoned cart scheduler on application startup"""
+    logger.info("Starting abandoned cart scheduler...")
+    scheduler.add_job(
+        detect_and_process_abandoned_carts,
+        IntervalTrigger(hours=1),  # Run every hour
+        id="abandoned_cart_detection",
+        name="Abandoned Cart Detection",
+        replace_existing=True
+    )
+    scheduler.start()
+    logger.info("Abandoned cart scheduler started successfully")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    scheduler.shutdown()
     client.close()
