@@ -685,7 +685,7 @@ class YAMAPhase3Tester:
 
     def run_all_tests(self):
         """Run all test suites"""
-        print("🚀 Starting Lumina Senegal Backend API Tests")
+        print("🚀 Starting YAMA+ Phase 3 Features Backend API Tests")
         print("=" * 60)
         
         # Run tests in order
@@ -700,6 +700,16 @@ class YAMAPhase3Tester:
         self.test_auth_me()
         self.test_cart_operations()
         self.test_wishlist_operations()
+        
+        # Phase 3 Feature Tests
+        print("\n🎯 PHASE 3 FEATURES TESTING")
+        print("=" * 40)
+        self.test_loyalty_program()
+        self.test_wishlist_sharing()
+        self.test_review_media_upload()
+        self.test_product_comparison_support()
+        
+        # Continue with other tests
         self.test_order_creation()
         self.test_order_tracking()
         self.test_admin_operations()
@@ -723,7 +733,7 @@ class YAMAPhase3Tester:
 
 def main():
     """Main test runner"""
-    tester = LuminaAPITester()
+    tester = YAMAPhase3Tester()
     success = tester.run_all_tests()
     return 0 if success else 1
 
