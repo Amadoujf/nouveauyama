@@ -50,6 +50,7 @@ STORE_ADDRESS = "Fass Paillote, Dakar, Sénégal"
 STORE_PHONE = "+221 77 000 00 00"
 STORE_WHATSAPP = "221770000000"  # Without + for WhatsApp links
 STORE_EMAIL = "contact@groupeyamaplus.com"
+ADMIN_NOTIFICATION_EMAIL = "contact@groupeyamaplus.com"  # Email to receive order notifications
 
 # Delivery Zones Configuration
 DELIVERY_ZONES = {

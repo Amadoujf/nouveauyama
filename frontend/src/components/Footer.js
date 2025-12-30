@@ -142,19 +142,19 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:contact@lumina.sn"
+                  href="mailto:contact@groupeyamaplus.com"
                   className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Mail className="w-5 h-5 flex-shrink-0" />
-                  <span>contact@lumina.sn</span>
+                  <span>contact@groupeyamaplus.com</span>
                 </a>
               </li>
               <li className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>
-                  Dakar, Sénégal
+                  Fass Paillote, Dakar
                   <br />
-                  Almadies, Ngor
+                  Sénégal
                 </span>
               </li>
             </ul>
