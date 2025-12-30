@@ -146,6 +146,30 @@ function AppRouter() {
         }
       />
       <Route
+        path="/wishlist/shared/:shareId"
+        element={
+          <PublicLayout>
+            <SharedWishlistPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/compare"
+        element={
+          <PublicLayout>
+            <ProductComparisonPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/fidelite"
+        element={
+          <PublicLayout>
+            <LoyaltyPage />
+          </PublicLayout>
+        }
+      />
+      <Route
         path="/checkout"
         element={
           <PublicLayout>
