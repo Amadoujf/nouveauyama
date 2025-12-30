@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import GameFloatingButton from "./components/GameFloatingButton";
+import WhatsAppButton from "./components/WhatsAppButton";
 import { CompareFloatingBar } from "./components/ProductComparison";
 
 import HomePage from "./pages/HomePage";
