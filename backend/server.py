@@ -3661,6 +3661,157 @@ async def get_contact_messages(user: User = Depends(require_admin)):
     messages = await db.contact_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return messages
 
+# ============== ABANDONED CART ADMIN ROUTES ==============
+
+@api_router.get("/admin/abandoned-carts")
+async def get_abandoned_carts(user: User = Depends(require_admin)):
+    """Get list of abandoned carts with user details"""
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=ABANDONED_CART_TIMEOUT_HOURS)
+    cutoff_iso = cutoff_time.isoformat()
+    
+    # Find abandoned carts
+    carts = await db.carts.find({
+        "user_id": {"$ne": None},
+        "items": {"$exists": True, "$ne": []},
+        "updated_at": {"$lt": cutoff_iso}
+    }, {"_id": 0}).sort("updated_at", -1).to_list(100)
+    
+    # Enrich with user data and product details
+    result = []
+    for cart in carts:
+        user_doc = await db.users.find_one({"user_id": cart["user_id"]}, {"_id": 0, "email": 1, "name": 1})
+        if not user_doc:
+            continue
+        
+        # Get product details
+        items_with_details = []
+        total = 0
+        for item in cart.get("items", []):
+            product = await db.products.find_one(
+                {"product_id": item["product_id"]},
+                {"_id": 0, "name": 1, "price": 1, "images": 1}
+            )
+            if product:
+                item_total = product.get("price", 0) * item.get("quantity", 1)
+                items_with_details.append({
+                    "product_id": item["product_id"],
+                    "name": product.get("name"),
+                    "price": product.get("price"),
+                    "quantity": item.get("quantity"),
+                    "image": product.get("images", [""])[0] if product.get("images") else "",
+                    "total": item_total
+                })
+                total += item_total
+        
+        result.append({
+            "cart_id": cart.get("cart_id"),
+            "user_email": user_doc.get("email"),
+            "user_name": user_doc.get("name"),
+            "items": items_with_details,
+            "total": total,
+            "updated_at": cart.get("updated_at"),
+            "created_at": cart.get("created_at"),
+            "email_sent": cart.get("abandoned_email_sent", False),
+            "abandoned_at": cart.get("abandoned_at")
+        })
+    
+    return result
+
+@api_router.get("/admin/abandoned-carts/stats")
+async def get_abandoned_cart_stats(user: User = Depends(require_admin)):
+    """Get abandoned cart statistics"""
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=ABANDONED_CART_TIMEOUT_HOURS)
+    cutoff_iso = cutoff_time.isoformat()
+    
+    # Count abandoned carts
+    abandoned_count = await db.carts.count_documents({
+        "user_id": {"$ne": None},
+        "items": {"$exists": True, "$ne": []},
+        "updated_at": {"$lt": cutoff_iso}
+    })
+    
+    # Count emails sent
+    emails_sent = await db.abandoned_cart_emails.count_documents({})
+    
+    # Count emails sent today
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    emails_today = await db.abandoned_cart_emails.count_documents({
+        "sent_at": {"$gte": today_start.isoformat()}
+    })
+    
+    # Get last run stats
+    last_run = await db.abandoned_cart_stats.find_one({}, {"_id": 0}, sort=[("run_at", -1)])
+    
+    return {
+        "abandoned_carts": abandoned_count,
+        "total_emails_sent": emails_sent,
+        "emails_sent_today": emails_today,
+        "last_run": last_run,
+        "automation_interval_hours": 1,
+        "cart_timeout_hours": ABANDONED_CART_TIMEOUT_HOURS
+    }
+
+@api_router.post("/admin/abandoned-carts/trigger")
+async def trigger_abandoned_cart_detection(user: User = Depends(require_admin)):
+    """Manually trigger abandoned cart detection"""
+    asyncio.create_task(detect_and_process_abandoned_carts())
+    return {"message": "Détection des paniers abandonnés lancée"}
+
+@api_router.get("/admin/abandoned-carts/emails")
+async def get_abandoned_cart_emails(user: User = Depends(require_admin)):
+    """Get list of sent abandoned cart emails"""
+    emails = await db.abandoned_cart_emails.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
+    return emails
+
+@api_router.post("/admin/abandoned-carts/send/{cart_id}")
+async def send_abandoned_cart_email_manually(cart_id: str, user: User = Depends(require_admin)):
+    """Manually send abandoned cart email for a specific cart"""
+    cart = await db.carts.find_one({"cart_id": cart_id}, {"_id": 0})
+    if not cart:
+        raise HTTPException(status_code=404, detail="Panier non trouvé")
+    
+    if not cart.get("user_id"):
+        raise HTTPException(status_code=400, detail="Panier sans utilisateur associé")
+    
+    user_doc = await db.users.find_one({"user_id": cart["user_id"]}, {"_id": 0})
+    if not user_doc or not user_doc.get("email"):
+        raise HTTPException(status_code=400, detail="Email utilisateur non trouvé")
+    
+    # Get cart items with details
+    cart_items = []
+    cart_total = 0
+    for item in cart.get("items", []):
+        product = await db.products.find_one(
+            {"product_id": item["product_id"]},
+            {"_id": 0, "name": 1, "price": 1, "images": 1}
+        )
+        if product:
+            item_data = {
+                "product_id": item["product_id"],
+                "name": product.get("name", "Produit"),
+                "quantity": item.get("quantity", 1),
+                "price": product.get("price", 0),
+                "image": product.get("images", [""])[0] if product.get("images") else ""
+            }
+            cart_items.append(item_data)
+            cart_total += item_data["price"] * item_data["quantity"]
+    
+    result = await mailerlite_service.add_subscriber_to_abandoned_cart(
+        email=user_doc["email"],
+        name=user_doc.get("name", ""),
+        cart_items=cart_items,
+        cart_total=cart_total
+    )
+    
+    if result.get("success"):
+        await db.carts.update_one(
+            {"cart_id": cart_id},
+            {"$set": {"abandoned_email_sent": True, "abandoned_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"message": f"Email envoyé à {user_doc['email']}"}
+    
+    raise HTTPException(status_code=500, detail="Erreur lors de l'envoi de l'email")
+
 # ============== CATEGORIES ==============
 
 @api_router.get("/categories")
