@@ -1056,6 +1056,7 @@ async def get_products(
         "_id": 0,
         "product_id": 1,
         "name": 1,
+        "description": 1,
         "short_description": 1,
         "price": 1,
         "original_price": 1,
