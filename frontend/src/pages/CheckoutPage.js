@@ -364,6 +364,9 @@ export default function CheckoutPage() {
   }
 
   if (orderComplete) {
+    const orderWhatsAppMessage = `Bonjour ! Je viens de passer la commande ${orderId} sur YAMA+. Pouvez-vous confirmer la prise en charge ?`;
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(orderWhatsAppMessage)}`;
+    
     return (
       <main className="min-h-screen pt-20 flex items-center justify-center bg-[#F5F5F7] dark:bg-[#0B0B0B]">
         <motion.div
@@ -376,29 +379,46 @@ export default function CheckoutPage() {
           </div>
           <h1 className="text-3xl font-semibold mb-4">Commande confirmée !</h1>
           <p className="text-muted-foreground mb-6">
-            Merci pour votre commande. Vous recevrez une confirmation par WhatsApp.
+            Merci pour votre commande. Vous recevrez une confirmation par email et WhatsApp.
           </p>
           <p className="font-medium text-lg mb-8">
             N° de commande : <span className="text-[#0071E3]">{orderId}</span>
           </p>
           <div className="flex flex-col gap-3">
+            {/* Suivi de commande */}
+            <Link
+              to={`/order/${orderId}`}
+              className="btn-primary justify-center flex items-center gap-2"
+            >
+              <Truck className="w-5 h-5" />
+              Suivre ma commande
+            </Link>
+            
+            {/* Envoi récap WhatsApp */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-3 px-6 bg-[#25D366] text-white rounded-xl font-semibold hover:bg-[#20BA5A] transition-colors"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Envoyer récap WhatsApp
+            </a>
+            
+            {/* Télécharger facture */}
             <a
               href={`${API_URL}/api/orders/${orderId}/invoice`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary justify-center flex items-center gap-2"
+              className="btn-secondary justify-center flex items-center gap-2"
             >
               <FileText className="w-5 h-5" />
               Télécharger ma facture
             </a>
-            <Link to="/" className="btn-secondary justify-center">
+            
+            <Link to="/" className="text-[#0071E3] font-medium text-center mt-2">
               Continuer mes achats
             </Link>
-            {isAuthenticated && (
-              <Link to="/account/orders" className="text-[#0071E3] font-medium text-center">
-                Voir mes commandes
-              </Link>
-            )}
           </div>
         </motion.div>
       </main>
