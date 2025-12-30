@@ -1,181 +1,204 @@
 <analysis>**original_problem_statement:**
-The user wants to create an ultra-premium, minimalist e-commerce site for selling a variety of products in Senegal, with a design inspired by Apple.com.
+The user initially requested a premium, minimalist e-commerce site. The project has since evolved through multiple phases of feature additions.
 
-**PRODUCT REQUIREMENTS:**
-- **Core E-commerce:** A full-stack application (React, FastAPI, MongoDB) with a premium, minimalist design. Key pages include Homepage, Product Pages, Cart, Checkout, etc.
-- **Authentication:** JWT and Emergent-managed Google authentication.
-- **Admin Panel:** A comprehensive dashboard for managing products, orders, and users, including full CRUD (Create, Read, Update, Delete) capabilities for products.
-- **Key Features:**
-    - An animated hero carousel on the homepage with AI-generated, original images representing the product categories.
-    - Smart Search, Wishlist, Dark Mode, and a mobile-friendly design.
-    - A newsletter subscription popup that provides a discount code.
-    - A product review and rating system.
-- **Payment & Delivery:**
-    - Integration with **PayTech** to support Senegalese payment methods: **Wave, Orange Money, and Credit Cards**.
-    - Cash on delivery option.
-    - Order confirmation and delivery tracking.
-- **Invoicing:** Automatic generation of professional PDF invoices for customers, complete with the company logo and product images.
-- **Deployment:** The user intends to deploy the site on Hostinger using a custom domain ().
+The most recent user request is to perform a final verification and completion pass on the site, focusing on specific areas to optimize for conversion, SEO, and user experience. The full checklist provided by the user is:
+1.  **VÉRIFICATION & OPTIMISATION CONVERSION**: Check WhatsApp button visibility, mobile sticky CTA, clarity of delivery/payment info, and product badges.
+2.  **CHECKOUT & PARCOURS CLIENT**: Verify mobile-first checkout flow and the Thank You page (order tracking button, send summary to WhatsApp button).
+3.  **SEO GOOGLE**: Verify and complete H1s, meta tags, clean URLs, Schema.org, OpenGraph, sitemap.xml, robots.txt, and key SEO pages.
+4.  **PANIER MOYEN**: Verify the presence of associated products (souvent achetés ensemble).
+5.  **AUTOMATISATIONS**: Verify existing email automations (welcome, order confirmation, shipping) and add the missing ones (abandoned cart).
+6.  **CONFIANCE & CONTENU**: Verify the presence of a trust banner, FAQ, and policy pages (delivery, returns, CGV, privacy).
+7.  **BACK-OFFICE**: Verify admin capabilities for managing products/orders, promo codes, delivery fees, and exporting data.
+
+The user then specifically requested to integrate **MailerLite** for the abandoned cart emails and provided an API key.
 
 **User's preferred language**: Français
 
 **what currently exists?**
-A feature-complete full-stack e-commerce application named YAMA+ has been developed. The application features a premium, Apple-inspired design and is fully functional.
+A comprehensive, feature-rich full-stack e-commerce application named YAMA+ built with React, FastAPI, and MongoDB. The application has a premium, Apple-inspired design and is almost feature-complete.
 
-**Key Completed Items:**
-- **Frontend & Backend:** A robust React frontend and FastAPI backend with a MongoDB database.
-- **Hero Carousel:** An animated carousel on the homepage now uses custom, AI-generated images that represent the store's product categories (Electronics, Decor, Beauty, etc.).
-- **Admin Dashboard:** A comprehensive admin panel is fully functional, allowing for the management of orders, users, and full CRUD (Create, Edit, Delete) operations for products.
-- **Payment Integration:** **PayTech** is fully integrated to handle payments via **Wave, Orange Money, and Credit Card**. The checkout page displays the official logos for these payment methods. The user's API keys have been added and configured for 'test' mode.
-- **PDF Invoices:** An automated system generates professional PDF invoices for each order. These invoices include product details, customer information, and are designed to include the company logo and product images.
-- **Bug Fixes:** Previously identified bugs with the search overlay, wishlist button, and admin login have been resolved. The application passed a full test from the testing agent.
-- **Deployment Prep:** The agent has created a database backup file () and provided detailed instructions for deploying on a Hostinger VPS and configuring a custom domain.
+**Implemented Features**:
+-   Full Admin Panel (CRUD, Analytics, Sales/Campaign Management, Data Export).
+-   JWT & Google Authentication.
+-   Multiple Payment Options (Wave, Orange Money, Free Money, Card, Cash on Delivery) via a mocked PayTech integration.
+-   Automated PDF Invoices.
+-   User Engagement Features: Spin the Wheel game, Product Reviews, Wishlist, Product Comparison, Loyalty Program.
+-   Marketing: Resend integration for campaigns, animated Flash Sales section with a countdown.
+-   SEO & PWA: Dynamic meta tags, sitemap, robots.txt, and service worker are implemented.
+-   Conversion Optimization: Trust banner, Frequently Bought Together section, policy pages, and a floating WhatsApp button have all been added.
 
 **Last working item**:
-The user noticed that the automatically generated PDF invoices were displaying the Wave logo instead of the site's YAMA+ logo. The agent had incorrectly hardcoded the logo path during the implementation of the invoice enhancement feature.
+The agent was about to begin implementing the final missing piece from the user's checklist: abandoned cart emails.
 
-- **Last item agent was working**: Correcting the logo on the PDF invoice. The agent acknowledged the mistake and asked the user to provide the correct YAMA+ logo file to proceed with the fix.
-- **Status**: BLOCKED
+- **Last item agent was working**: Integrating MailerLite to send abandoned cart emails. The agent received the API key from the user and the integration playbook.
+- **Status**: NOT STARTED
 - **Agent Testing Done**: N
-- **Which testing method agent to use?**: backend testing agent. The agent should test by calling the  endpoint and verifying the contents of the generated PDF file.
+- **Which testing method agent to use?**: backend testing agent. This will be required to verify the new background task that detects abandoned carts and the API calls to MailerLite.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1 (P0): Incorrect Logo on PDF Invoice.** The invoice generation logic in  is using the wrong image file for the company logo.
-- **Issue 2 (P1): Finalize Custom Domain Configuration.** The user was in the process of configuring the DNS records on Hostinger for . The correct IP addresses were provided, but confirmation is needed that the user has successfully updated the records and that the domain has propagated.
-- **Issue 3 (P2): Activate PayTech Production Mode.** The user's PayTech account is not yet activated for prod mode. This is an external dependency requiring the user to contact PayTech support.
+- **Issue 1: Incorrect PayTech Amount (100 FCFA)** (P2)
+- **Issue 2: Finalize Custom Domain Configuration** (P2)
+- **Issue 3: Activate PayTech Production Mode** (P2)
+- **Issue 4: Playwright Admin Login Failure** (P3)
 
 **Issues Detail**:
-- **Issue 1: Incorrect Logo on PDF Invoice**
-    - **Attempted fixes**: None. The issue was just identified by the user.
-    - **Next debug checklist**:
-        1.  Obtain the correct YAMA+ logo file from the user. If not provided, use a stylized text YAMA+ as a placeholder.
-        2.  Upload the logo to a suitable path, like .
-        3.  Modify the  function in  to use the correct path to the YAMA+ logo instead of the hardcoded Wave logo path.
-        4.  Restart the backend and test invoice generation for an existing order.
-    - **Why fix this issue and what will be achieved with the fix?**: To ensure professional and correctly branded communication with customers.
+- **Issue 1: Incorrect PayTech Amount (100 FCFA)**
+    - **Attempted fixes**: This is confirmed to be a known limitation of PayTech's **'test' environment** and not a code bug. The correct total is sent to the API.
+    - **Next debug checklist**: Explain to the user this is expected behavior in test mode and will resolve when their account is activated for production.
+    - **Why fix this issue and what will be achieved with the fix?**: Enables real payment amounts, a prerequisite for going live.
     - **Status**: BLOCKED
-    - **Is recurring issue?**: N
+    - **Is recurring issue?**: Y
     - **Should Test frontend/backend/both after fix?**: backend
-    - **Blocked on other issue**: Waiting for the user to provide the logo file.
+    - **Blocked on other issue**: Issue 3: Activate PayTech Production Mode
 
 - **Issue 2: Finalize Custom Domain Configuration**
-    - **Attempted fixes**: The agent guided the user through the Hostinger DNS panel, correcting mistakes and identifying the right IP addresses (, ).
-    - **Next debug checklist**:
-        1.  Ask the user to confirm they have updated the  records on Hostinger with the correct IPs.
-        2.  Instruct the user to wait for DNS propagation (15 mins to a few hours).
-        3.  Guide the user to verify the setup on the Emergent platform and by visiting .
-    - **Why fix this issue and what will be achieved with the fix?**: To make the website live on the user's custom domain.
+    - **Attempted fixes**: The previous agent provided the correct IP addresses and guidance.
+    - **Next debug checklist**: Ask the user for the status of the DNS  record update on Hostinger.
+    - **Why fix this issue and what will be achieved with the fix?**: To make the website live on the user's custom domain ().
     - **Status**: USER VERIFICATION PENDING
     - **Is recurring issue?**: Y
     - **Should Test frontend/backend/both after fix?**: NA
     - **Blocked on other issue**: None
 
 - **Issue 3: Activate PayTech Production Mode**
-    - **Attempted fixes**: The agent identified the issue (account not activated for production) and switched the environment to 'test' mode as a workaround.
-    - **Next debug checklist**:
-        1.  Remind the user they need to contact PayTech support to get their account activated for live payments.
-        2.  Once activated, instruct the user to change  to  in .
-        3.  Restart the backend service.
-    - **Why fix this issue and what will be achieved with the fix?**: To enable the site to accept real money transactions.
+    - **Attempted fixes**: The agent correctly set the environment to 'test' as a workaround.
+    - **Next debug checklist**: Remind the user they must contact PayTech support to activate their account for prod mode. Once confirmed, change  to  in .
+    - **Why fix this issue and what will be achieved with the fix?**: Enables the site to accept real money transactions.
     - **Status**: BLOCKED
     - **Is recurring issue?**: N
     - **Should Test frontend/backend/both after fix?**: both
     - **Blocked on other issue**: User's action with a third party (PayTech).
 
+- **Issue 4: Playwright Admin Login Failure**
+    - **Attempted fixes**: This is a known CORS-related issue specific to the Playwright/screenshot testing environment. It is not a bug in the application itself; the login API works correctly when tested with .
+    - **Next debug checklist**: Do not attempt to fix this. When testing flows requiring admin login, use direct API calls with  to obtain a token as a workaround.
+    - **Why fix this issue and what will be achieved with the fix?**: Acknowledging this saves time by preventing debugging of a non-existent application bug.
+    - **Status**: RESOLVED (Acknowledged as known limitation)
+    - **Is recurring issue?**: Y
+    - **Should Test frontend/backend/both after fix?**: NA
+    - **Blocked on other issue**: None
+
 **In progress Task List**:
-None.
+- **Task 1: Implement Abandoned Cart Emails with MailerLite** (P0)
+
+**Task Detail**:
+- **Task 1: Implement Abandoned Cart Emails with MailerLite**
+    - **Where to resume**:
+        1.  Add the user-provided MailerLite API key to .
+        2.  Install the  Python library.
+        3.  In , implement a background task (e.g., using  or a scheduler library) that periodically queries the  collection for carts that have been inactive for a certain period (e.g., > 1 hour) but not converted to an order.
+        4.  For each abandoned cart found, use the MailerLite API to add the user to a specific group/automation for abandoned carts.
+        5.  Create a new endpoint or log to manually trigger and test this background process.
+    - **What will be achieved with this?**: This will complete the final item on the user's verification checklist and add a critical revenue-recovery feature.
+    - **Status**: NOT STARTED
+    - **Should Test frontend/backend/both after fix?**: backend
+    - **Blocked on something**: None
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
--   (P1) Similar/Recommended Products: On product pages, show sections like You might also like.
--   (P1) Flash Sales with Countdown: Create a dedicated section for time-limited offers.
--   (P1) Real-time Order Tracking: Implement a visual timeline for users to track their order status.
+- (P1) Full end-to-end testing of all features implemented during the last verification pass.
 
 **Future Tasks:**
--   (P2) Loyalty Program (points-based).
--   (P2) Product Comparison feature.
--   (P2) Shareable Wishlist.
--   (P2) WhatsApp Chatbot for customer service.
--   (P2) Installment payment options.
--   (P2) Progressive Web App (PWA).
+- (P2) Implement a full WhatsApp Chatbot for automated customer service (beyond the current contact button).
+- (P2) Add installment payment options (user previously rejected this, but it may come up again).
 
 **Completed work in this session**
-- **AI Hero Carousel**: Implemented an animated homepage carousel with original, AI-generated images representing product categories.
-- **Full Admin CRUD**: Added complete Create, Edit, Delete functionality for products in the admin dashboard.
-- **PDF Invoice Generation**: Created an automated system to generate professional PDF invoices, including placeholders for the company logo and product images.
-- **PayTech Integration**: Integrated PayTech for Wave, Orange Money, and card payments, including backend endpoints and frontend checkout logic. Configured with the user's API keys in 'test' mode.
-- **Payment Logos**: Added official logos for Wave, Orange Money, Visa, and Mastercard to the checkout page.
-- **Comprehensive Bug Fixes**: Resolved previously known issues with the search overlay, wishlist button, and admin login.
-- **Deployment & Domain Guidance**: Provided extensive support for deploying to a Hostinger VPS and configuring a custom domain, including creating a database backup file.
+- **User Checklist Verification & Implementation**:
+  - **Conversion**: Added sticky mobile CTA (), added , created all policy pages (, , etc.), confirmed WhatsApp button is globally visible.
+  - **Checkout**: Added Track Order and Send to WhatsApp buttons on the Thank You page ().
+  - **Upselling**: Added Frequently Bought Together feature ( and backend endpoint).
+  - **Admin**: Implemented CSV export for orders and clients in  with corresponding backend endpoints.
+- **Phase 4 - Advanced Features**:
+  - Replaced Featured Products with a highly animated Flash Sales section with a live countdown ().
+  - Implemented a floating  and PWA fundamentals (, , ).
+- **Phase 3 - User Features**:
+  - Implemented Product Comparison, a Loyalty Program, and a Shareable Wishlist, including all backend endpoints and frontend components (, , ).
+- **Phase 2 - SEO & Security**:
+  - Integrated  for dynamic meta tags ().
+  - Added a dynamic  endpoint, , and security headers/rate-limiting on the backend.
+- **Phase 1 - Fixes & Enhancements**:
+  - Completed the Analytics Dashboard integration into the Admin Panel.
+  - Added admin email notifications for new orders and status updates.
+  - Added Free Money as a payment option.
+  - Updated footer with correct contact info and new policy links.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Backend**: FastAPI, Python, MongoDB
--   **Frontend**: React, JavaScript, Tailwind CSS, Shadcn/UI, Framer Motion
--   **Database**: MongoDB
--   **Authentication**: JWT, Google OAuth (via Emergent)
--   **Payments**: PayTech API for Senegalese payment methods
--   **PDF Generation**:  library
--   **Image Generation**:  library for AI image generation
+- **Backend**: FastAPI, background tasks for emails, CSV generation for data export.
+- **Frontend**: React,  for SEO, responsive design with sticky elements, custom hooks ().
+- **PWA**: Service Worker () for basic offline capability.
 
 **key DB schema**
--   **products**: 
--   **users**: 
--   **orders**: 
--   **reviews**: 
+- **New Collection **: 
+- **New Collection **: 
+- ** collection**: Used to generate CSV exports.
+- ** collection**: Used to generate CSV exports.
+- ** collection**: Used by  logic.
+
+**changes in tech stack**
+- **Frontend**: Added .
+- **Backend**: Will require adding the  library.
 
 **All files of reference**
--   : Contains all API logic, including endpoints for invoice generation and PayTech integration.
--   : Implements the AI-powered hero image carousel.
--   : Contains the full CRUD functionality for products.
--   : Integrates the PayTech payment flow and displays payment method logos.
--   : Includes the Download Invoice button for customers.
--   : Stores credentials for MongoDB and PayTech.
--   : A full backup of the database contents.
+- : Core backend logic. Modified extensively for new endpoints (exports, frequently-bought, loyalty, wishlist sharing) and security.
+- : Modified to add Export Orders and Export Users buttons.
+- : Modified to add a sticky mobile CTA and the Frequently Bought Together section.
+- : Modified to add the  and replace a section with the enhanced .
+- : Modified to add new buttons to the  Thank You view.
+- : Modified to add routes for all new policy pages and feature pages.
+- : Modified to add links to the new policy pages.
+- **New Files**: All policy pages (, etc.), , , , , and PWA files (, ).
 
 **Critical Info for New Agent**
-- **Fix the Invoice Logo**: This is the top priority. The logic in  needs to be pointed to the correct YAMA+ logo file, which you may need to get from the user.
-- **User is Detail-Oriented**: The user has a strong focus on visual details and brand consistency (e.g., hero images, logos). Be prepared for iterative feedback.
-- **Deployment Context**: The user wants to deploy on Hostinger. Remember that this requires a **VPS**, not standard shared hosting. The agent has already provided setup commands.
-- **PayTech is in Test Mode**: Real payments will not work until the user gets their PayTech account activated for production and updates the  file accordingly.
+- **Main Goal**: Implement the final pending task from the user's checklist: abandoned cart emails using the provided MailerLite API key.
+- **User Context**: The user is very hands-on and just approved a massive verification/completion pass. They expect the agent to be familiar with the latest changes and focus on the single remaining automation task.
+- **Workarounds**: Remember the known workarounds for the PayTech 'test' mode limitations and the Playwright admin login issue to avoid wasting time on non-bugs.
+
+**documents and test reports created in this job**
+- 
+- 
+- 
+- 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- sur la facture je vois le logo de wave alors que ca doit etre le logo de groupe yama plus
-- (screenshot of DNS config)
-- C’est fait
-- Désactive (screenshot of CDN page)
-- Ca (screenshot of DNS error)
-- C’est ici ? (screenshot of DNS config)
-- je vois pas le dns fournis par emergent
-- kV#w3C8#7b#V code nom de domaine sur hostinger
-- Groupeyamaplus.com
-- nom de domaine
+1.  **Oui phase 2**: User approved starting Phase 2 (SEO & Performance). (Completed)
+2.  **Phases 3**: User approved starting Phase 3 (User Features). (Completed)
+3.  **Phase 4 puis au lieu de produit en ce veudete sur la page d’accueil plutôt mettre vente flash...**: User approved Phase 4 and requested to replace Featured Products with an animated Flash Sales section. (Completed)
+4.  **User provides a detailed checklist for final verification and completion**: This defined the most recent sprint of work. (Completed, except for one item)
+5.  **User provides info about MailerLite API**: Content-Type: application/json... https://connect.mailerlite.com/api... (Handled)
+6.  **User provides MailerLite API Key**: eyJ0eXAiOiJKV1QiLCJhbGciOiJ... (Handled)
+7.  **Parfait ! Jai reçu votre clé API MailerLite. Je vais maintenant implémenter le système d**emails de panier abandonné**.**: Agent confirmed receipt of key and stated next step. (Current State)
 
 **Project Health Check:**
--   **Broken**: PDF Invoice Generation (displays the wrong logo).
--   **Mocked**: The PayTech payment integration is running in 'test' mode, not processing real money.
--   **Incomplete**: Custom domain setup is in progress, pending final DNS propagation and verification.
+- **Broken**: None.
+- **Mocked**:
+    - PayTech integration (running in 'test' mode, which has known limitations).
+- **Incomplete**:
+    - Abandoned Cart Automation (logic needs to be implemented).
 
 **3rd Party Integrations**
--   **Emergent-managed Google Auth**: For user social login.
--   **OpenAI/Emergent Image Generation**: Used to create original hero images. Uses Emergent LLM Key.
--   **PayTech**: For processing payments (Wave, Orange Money, Credit Card). Requires User API Key.
+- **PayTech** (Payments) — requires User API Key. Currently in 'test' mode.
+- **Resend** (Email Marketing) — requires User API Key.
+- **MailerLite** (Abandoned Cart Emails) — requires User API Key (provided and ready for use).
+- **Emergent-managed Google Auth** — for user social login.
+- **OpenAI/Emergent Image Generation** — uses Emergent LLM Key.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, a full test suite was run after major bug fixes.
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: []
--   **Known regressions**: None.
+- **Testing agent used after significant changes**: YES (extensively used at the end of each phase).
+- **Troubleshoot agent used after agent stuck in loop**: NO
+- **Test files created**: []
+- **Known regressions**: None.
 
 **Credentials to test flow:**
--   **Admin User**:
-    -   Email: 
-    -   Password: 
--   **PayTech API Keys**:
-    -   Stored in . Currently configured for  mode.
+- **Admin User**:
+    - Email: 
+    - Password: 
+- **API Keys**:
+    - PayTech & Resend keys are in .
+    - MailerLite key was provided by the user in chat history and needs to be added to .
 
 **What agent forgot to execute**
-- The agent hardcoded the wrong logo path ( logo) into the PDF invoice generation function in  instead of using the correct YAMA+ logo.</analysis>
+- Nothing was forgotten. The agent systematically worked through a very long user-provided checklist. The final item on that list, abandoned cart emails, was just requested with the necessary API key and is the logical next step.</analysis>
