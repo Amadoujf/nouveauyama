@@ -1494,7 +1494,7 @@ async def delete_campaign(campaign_id: str, user: User = Depends(require_admin))
 
 @api_router.post("/admin/campaigns/{campaign_id}/send")
 async def send_campaign(campaign_id: str, user: User = Depends(require_admin)):
-    """Send a campaign to all subscribers"""
+    """Send a campaign to all subscribers in batches to prevent memory issues"""
     campaign = await db.campaigns.find_one({"campaign_id": campaign_id}, {"_id": 0})
     if not campaign:
         raise HTTPException(status_code=404, detail="Campagne non trouvée")
@@ -1502,22 +1502,18 @@ async def send_campaign(campaign_id: str, user: User = Depends(require_admin)):
     if campaign["status"] == "sent":
         raise HTTPException(status_code=400, detail="Cette campagne a déjà été envoyée")
     
-    # Get recipients based on target audience
+    # Count recipients first to avoid loading all into memory
     if campaign["target_audience"] == "newsletter":
-        recipients = await db.newsletter.find({"active": True}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+        total_recipients = await db.newsletter.count_documents({"active": True})
     elif campaign["target_audience"] == "customers":
-        recipients = await db.users.find({}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
+        total_recipients = await db.users.count_documents({})
     else:  # all
-        newsletter_subs = await db.newsletter.find({"active": True}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
-        users = await db.users.find({}, {"_id": 0, "email": 1, "name": 1}).to_list(10000)
-        
-        # Merge and dedupe by email
-        email_map = {}
-        for r in newsletter_subs + users:
-            email_map[r["email"]] = r
-        recipients = list(email_map.values())
+        newsletter_count = await db.newsletter.count_documents({"active": True})
+        users_count = await db.users.count_documents({})
+        # Estimate total (may have some overlap)
+        total_recipients = newsletter_count + users_count
     
-    if not recipients:
+    if total_recipients == 0:
         raise HTTPException(status_code=400, detail="Aucun destinataire trouvé")
     
     # Update campaign status
@@ -1525,25 +1521,89 @@ async def send_campaign(campaign_id: str, user: User = Depends(require_admin)):
         {"campaign_id": campaign_id},
         {"$set": {
             "status": "sending",
-            "total_recipients": len(recipients),
+            "total_recipients": total_recipients,
             "sent_at": datetime.now(timezone.utc).isoformat()
         }}
     )
     
-    # Send emails
+    # Send emails in batches to prevent memory issues
     html_template = get_email_template(campaign["content"])
     sent_count = 0
     errors = []
+    batch_size = 50  # Process 50 emails at a time
     
-    for recipient in recipients:
-        result = await send_email_async(recipient["email"], campaign["subject"], html_template)
-        if result["success"]:
-            sent_count += 1
-        else:
-            errors.append({"email": recipient["email"], "error": result["error"]})
+    # Process newsletter subscribers
+    if campaign["target_audience"] in ["newsletter", "all"]:
+        skip = 0
+        while True:
+            batch = await db.newsletter.find(
+                {"active": True}, 
+                {"_id": 0, "email": 1, "name": 1}
+            ).skip(skip).limit(batch_size).to_list(batch_size)
+            
+            if not batch:
+                break
+                
+            for recipient in batch:
+                try:
+                    result = await send_email_async(recipient["email"], campaign["subject"], html_template)
+                    if result["success"]:
+                        sent_count += 1
+                    else:
+                        errors.append({"email": recipient["email"], "error": result["error"]})
+                except Exception as e:
+                    errors.append({"email": recipient["email"], "error": str(e)})
+                
+                # Small delay to avoid rate limiting
+                await asyncio.sleep(0.1)
+            
+            skip += batch_size
+            # Clear batch from memory
+            del batch
+            
+            # Break if we have too many errors
+            if len(errors) > 100:
+                break
+    
+    # Process registered users (if target is "customers" or "all")
+    if campaign["target_audience"] in ["customers", "all"]:
+        skip = 0
+        processed_emails = set()  # Track emails to avoid duplicates
         
-        # Small delay to avoid rate limiting
-        await asyncio.sleep(0.1)
+        while True:
+            batch = await db.users.find(
+                {}, 
+                {"_id": 0, "email": 1, "name": 1}
+            ).skip(skip).limit(batch_size).to_list(batch_size)
+            
+            if not batch:
+                break
+                
+            for recipient in batch:
+                # Skip if already processed (for "all" target)
+                if recipient["email"] in processed_emails:
+                    continue
+                processed_emails.add(recipient["email"])
+                
+                try:
+                    result = await send_email_async(recipient["email"], campaign["subject"], html_template)
+                    if result["success"]:
+                        sent_count += 1
+                    else:
+                        errors.append({"email": recipient["email"], "error": result["error"]})
+                except Exception as e:
+                    errors.append({"email": recipient["email"], "error": str(e)})
+                
+                # Small delay to avoid rate limiting
+                await asyncio.sleep(0.1)
+            
+            skip += batch_size
+            # Clear batch from memory
+            del batch
+            
+            # Break if we have too many errors
+            if len(errors) > 100:
+                break
     
     # Update final status
     await db.campaigns.update_one(
@@ -1555,9 +1615,9 @@ async def send_campaign(campaign_id: str, user: User = Depends(require_admin)):
     )
     
     return {
-        "message": f"Campagne envoyée à {sent_count}/{len(recipients)} destinataires",
+        "message": f"Campagne envoyée à {sent_count} destinataires",
         "sent_count": sent_count,
-        "total_recipients": len(recipients),
+        "total_recipients": total_recipients,
         "errors": errors[:10] if errors else []  # Return first 10 errors
     }
 
