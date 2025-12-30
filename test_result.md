@@ -377,13 +377,16 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/pages/AdminPage.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
       - working: false
         agent: "testing"
         comment: "BUG: Admin login form submits but doesn't navigate to admin dashboard"
+      - working: false
+        agent: "testing"
+        comment: "VERIFIED BUG: Admin page not accessible via direct URL /admin. Page does not load admin login form. This prevents admin access entirely."
 
   - task: "Dark Mode"
     implemented: true
