@@ -2095,6 +2095,285 @@ async def remove_from_wishlist(product_id: str, user: User = Depends(require_aut
     )
     return {"message": "Produit retiré de la liste de souhaits"}
 
+@api_router.post("/wishlist/share")
+async def create_shared_wishlist(user: User = Depends(require_auth)):
+    """Create a shareable link for the user's wishlist"""
+    share_id = uuid.uuid4().hex[:12]
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Update wishlist with share info
+    await db.wishlists.update_one(
+        {"user_id": user.user_id},
+        {
+            "$set": {
+                "share_id": share_id,
+                "share_created_at": now,
+                "owner_name": user.name
+            }
+        }
+    )
+    
+    return {"share_id": share_id, "share_url": f"/wishlist/shared/{share_id}"}
+
+@api_router.get("/wishlist/shared/{share_id}")
+async def get_shared_wishlist(share_id: str):
+    """Get a shared wishlist by its share ID (public endpoint)"""
+    wishlist = await db.wishlists.find_one({"share_id": share_id}, {"_id": 0})
+    
+    if not wishlist:
+        raise HTTPException(status_code=404, detail="Liste introuvable")
+    
+    # Fetch product details
+    enriched_items = []
+    for item in wishlist.get("items", []):
+        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
+        if product:
+            enriched_items.append({
+                "product_id": product["product_id"],
+                "name": product["name"],
+                "price": product["price"],
+                "original_price": product.get("original_price"),
+                "images": product.get("images", []),
+                "stock": product["stock"]
+            })
+    
+    return {
+        "owner_name": wishlist.get("owner_name", ""),
+        "items": enriched_items,
+        "created_at": wishlist.get("share_created_at")
+    }
+
+# ============== LOYALTY PROGRAM ROUTES ==============
+
+POINTS_PER_1000_FCFA = 10  # 10 points per 1000 FCFA spent
+
+LOYALTY_REWARDS = [
+    {"id": 1, "name": "5% de réduction", "points": 500, "type": "discount", "value": 5},
+    {"id": 2, "name": "10% de réduction", "points": 1000, "type": "discount", "value": 10},
+    {"id": 3, "name": "Livraison gratuite", "points": 750, "type": "free_shipping", "value": 0},
+    {"id": 4, "name": "15% de réduction", "points": 1500, "type": "discount", "value": 15},
+    {"id": 5, "name": "2000 FCFA de crédit", "points": 2000, "type": "credit", "value": 2000},
+    {"id": 6, "name": "5000 FCFA de crédit", "points": 4500, "type": "credit", "value": 5000},
+]
+
+@api_router.get("/loyalty/me")
+async def get_user_loyalty(user: User = Depends(require_auth)):
+    """Get user's loyalty points and history"""
+    loyalty = await db.loyalty.find_one({"user_id": user.user_id}, {"_id": 0})
+    
+    if not loyalty:
+        # Initialize loyalty account
+        loyalty = {
+            "user_id": user.user_id,
+            "points": 0,
+            "total_earned": 0,
+            "total_redeemed": 0,
+            "tier": "Bronze",
+            "history": [],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.loyalty.insert_one(loyalty)
+        del loyalty["_id"] if "_id" in loyalty else None
+    
+    return loyalty
+
+@api_router.post("/loyalty/add-points")
+async def add_loyalty_points(
+    order_total: int,
+    order_id: str,
+    user: User = Depends(require_auth)
+):
+    """Add loyalty points after a purchase (internal use)"""
+    points_earned = (order_total // 1000) * POINTS_PER_1000_FCFA
+    now = datetime.now(timezone.utc).isoformat()
+    
+    history_entry = {
+        "type": "earn",
+        "points": points_earned,
+        "description": f"Achat #{order_id}",
+        "date": now
+    }
+    
+    result = await db.loyalty.update_one(
+        {"user_id": user.user_id},
+        {
+            "$inc": {"points": points_earned, "total_earned": points_earned},
+            "$push": {"history": {"$each": [history_entry], "$position": 0, "$slice": 50}},
+            "$setOnInsert": {"created_at": now, "tier": "Bronze", "total_redeemed": 0}
+        },
+        upsert=True
+    )
+    
+    # Update tier based on total points
+    loyalty = await db.loyalty.find_one({"user_id": user.user_id})
+    new_tier = "Bronze"
+    if loyalty["points"] >= 15000:
+        new_tier = "Platine"
+    elif loyalty["points"] >= 5000:
+        new_tier = "Or"
+    elif loyalty["points"] >= 1000:
+        new_tier = "Argent"
+    
+    await db.loyalty.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"tier": new_tier}}
+    )
+    
+    return {"points_earned": points_earned, "new_tier": new_tier}
+
+@api_router.post("/loyalty/redeem")
+async def redeem_loyalty_reward(
+    reward_id: int = None,
+    user: User = Depends(require_auth)
+):
+    """Redeem loyalty points for a reward"""
+    reward = next((r for r in LOYALTY_REWARDS if r["id"] == reward_id), None)
+    if not reward:
+        raise HTTPException(status_code=404, detail="Récompense non trouvée")
+    
+    loyalty = await db.loyalty.find_one({"user_id": user.user_id})
+    if not loyalty or loyalty["points"] < reward["points"]:
+        raise HTTPException(status_code=400, detail="Points insuffisants")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Generate promo code
+    promo_code = f"YAMA{uuid.uuid4().hex[:6].upper()}"
+    
+    # Save the reward/coupon
+    coupon_doc = {
+        "coupon_id": f"coup_{uuid.uuid4().hex[:10]}",
+        "code": promo_code,
+        "user_id": user.user_id,
+        "reward_type": reward["type"],
+        "value": reward["value"],
+        "points_spent": reward["points"],
+        "created_at": now,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+        "used": False
+    }
+    await db.coupons.insert_one(coupon_doc)
+    
+    # Deduct points
+    history_entry = {
+        "type": "redeem",
+        "points": -reward["points"],
+        "description": f"Échange: {reward['name']}",
+        "date": now
+    }
+    
+    await db.loyalty.update_one(
+        {"user_id": user.user_id},
+        {
+            "$inc": {"points": -reward["points"], "total_redeemed": reward["points"]},
+            "$push": {"history": {"$each": [history_entry], "$position": 0, "$slice": 50}}
+        }
+    )
+    
+    return {
+        "success": True,
+        "promo_code": promo_code,
+        "reward": reward["name"],
+        "expires_at": coupon_doc["expires_at"]
+    }
+
+# ============== REVIEWS WITH MEDIA ROUTES ==============
+
+@api_router.post("/products/{product_id}/reviews/with-media")
+async def create_review_with_media(
+    product_id: str,
+    rating: int = 5,
+    title: str = "",
+    comment: str = "",
+    media: List[UploadFile] = File(default=[]),
+    user: User = Depends(require_auth)
+):
+    """Create a review with optional media (photos/videos)"""
+    # Validate product exists
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    # Check if user already reviewed this product
+    existing = await db.reviews.find_one({
+        "product_id": product_id,
+        "user_id": user.user_id
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="Vous avez déjà évalué ce produit")
+    
+    # Process media files
+    media_urls = []
+    uploads_dir = Path("uploads/reviews")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    
+    for file in media[:5]:  # Max 5 files
+        if file.size > 10 * 1024 * 1024:  # 10MB limit
+            continue
+        
+        # Generate unique filename
+        ext = Path(file.filename).suffix.lower()
+        if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov', '.webm']:
+            continue
+        
+        filename = f"review_{uuid.uuid4().hex[:12]}{ext}"
+        filepath = uploads_dir / filename
+        
+        content = await file.read()
+        with open(filepath, "wb") as f:
+            f.write(content)
+        
+        media_type = "video" if ext in ['.mp4', '.mov', '.webm'] else "image"
+        media_urls.append({
+            "type": media_type,
+            "url": f"/api/uploads/reviews/{filename}"
+        })
+    
+    now = datetime.now(timezone.utc).isoformat()
+    
+    review_doc = {
+        "review_id": f"rev_{uuid.uuid4().hex[:12]}",
+        "product_id": product_id,
+        "user_id": user.user_id,
+        "user_name": user.name,
+        "rating": max(1, min(5, rating)),
+        "title": sanitize_input(title, 100),
+        "comment": sanitize_input(comment, 1000),
+        "media": media_urls,
+        "helpful_count": 0,
+        "verified_purchase": False,  # TODO: Check if user purchased this product
+        "created_at": now
+    }
+    
+    await db.reviews.insert_one(review_doc)
+    
+    return {"message": "Avis publié avec succès", "review_id": review_doc["review_id"]}
+
+@api_router.get("/uploads/reviews/{filename}")
+async def get_review_media(filename: str):
+    """Serve review media files"""
+    filepath = Path("uploads/reviews") / filename
+    if not filepath.exists():
+        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+    
+    # Determine content type
+    ext = filepath.suffix.lower()
+    content_types = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime',
+        '.webm': 'video/webm'
+    }
+    content_type = content_types.get(ext, 'application/octet-stream')
+    
+    return StreamingResponse(
+        open(filepath, "rb"),
+        media_type=content_type
+    )
+
 # ============== ORDERS ROUTES ==============
 
 @api_router.post("/orders", response_model=Order)
