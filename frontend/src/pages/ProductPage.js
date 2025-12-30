@@ -115,6 +115,14 @@ export default function ProductPage() {
 
   return (
     <main className="min-h-screen pt-20" data-testid="product-page">
+      <SEO 
+        title={product.name}
+        description={product.short_description || product.description?.slice(0, 160)}
+        image={product.images?.[0]}
+        url={`/product/${product.product_id}`}
+        type="product"
+        product={product}
+      />
       {/* Breadcrumb */}
       <div className="bg-[#F5F5F7] dark:bg-[#1C1C1E] py-4">
         <div className="container-lumina">
