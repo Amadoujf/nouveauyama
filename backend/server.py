@@ -1594,6 +1594,142 @@ async def send_shipping_email(email: str, order_id: str, tracking_info: str = ""
     html = get_email_template(content)
     await send_email_async(email, f"Votre commande #{order_id} est en route ! 🚚", html)
 
+async def send_admin_order_notification(order: dict):
+    """Send notification email to admin when a new order is placed"""
+    shipping = order.get("shipping", {})
+    
+    items_html = ""
+    for item in order.get("items", []):
+        items_html += f"""
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">{item.get('name', 'Produit')}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">{item.get('quantity', 1)}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">{item.get('price', 0):,} FCFA</td>
+        </tr>
+        """
+    
+    payment_labels = {
+        "wave": "Wave",
+        "orange_money": "Orange Money",
+        "card": "Carte Bancaire",
+        "cash": "À la livraison"
+    }
+    payment_method = payment_labels.get(order.get("payment_method", ""), order.get("payment_method", "N/A"))
+    
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">🛒 Nouvelle Commande !</h2>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="color: #333; margin: 0 0 15px 0;">Commande #{order.get('order_id', '')}</h3>
+        <p style="margin: 5px 0;"><strong>Date:</strong> {order.get('created_at', '')[:19].replace('T', ' ')}</p>
+        <p style="margin: 5px 0;"><strong>Paiement:</strong> {payment_method}</p>
+        <p style="margin: 5px 0; font-size: 20px;"><strong>Total:</strong> <span style="color: #00A651;">{order.get('total', 0):,} FCFA</span></p>
+    </div>
+    
+    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+        <h4 style="color: #856404; margin: 0 0 10px 0;">📦 Informations Client</h4>
+        <p style="margin: 5px 0;"><strong>Nom:</strong> {shipping.get('full_name', 'N/A')}</p>
+        <p style="margin: 5px 0;"><strong>Téléphone:</strong> {shipping.get('phone', 'N/A')}</p>
+        <p style="margin: 5px 0;"><strong>Adresse:</strong> {shipping.get('address', 'N/A')}</p>
+        <p style="margin: 5px 0;"><strong>Ville:</strong> {shipping.get('city', 'N/A')}, {shipping.get('region', 'N/A')}</p>
+        {f"<p style='margin: 5px 0;'><strong>Notes:</strong> {shipping.get('notes')}</p>" if shipping.get('notes') else ""}
+    </div>
+    
+    <h4 style="color: #333; margin: 20px 0 10px 0;">Articles commandés:</h4>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+        <thead>
+            <tr style="background: #f5f5f7;">
+                <th style="text-align: left; padding: 10px;">Produit</th>
+                <th style="text-align: center; padding: 10px;">Qté</th>
+                <th style="text-align: right; padding: 10px;">Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+            {items_html}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Sous-total:</td>
+                <td style="padding: 10px; text-align: right;">{order.get('subtotal', 0):,} FCFA</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Livraison:</td>
+                <td style="padding: 10px; text-align: right;">{order.get('shipping_cost', 0):,} FCFA</td>
+            </tr>
+            <tr style="background: #e8f5e9;">
+                <td colspan="2" style="padding: 15px; text-align: right; font-weight: bold; font-size: 16px;">TOTAL:</td>
+                <td style="padding: 15px; text-align: right; font-weight: bold; font-size: 18px; color: #00A651;">{order.get('total', 0):,} FCFA</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+            <td style="background-color: #1a1a1a; padding: 15px 30px; border-radius: 8px;">
+                <a href="https://groupeyamaplus.com/admin/orders" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                    Gérer les commandes →
+                </a>
+            </td>
+        </tr>
+    </table>
+    """
+    html = get_email_template(content, "🛒 Nouvelle Commande YAMA+")
+    await send_email_async(ADMIN_NOTIFICATION_EMAIL, f"🛒 Nouvelle Commande #{order.get('order_id', '')} - {order.get('total', 0):,} FCFA", html)
+
+async def send_order_status_update_email(email: str, order_id: str, new_status: str, note: str = ""):
+    """Send order status update email to customer"""
+    status_messages = {
+        "processing": {
+            "title": "Commande en préparation 📦",
+            "message": "Votre commande est en cours de préparation. Nous y apportons le plus grand soin !",
+            "color": "#2196F3"
+        },
+        "shipped": {
+            "title": "Commande expédiée ! 🚚",
+            "message": "Excellente nouvelle ! Votre commande a été expédiée et est en route vers vous.",
+            "color": "#9C27B0"
+        },
+        "delivered": {
+            "title": "Commande livrée ✅",
+            "message": "Votre commande a été livrée avec succès. Merci pour votre confiance !",
+            "color": "#4CAF50"
+        },
+        "cancelled": {
+            "title": "Commande annulée ❌",
+            "message": "Votre commande a été annulée. Contactez-nous si vous avez des questions.",
+            "color": "#F44336"
+        }
+    }
+    
+    status_info = status_messages.get(new_status, {
+        "title": f"Mise à jour de votre commande",
+        "message": f"Le statut de votre commande a été mis à jour: {new_status}",
+        "color": "#666666"
+    })
+    
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">{status_info['title']}</h2>
+    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
+        Commande <strong>#{order_id}</strong>
+    </p>
+    <p style="color: #666; margin: 0 0 20px 0;">
+        {status_info['message']}
+    </p>
+    {f'<p style="color: #666; background: #f5f5f7; padding: 15px; border-radius: 8px; margin: 0 0 25px 0;"><strong>Note:</strong> {note}</p>' if note else ''}
+    
+    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+            <td style="background-color: {status_info['color']}; padding: 15px 30px; border-radius: 8px;">
+                <a href="https://groupeyamaplus.com/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                    Voir ma commande →
+                </a>
+            </td>
+        </tr>
+    </table>
+    """
+    html = get_email_template(content)
+    await send_email_async(email, f"{status_info['title']} - Commande #{order_id}", html)
+
 # ============== DELIVERY ZONES ROUTES ==============
 
 @api_router.get("/delivery/zones")
