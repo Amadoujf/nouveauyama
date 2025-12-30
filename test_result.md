@@ -439,14 +439,12 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 1
-  run_ui: true
+  test_sequence: 2
+  run_ui: false
 
 test_plan:
   current_focus:
-    - "Phase 4: WhatsApp Button and PWA"
-    - "Animated Flash Sales Section"
-    - "Service Worker and PWA functionality"
+    - "MailerLite Abandoned Cart Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -462,3 +460,18 @@ agent_communication:
     message: "PHASE 1 UPDATES COMPLETED: 1) Footer updated with correct email contact@groupeyamaplus.com and address Fass Paillote, Dakar. 2) Added Free Money as a payment option at checkout. 3) Implemented admin order notifications - emails sent to contact@groupeyamaplus.com for new orders. 4) Added order status update emails to customers (processing, delivered, cancelled). 5) Fixed Analytics Dashboard route - added /admin/analytics route and rendering logic. Test order ORD-475A5165 created to verify notifications."
   - agent: "main"
     message: "PHASE 3 USER FEATURES COMPLETED: 1) Product Comparison: Compare button on product cards, floating compare bar, /compare page with side-by-side table. 2) Loyalty Program: /fidelite page with points system (10pts per 1000 FCFA), tiers (Bronze/Argent/Or/Platine), rewards redemption. 3) Shareable Wishlist: Share button on wishlist page, /wishlist/shared/:shareId public page. 4) Reviews with Media: Upload photos/videos with reviews via /api/products/{id}/reviews/with-media. All new APIs tested with curl."
+  - agent: "main"
+    message: "MAILERLITE ABANDONED CART INTEGRATION COMPLETED: Implemented full abandoned cart automation using MailerLite API. Features: 1) Background scheduler runs every hour to detect carts inactive for 1+ hour. 2) Adds subscribers to 'Panier Abandonne' group in MailerLite with cart details. 3) Admin endpoints: GET /api/admin/abandoned-carts (list), GET /api/admin/abandoned-carts/stats, POST /api/admin/abandoned-carts/trigger (manual run), GET /api/admin/abandoned-carts/emails (sent emails history), POST /api/admin/abandoned-carts/send/{cart_id} (manual send). Manual test confirmed: test-abandon@yama.sn was successfully added to MailerLite with subscriber_id 175250979758802032. Please verify the admin endpoints work correctly."
+
+backend:
+  - task: "MailerLite Abandoned Cart Integration"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented MailerLite integration with APScheduler. Background task detects abandoned carts (>1h inactive) and adds users to MailerLite group. Tested successfully - subscriber_id 175250979758802032 created for test-abandon@yama.sn"
