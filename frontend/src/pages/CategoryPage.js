@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
+import SEO, { categoryMeta } from "../components/SEO";
 import { getCategoryName } from "../lib/utils";
 import { ChevronRight, SlidersHorizontal, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
