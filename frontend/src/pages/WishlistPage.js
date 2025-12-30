@@ -76,9 +76,44 @@ export default function WishlistPage() {
             className="text-center"
           >
             <h1 className="heading-section mb-4">Mes Favoris</h1>
-            <p className="text-body-lg">
+            <p className="text-body-lg mb-6">
               {wishlist.items.length} produit{wishlist.items.length > 1 ? "s" : ""} dans votre liste
             </p>
+            
+            {/* Share Button */}
+            {wishlist.items.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                {!shareLink ? (
+                  <button
+                    onClick={handleShare}
+                    disabled={sharing}
+                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    {sharing ? "Création..." : "Partager ma liste"}
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm">
+                    <input
+                      type="text"
+                      value={shareLink}
+                      readOnly
+                      className="bg-transparent text-sm w-64 outline-none"
+                    />
+                    <button
+                      onClick={copyShareLink}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
