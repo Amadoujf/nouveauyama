@@ -32,6 +32,7 @@ import {
 } from "../components/ui/accordion";
 import ProductReviews from "../components/ProductReviews";
 import SimilarProducts from "../components/SimilarProducts";
+import FrequentlyBoughtTogether from "../components/FrequentlyBoughtTogether";
 import SEO from "../components/SEO";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
