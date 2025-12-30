@@ -61,6 +61,7 @@ function PublicLayout({ children }) {
       {!isAdminPage && <NewsletterPopup />}
       {!isAdminPage && <GameFloatingButton />}
       {!isAdminPage && <CompareFloatingBar />}
+      {!isAdminPage && <WhatsAppButton />}
     </>
   );
 }
