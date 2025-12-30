@@ -470,8 +470,11 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Implemented MailerLite integration with APScheduler. Background task detects abandoned carts (>1h inactive) and adds users to MailerLite group. Tested successfully - subscriber_id 175250979758802032 created for test-abandon@yama.sn"
+      - working: true
+        agent: "testing"
+        comment: "VERIFIED: All MailerLite abandoned cart endpoints working correctly. GET /api/admin/abandoned-carts/stats shows 1 cart, 1 email sent with 1h automation interval. GET /api/admin/abandoned-carts returns 1 abandoned cart for test-abandon@yama.sn. POST /api/admin/abandoned-carts/trigger executes successfully. GET /api/admin/abandoned-carts/emails shows 1 sent email with subscriber_id 175250979758802032. All endpoints properly require admin authentication. Manual send endpoint correctly returns 404 for non-existent carts. Integration fully functional."
