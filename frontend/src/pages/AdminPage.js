@@ -962,7 +962,18 @@ export default function AdminPage() {
           {/* Users Page */}
           {currentPage === "users" && (
             <>
-              <h1 className="text-2xl font-semibold mb-8">Utilisateurs</h1>
+              <div className="flex items-center justify-between mb-8">
+                <h1 className="text-2xl font-semibold">Utilisateurs</h1>
+                <a
+                  href={`${API_URL}/api/admin/export/clients`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Exporter CSV
+                </a>
+              </div>
 
               <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden">
                 {loading ? (
