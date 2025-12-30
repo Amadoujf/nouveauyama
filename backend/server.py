@@ -1018,25 +1018,68 @@ async def get_similar_products(product_id: str, limit: int = 6):
 # ============== REVIEWS ROUTES ==============
 
 @api_router.get("/products/{product_id}/reviews")
-async def get_product_reviews(product_id: str):
-    """Get all reviews for a product"""
+async def get_product_reviews(product_id: str, limit: int = 50):
+    """Get reviews for a product with pagination to prevent memory issues"""
+    # Enforce maximum limit
+    limit = min(limit, 100)
+    
+    # Use projection to limit data transfer
+    projection = {
+        "_id": 0,
+        "review_id": 1,
+        "product_id": 1,
+        "user_id": 1,
+        "user_name": 1,
+        "user_picture": 1,
+        "rating": 1,
+        "title": 1,
+        "comment": 1,
+        "verified_purchase": 1,
+        "helpful_count": 1,
+        "created_at": 1
+    }
+    
     reviews = await db.reviews.find(
         {"product_id": product_id},
-        {"_id": 0}
-    ).sort("created_at", -1).to_list(100)
+        projection
+    ).sort("created_at", -1).limit(limit).to_list(limit)
     
-    # Calculate average rating
-    total_rating = sum(r["rating"] for r in reviews) if reviews else 0
-    avg_rating = round(total_rating / len(reviews), 1) if reviews else 0
+    # Calculate average rating efficiently
+    pipeline = [
+        {"$match": {"product_id": product_id}},
+        {"$group": {
+            "_id": None,
+            "avg_rating": {"$avg": "$rating"},
+            "total_reviews": {"$sum": 1},
+            "rating_1": {"$sum": {"$cond": [{"$eq": ["$rating", 1]}, 1, 0]}},
+            "rating_2": {"$sum": {"$cond": [{"$eq": ["$rating", 2]}, 1, 0]}},
+            "rating_3": {"$sum": {"$cond": [{"$eq": ["$rating", 3]}, 1, 0]}},
+            "rating_4": {"$sum": {"$cond": [{"$eq": ["$rating", 4]}, 1, 0]}},
+            "rating_5": {"$sum": {"$cond": [{"$eq": ["$rating", 5]}, 1, 0]}}
+        }}
+    ]
     
-    # Rating distribution
-    distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    for r in reviews:
-        distribution[r["rating"]] = distribution.get(r["rating"], 0) + 1
+    stats = await db.reviews.aggregate(pipeline).to_list(1)
+    
+    if stats:
+        stat = stats[0]
+        avg_rating = round(stat["avg_rating"], 1) if stat["avg_rating"] else 0
+        total_reviews = stat["total_reviews"]
+        distribution = {
+            1: stat["rating_1"],
+            2: stat["rating_2"],
+            3: stat["rating_3"],
+            4: stat["rating_4"],
+            5: stat["rating_5"]
+        }
+    else:
+        avg_rating = 0
+        total_reviews = 0
+        distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     
     return {
         "reviews": reviews,
-        "total_reviews": len(reviews),
+        "total_reviews": total_reviews,
         "average_rating": avg_rating,
         "distribution": distribution
     }
