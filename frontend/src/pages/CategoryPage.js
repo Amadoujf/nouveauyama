@@ -57,9 +57,15 @@ export default function CategoryPage() {
   });
 
   const categoryName = getCategoryName(categoryId);
+  const meta = categoryMeta[categoryId] || { title: categoryName, description: `Découvrez notre sélection ${categoryName.toLowerCase()} au Sénégal.` };
 
   return (
     <main className="min-h-screen pt-20" data-testid="category-page">
+      <SEO 
+        title={meta.title}
+        description={meta.description}
+        url={`/category/${categoryId}`}
+      />
       {/* Breadcrumb */}
       <div className="bg-[#F5F5F7] dark:bg-[#1C1C1E] py-4">
         <div className="container-lumina">
