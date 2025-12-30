@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Lumina Senegal E-Commerce Backend API Test Suite
-Tests all backend endpoints for the premium e-commerce site
+YAMA+ Phase 3 Features Backend API Test Suite
+Tests Phase 3 features: Product Comparison, Loyalty Program, Shareable Wishlist, Reviews with Media
 """
 
 import requests
@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-class LuminaAPITester:
+class YAMAPhase3Tester:
     def __init__(self, base_url="https://yamaplus-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.session = requests.Session()
