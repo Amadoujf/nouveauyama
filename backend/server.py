@@ -2440,6 +2440,14 @@ async def update_order_status(
             if shipping_email:
                 asyncio.create_task(send_shipping_email(shipping_email, order_id, note))
     
+    # Send status update email to customer for other status changes
+    elif order_status in ["processing", "delivered", "cancelled"]:
+        order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+        if order:
+            shipping_email = order.get("shipping", {}).get("email")
+            if shipping_email:
+                asyncio.create_task(send_order_status_update_email(shipping_email, order_id, order_status, note))
+    
     return {"message": "Statut mis à jour"}
 
 # ============== INVOICE GENERATION ==============
