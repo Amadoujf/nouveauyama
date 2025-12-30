@@ -147,6 +147,97 @@ def calculate_shipping_cost(city: str, address: str = "") -> dict:
 app = FastAPI(title="Lumina Senegal E-Commerce API")
 api_router = APIRouter(prefix="/api")
 
+# ============== SECURITY MIDDLEWARE ==============
+
+# Rate limiting storage
+rate_limit_storage = defaultdict(lambda: {"count": 0, "reset_time": 0})
+RATE_LIMIT_REQUESTS = 100  # requests per window
+RATE_LIMIT_WINDOW = 60  # seconds
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to all responses"""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # Security headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        
+        # Cache control for API responses
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store, max-age=0"
+        
+        return response
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Rate limiting middleware to prevent abuse"""
+    async def dispatch(self, request: Request, call_next):
+        # Skip rate limiting for static files
+        if not request.url.path.startswith("/api/"):
+            return await call_next(request)
+        
+        # Get client IP
+        client_ip = request.client.host if request.client else "unknown"
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        if forwarded_for:
+            client_ip = forwarded_for.split(",")[0].strip()
+        
+        current_time = time.time()
+        client_data = rate_limit_storage[client_ip]
+        
+        # Reset counter if window has passed
+        if current_time > client_data["reset_time"]:
+            client_data["count"] = 0
+            client_data["reset_time"] = current_time + RATE_LIMIT_WINDOW
+        
+        # Check rate limit
+        if client_data["count"] >= RATE_LIMIT_REQUESTS:
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Trop de requêtes. Veuillez réessayer dans quelques secondes."}
+            )
+        
+        client_data["count"] += 1
+        
+        response = await call_next(request)
+        
+        # Add rate limit headers
+        response.headers["X-RateLimit-Limit"] = str(RATE_LIMIT_REQUESTS)
+        response.headers["X-RateLimit-Remaining"] = str(RATE_LIMIT_REQUESTS - client_data["count"])
+        
+        return response
+
+# Add security middlewares
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
+
+# ============== INPUT VALIDATION HELPERS ==============
+
+def sanitize_input(value: str, max_length: int = 500) -> str:
+    """Sanitize user input to prevent XSS and injection attacks"""
+    if not value:
+        return ""
+    # Limit length
+    value = value[:max_length]
+    # Remove potential script tags
+    value = re.sub(r'<script[^>]*>.*?</script>', '', value, flags=re.IGNORECASE | re.DOTALL)
+    # Remove event handlers
+    value = re.sub(r'\s*on\w+\s*=\s*["\'][^"\']*["\']', '', value, flags=re.IGNORECASE)
+    return value.strip()
+
+def validate_phone(phone: str) -> bool:
+    """Validate Senegalese phone number format"""
+    if not phone:
+        return True  # Phone is optional
+    # Remove spaces and dashes
+    clean_phone = re.sub(r'[\s\-\.]', '', phone)
+    # Check Senegalese format: +221 or 221 followed by 9 digits, or just 9 digits
+    pattern = r'^(\+?221)?[7][0-8][0-9]{7}$'
+    return bool(re.match(pattern, clean_phone))
+
 # ============== MODELS ==============
 
 class UserBase(BaseModel):
