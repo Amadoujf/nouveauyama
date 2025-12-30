@@ -867,17 +867,41 @@ async def delete_product(product_id: str, user: User = Depends(require_admin)):
 
 @api_router.get("/flash-sales")
 async def get_flash_sales():
-    """Get all active flash sale products"""
+    """Get all active flash sale products with memory optimization"""
     now = datetime.now(timezone.utc).isoformat()
     
-    # Find products with active flash sales
+    # Use projection to limit data transfer
+    projection = {
+        "_id": 0,
+        "product_id": 1,
+        "name": 1,
+        "description": 1,
+        "short_description": 1,
+        "price": 1,
+        "original_price": 1,
+        "category": 1,
+        "subcategory": 1,
+        "images": {"$slice": 2},  # Limit to first 2 images
+        "stock": 1,
+        "featured": 1,
+        "is_new": 1,
+        "is_promo": 1,
+        "flash_sale_end": 1,
+        "flash_sale_price": 1,
+        "is_flash_sale": 1,
+        "specs": 1,
+        "created_at": 1,
+        "updated_at": 1
+    }
+    
+    # Find products with active flash sales, limit to 20 to prevent memory issues
     products = await db.products.find(
         {
             "is_flash_sale": True,
             "flash_sale_end": {"$gt": now}
         },
-        {"_id": 0}
-    ).sort("flash_sale_end", 1).to_list(20)
+        projection
+    ).sort("flash_sale_end", 1).limit(20).to_list(20)
     
     for product in products:
         if isinstance(product.get('created_at'), str):
