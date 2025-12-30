@@ -2173,7 +2173,7 @@ async def get_user_loyalty(user: User = Depends(require_auth)):
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.loyalty.insert_one(loyalty)
-        del loyalty["_id"] if "_id" in loyalty else None
+        loyalty.pop("_id", None)
     
     return loyalty
 
