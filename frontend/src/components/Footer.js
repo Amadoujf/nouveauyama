@@ -17,8 +17,9 @@ const footerLinks = {
   ],
   legal: [
     { name: "Conditions générales", href: "/cgv" },
-    { name: "Politique de confidentialité", href: "/privacy" },
-    { name: "Politique de retour", href: "/returns" },
+    { name: "Politique de confidentialité", href: "/confidentialite" },
+    { name: "Politique de retour", href: "/retours" },
+    { name: "Livraison", href: "/livraison" },
   ],
 };
 
