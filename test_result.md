@@ -288,15 +288,18 @@ frontend:
 
   - task: "Category Pages"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/pages/CategoryPage.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: true
         agent: "testing"
         comment: "Category pages display products correctly"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG: Backend API returning 500 errors for /api/products?category=electronique due to missing 'description' field in product model validation. This prevents category pages from loading products. Navigation to category URLs works but no products display due to API failures."
 
   - task: "Product Detail Page"
     implemented: true
