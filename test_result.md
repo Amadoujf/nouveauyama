@@ -439,13 +439,16 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 2
-  run_ui: false
+  test_sequence: 3
+  run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Full E2E Testing - All Features"
+    - "Game Button Color Change"
+    - "Trust Banner Carousel"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
@@ -463,6 +466,33 @@ agent_communication:
     message: "MAILERLITE ABANDONED CART INTEGRATION COMPLETED: Implemented full abandoned cart automation using MailerLite API. Features: 1) Background scheduler runs every hour to detect carts inactive for 1+ hour. 2) Adds subscribers to 'Panier Abandonne' group in MailerLite with cart details. 3) Admin endpoints: GET /api/admin/abandoned-carts (list), GET /api/admin/abandoned-carts/stats, POST /api/admin/abandoned-carts/trigger (manual run), GET /api/admin/abandoned-carts/emails (sent emails history), POST /api/admin/abandoned-carts/send/{cart_id} (manual send). Manual test confirmed: test-abandon@yama.sn was successfully added to MailerLite with subscriber_id 175250979758802032. Please verify the admin endpoints work correctly."
   - agent: "testing"
     message: "MAILERLITE ABANDONED CART INTEGRATION TESTING COMPLETE: All 5 admin endpoints tested and working perfectly. Stats endpoint shows 1 abandoned cart and 1 email sent with proper automation configuration (1h interval, 1h timeout). List endpoint returns abandoned cart data with user details and product information. Trigger endpoint executes detection successfully. Emails endpoint shows sent email history with MailerLite subscriber_id 175250979758802032. Manual send endpoint properly validates cart existence. All endpoints correctly require admin authentication. Integration is fully functional and ready for production use."
+  - agent: "main"
+    message: "UI IMPROVEMENTS COMPLETED: 1) Changed Game Floating Button color from green to gold/amber gradient (from-amber-500 via-orange-500 to-rose-500) to differentiate from WhatsApp button. Added sparkle decoration. 2) Transformed Trust Banner into elegant carousel with auto-rotate every 3 seconds. Mobile shows single item with swipe dots. Desktop shows all items with highlight on current. Each item has unique gradient color (blue, green, violet, orange). Please run full E2E tests on the entire site to validate stability."
+
+frontend:
+  - task: "Game Floating Button Color"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/GameFloatingButton.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Changed from green (bg-green-600) to gold/amber gradient (from-amber-500 via-orange-500 to-rose-500). Added sparkle decoration. Now clearly different from WhatsApp green button."
+
+  - task: "Trust Banner Carousel"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/TrustBanner.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Transformed from static grid to animated carousel. Auto-rotates every 3 seconds. Mobile: single item view with progress dots. Desktop: all items visible with highlight effect. Each item has unique gradient color. Compact design takes less space."
 
 backend:
   - task: "MailerLite Abandoned Cart Integration"
