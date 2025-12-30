@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gift, X } from "lucide-react";
+import { Gift, X, Sparkles } from "lucide-react";
 import axios from "axios";
 import SpinWheelGame from "./SpinWheelGame";
 
@@ -28,7 +28,7 @@ export default function GameFloatingButton() {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Gold/Purple gradient to differentiate from WhatsApp */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -38,13 +38,18 @@ export default function GameFloatingButton() {
           setIsGameOpen(true);
           setShowPulse(false);
         }}
-        className="fixed bottom-24 right-6 z-[80] w-16 h-16 bg-green-600 hover:bg-green-700 rounded-full shadow-lg flex items-center justify-center text-white transition-colors"
+        className="fixed bottom-24 right-6 z-[80] w-16 h-16 bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300"
+        style={{
+          boxShadow: "0 4px 20px rgba(251, 191, 36, 0.4)"
+        }}
         aria-label="Jouer pour gagner"
       >
         {showPulse && (
-          <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75" />
+          <span className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 to-rose-400 animate-ping opacity-50" />
         )}
         <Gift className="w-7 h-7 relative z-10" />
+        {/* Sparkle decorations */}
+        <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse" />
       </motion.button>
 
       {/* Badge */}
@@ -54,7 +59,7 @@ export default function GameFloatingButton() {
         transition={{ delay: 0.5 }}
         className="fixed bottom-[7.5rem] right-24 z-[80] hidden md:block"
       >
-        <div className="bg-black dark:bg-white text-white dark:text-black text-xs font-medium px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+        <div className="bg-gradient-to-r from-amber-500 to-rose-500 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
           🎁 Gagnez un maillot CAN !
         </div>
       </motion.div>
