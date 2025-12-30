@@ -78,3 +78,5 @@ uvicorn==0.25.0
 watchfiles==1.1.1
 yarl==1.22.0
 reportlab==4.4.7
+psutil==6.1.0
+resend==2.6.0
