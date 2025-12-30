@@ -59,6 +59,7 @@ function PublicLayout({ children }) {
       <CartDrawer />
       {!isAdminPage && <NewsletterPopup />}
       {!isAdminPage && <GameFloatingButton />}
+      {!isAdminPage && <CompareFloatingBar />}
     </>
   );
 }
