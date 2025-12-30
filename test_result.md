@@ -450,6 +450,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "All static pages load correctly"
+      - working: true
+        agent: "testing"
+        comment: "VERIFIED: All static pages accessible - About (/a-propos), Contact (/contact), FAQ (/aide), Terms (/cgv), Delivery (/livraison), Returns (/retours), Privacy (/confidentialite) all load successfully."
 
 metadata:
   created_by: "main_agent"
