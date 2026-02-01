@@ -362,6 +362,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+
       {/* Trust Section */}
       <section className="py-16 bg-[#F5F5F7] dark:bg-[#1C1C1E]">
         <div className="container-lumina">
