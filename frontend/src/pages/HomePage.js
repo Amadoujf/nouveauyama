@@ -156,21 +156,39 @@ export default function HomePage() {
         </div>
 
         {/* Slide Indicators with animation */}
-        <div className="absolute bottom-24 right-10 z-20 flex gap-2">
-          {heroImages.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              className={`h-2 rounded-full transition-all duration-500 ${
-                index === currentImageIndex 
-                  ? "bg-black dark:bg-white w-8" 
-                  : "bg-black/30 dark:bg-white/30 hover:bg-black/50 dark:hover:bg-white/50 w-2"
-              }`}
-              aria-label={`Slide ${index + 1}`}
-            />
-          ))}
+        <div className="absolute bottom-24 right-10 z-20 flex flex-col items-end gap-4">
+          {/* Current category name */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentImageIndex}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="bg-white/90 dark:bg-black/90 backdrop-blur-sm px-4 py-2 rounded-full"
+            >
+              <span className="text-sm font-semibold">
+                {heroImages[currentImageIndex].category}
+              </span>
+            </motion.div>
+          </AnimatePresence>
+          
+          {/* Dots */}
+          <div className="flex gap-2">
+            {heroImages.map((image, index) => (
+              <motion.button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  index === currentImageIndex 
+                    ? "bg-black dark:bg-white w-8" 
+                    : "bg-black/30 dark:bg-white/30 hover:bg-black/50 dark:hover:bg-white/50 w-2"
+                }`}
+                aria-label={image.category}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Scroll Indicator */}
