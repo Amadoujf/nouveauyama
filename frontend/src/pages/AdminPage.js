@@ -1056,6 +1056,16 @@ export default function AdminPage() {
           {currentPage === "analytics" && (
             <AnalyticsDashboard />
           )}
+
+          {/* Promo Codes Admin Page */}
+          {currentPage === "promo-codes" && (
+            <PromoCodesAdminPage />
+          )}
+
+          {/* Abandoned Carts Admin Page */}
+          {currentPage === "abandoned-carts" && (
+            <AbandonedCartsAdminPage />
+          )}
         </div>
       </main>
     </div>
