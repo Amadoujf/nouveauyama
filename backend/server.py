@@ -4631,6 +4631,7 @@ async def get_sitemap():
         {"loc": "/category/electromenager", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/category/decoration", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/category/beaute", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/category/automobile", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/nouveautes", "priority": "0.8", "changefreq": "daily"},
         {"loc": "/promotions", "priority": "0.8", "changefreq": "daily"},
         {"loc": "/a-propos", "priority": "0.5", "changefreq": "monthly"},
