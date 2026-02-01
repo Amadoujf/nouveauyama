@@ -73,7 +73,7 @@ export default function NotificationBanner() {
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
-        className="sticky top-0 z-[60] bg-gradient-to-r from-primary via-primary/90 to-primary text-white overflow-hidden"
+        className="bg-gradient-to-r from-primary via-primary/90 to-primary text-white overflow-hidden"
       >
         <div className="container-lumina py-2 flex items-center justify-center gap-4 relative">
           <AnimatePresence mode="wait">
