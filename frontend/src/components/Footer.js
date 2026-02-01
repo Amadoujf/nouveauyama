@@ -14,6 +14,8 @@ const footerLinks = {
     { name: "À propos", href: "/a-propos" },
     { name: "Contact", href: "/contact" },
     { name: "Aide / FAQ", href: "/aide" },
+    { name: "Programme Fidélité", href: "/fidelite" },
+    { name: "Parrainage", href: "/parrainage" },
   ],
   legal: [
     { name: "Conditions générales", href: "/cgv" },
