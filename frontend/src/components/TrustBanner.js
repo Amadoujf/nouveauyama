@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Truck, Shield, CreditCard, Headphones, RotateCcw, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 
 const trustItems = [
-  { icon: Truck, text: "Livraison rapide", subtext: "24-48h Dakar", color: "from-blue-500 to-cyan-500" },
-  { icon: Shield, text: "Paiement sécurisé", subtext: "Wave, OM, CB", color: "from-emerald-500 to-teal-500" },
-  { icon: RotateCcw, text: "Retour 7 jours", subtext: "Satisfait ou remboursé", color: "from-violet-500 to-purple-500" },
-  { icon: Headphones, text: "Support 24/7", subtext: "WhatsApp", color: "from-amber-500 to-orange-500" },
+  { icon: Truck, text: "Livraison rapide", subtext: "24-48h Dakar" },
+  { icon: Shield, text: "Paiement sécurisé", subtext: "Wave, OM, CB" },
+  { icon: RotateCcw, text: "Retour 7 jours", subtext: "Satisfait ou remboursé" },
+  { icon: Headphones, text: "Support 24/7", subtext: "WhatsApp" },
 ];
 
 export default function TrustBanner() {
