@@ -617,43 +617,49 @@ export default function CheckoutPage() {
 
               {/* Payment Method */}
               <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 md:p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center font-semibold">
-                    2
-                  </div>
-                  <h2 className="text-xl font-semibold">Mode de Paiement</h2>
-                </div>
+                <h2 className="text-2xl font-semibold italic mb-6">Mode de Paiement</h2>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {paymentMethods.map((method) => (
                     <label
                       key={method.id}
                       className={cn(
-                        "block relative p-4 rounded-xl border-2 cursor-pointer transition-all",
+                        "block relative p-5 rounded-2xl border cursor-pointer transition-all",
                         formData.payment_method === method.id
-                          ? "border-black dark:border-white bg-black/5 dark:bg-white/5"
-                          : "border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30"
+                          ? "border-black dark:border-white bg-gray-50 dark:bg-white/5 shadow-sm"
+                          : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
                       )}
                     >
                       {/* Recommended badge */}
                       {method.recommended && (
-                        <span className="absolute -top-3 left-4 px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                        <span className="absolute -top-3 left-4 px-4 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-sm">
                           Recommandé
                         </span>
                       )}
                       
                       <div className="flex items-center gap-4">
+                        {/* Radio button */}
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
+                          formData.payment_method === method.id
+                            ? "border-black dark:border-white"
+                            : "border-gray-300 dark:border-gray-600"
+                        )}>
+                          {formData.payment_method === method.id && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-black dark:bg-white" />
+                          )}
+                        </div>
                         <input
                           type="radio"
                           name="payment_method"
                           value={method.id}
                           checked={formData.payment_method === method.id}
                           onChange={handleChange}
-                          className="w-5 h-5 accent-black dark:accent-white flex-shrink-0"
+                          className="sr-only"
                         />
                         
                         {/* Logos/Icons */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-3 flex-shrink-0">
                           {method.logos ? (
                             <>
                               {method.logos.map((logo, idx) => (
@@ -661,28 +667,23 @@ export default function CheckoutPage() {
                                   key={idx}
                                   src={logo} 
                                   alt="" 
-                                  className="h-8 w-auto object-contain"
+                                  className="h-9 w-auto object-contain"
                                 />
                               ))}
-                              {method.freeLetter && (
-                                <div className="w-8 h-8 bg-[#00A651] text-white rounded-lg flex items-center justify-center font-bold text-sm">
-                                  {method.freeLetter}
-                                </div>
-                              )}
                             </>
                           ) : method.icon === "cash" ? (
-                            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                            <div className="w-11 h-11 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
                               <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                               </svg>
                             </div>
                           ) : null}
                         </div>
                         
                         {/* Text */}
-                        <div className="flex-1">
+                        <div className="flex-1 ml-1">
                           <p className="font-semibold text-base">{method.name}</p>
-                          <p className="text-sm text-muted-foreground">{method.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{method.description}</p>
                         </div>
                       </div>
                     </label>
@@ -691,16 +692,16 @@ export default function CheckoutPage() {
 
                 {/* Payment info box */}
                 {formData.payment_method && (
-                  <div className="mt-6 p-4 bg-[#F5F5F7] dark:bg-[#2C2C2E] rounded-xl">
+                  <div className="mt-6 p-4 bg-gray-50 dark:bg-[#2C2C2E] rounded-xl border border-gray-100 dark:border-white/5">
                     <div className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-medium text-sm">
+                        <p className="font-semibold text-sm">
                           {formData.payment_method === "cash" 
                             ? "Paiement à la livraison" 
                             : "Paiement sécurisé via Paytech"}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {paymentMethods.find(m => m.id === formData.payment_method)?.infoText}
                         </p>
                       </div>
@@ -717,7 +718,7 @@ export default function CheckoutPage() {
                     onChange={handleChange}
                     rows={2}
                     placeholder="Instructions spéciales pour la livraison..."
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors resize-none"
                   />
                 </div>
               </div>
