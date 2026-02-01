@@ -2333,7 +2333,7 @@ def select_prize():
 def generate_prize_code():
     """Generate a unique prize code"""
     import string
-    return "CAN25-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    return "YAMA-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 @api_router.get("/game/config")
 async def get_game_config():
