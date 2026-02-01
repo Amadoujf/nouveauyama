@@ -126,10 +126,10 @@ export default function TrustBanner() {
             {trustItems.map((_, index) => (
               <div
                 key={index}
-                className={`h-0.5 rounded-full transition-all duration-300 ${
+                className={`h-1 rounded-full transition-all duration-300 ${
                   index === currentIndex 
-                    ? "w-8 bg-primary" 
-                    : "w-2 bg-gray-200 dark:bg-gray-700"
+                    ? "w-8 bg-black dark:bg-white" 
+                    : "w-2 bg-black/30 dark:bg-white/30"
                 }`}
               />
             ))}
