@@ -182,6 +182,14 @@ function AppRouter() {
         }
       />
       <Route
+        path="/parrainage"
+        element={
+          <PublicLayout>
+            <ReferralPage />
+          </PublicLayout>
+        }
+      />
+      <Route
         path="/checkout"
         element={
           <PublicLayout>
