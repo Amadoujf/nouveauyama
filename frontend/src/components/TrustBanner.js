@@ -173,8 +173,8 @@ export function TrustBannerCompact() {
         {trustItems.map((_, index) => (
           <div
             key={index}
-            className={`h-1 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "w-4 bg-primary" : "w-1 bg-gray-300 dark:bg-gray-600"
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === currentIndex ? "w-4 bg-black dark:bg-white" : "w-1.5 bg-black/40 dark:bg-white/40"
             }`}
           />
         ))}
