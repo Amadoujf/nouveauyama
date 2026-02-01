@@ -75,10 +75,10 @@ export default function TrustBanner() {
               <button
                 key={index}
                 onClick={() => goTo(index)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentIndex 
-                    ? "w-6 bg-primary" 
-                    : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
+                    ? "w-6 bg-black dark:bg-white" 
+                    : "w-2 bg-black/40 dark:bg-white/40 hover:bg-black/60 dark:hover:bg-white/60"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
