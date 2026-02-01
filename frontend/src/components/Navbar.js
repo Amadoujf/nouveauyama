@@ -87,6 +87,8 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDark, setIsDark] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   
   const { user, isAuthenticated, isAdmin } = useAuth();
   const { cartCount, setIsOpen: setCartOpen } = useCart();
@@ -107,6 +109,17 @@ export default function Navbar() {
       setIsDark(true);
       document.documentElement.classList.add("dark");
     }
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleDarkMode = () => {
