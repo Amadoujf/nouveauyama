@@ -154,25 +154,29 @@ export default function Navbar() {
               {/* Wishlist */}
               <Link
                 to="/wishlist"
-                className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors hidden md:flex"
+                className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all hidden md:flex hover:scale-110"
                 aria-label="Favoris"
                 data-testid="nav-wishlist-btn"
               >
-                <Heart className="w-5 h-5" />
+                <Heart className="w-5 h-5 transition-colors hover:text-red-500" />
               </Link>
 
               {/* Cart */}
               <button
                 onClick={() => setCartOpen(true)}
-                className="relative p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
+                className="relative p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all hover:scale-110"
                 aria-label="Panier"
                 data-testid="nav-cart-btn"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-full flex items-center justify-center">
+                  <motion.span 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-full flex items-center justify-center"
+                  >
                     {cartCount}
-                  </span>
+                  </motion.span>
                 )}
               </button>
 
@@ -180,7 +184,7 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <Link
                   to={isAdmin ? "/admin" : "/account"}
-                  className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors hidden md:flex items-center gap-2"
+                  className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all hidden md:flex items-center gap-2 hover:scale-105"
                   data-testid="nav-account-btn"
                 >
                   {user?.picture ? (
