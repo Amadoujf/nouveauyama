@@ -104,7 +104,7 @@ export default function Navbar() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
                 alt="Groupe YAMA+" 
-                className="h-14 md:h-16 w-auto"
+                className="h-16 md:h-20 w-auto"
               />
             </Link>
 
