@@ -1805,6 +1805,500 @@ async def get_reviews_stats():
         "satisfaction_rate": 0
     }
 
+# ============== REFERRAL SYSTEM ==============
+
+REFERRAL_CONFIG = {
+    "referrer_reward": 5000,  # FCFA credited to referrer
+    "referee_discount": 10,   # % discount for new user
+    "min_purchase_for_reward": 30000,  # Minimum purchase to trigger reward
+    "max_referrals_per_user": 50,  # Maximum referrals per user
+}
+
+def generate_referral_code(user_id: str) -> str:
+    """Generate a unique referral code for a user"""
+    import hashlib
+    hash_obj = hashlib.md5(f"{user_id}_{STORE_NAME}".encode())
+    return f"YAMA{hash_obj.hexdigest()[:6].upper()}"
+
+@api_router.get("/referral/my-code")
+async def get_my_referral_code(user: User = Depends(require_auth)):
+    """Get or create referral code for current user"""
+    # Check if user already has a referral record
+    referral = await db.referrals.find_one({"user_id": user.user_id}, {"_id": 0})
+    
+    if not referral:
+        # Create new referral record
+        code = generate_referral_code(user.user_id)
+        referral = {
+            "user_id": user.user_id,
+            "code": code,
+            "referrals_count": 0,
+            "successful_referrals": 0,
+            "total_earnings": 0,
+            "pending_earnings": 0,
+            "referred_users": [],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.referrals.insert_one(referral)
+        referral.pop("_id", None)
+    
+    return {
+        "code": referral["code"],
+        "referrals_count": referral.get("referrals_count", 0),
+        "successful_referrals": referral.get("successful_referrals", 0),
+        "total_earnings": referral.get("total_earnings", 0),
+        "pending_earnings": referral.get("pending_earnings", 0),
+        "share_link": f"https://groupeyamaplus.com?ref={referral['code']}",
+        "config": REFERRAL_CONFIG
+    }
+
+@api_router.get("/referral/validate/{code}")
+async def validate_referral_code(code: str):
+    """Validate a referral code and get discount info"""
+    referral = await db.referrals.find_one({"code": code.upper()}, {"_id": 0})
+    
+    if not referral:
+        raise HTTPException(status_code=404, detail="Code parrain invalide")
+    
+    # Get referrer info
+    referrer = await db.users.find_one({"user_id": referral["user_id"]}, {"_id": 0, "name": 1})
+    
+    return {
+        "valid": True,
+        "referrer_name": referrer.get("name", "Un ami") if referrer else "Un ami",
+        "discount_percent": REFERRAL_CONFIG["referee_discount"],
+        "message": f"-{REFERRAL_CONFIG['referee_discount']}% sur votre première commande"
+    }
+
+@api_router.post("/referral/apply")
+async def apply_referral_code(request: Request):
+    """Apply referral code to a new user registration"""
+    body = await request.json()
+    code = body.get("code", "").upper()
+    new_user_id = body.get("user_id")
+    
+    if not code or not new_user_id:
+        raise HTTPException(status_code=400, detail="Code et user_id requis")
+    
+    # Find referral
+    referral = await db.referrals.find_one({"code": code})
+    if not referral:
+        raise HTTPException(status_code=404, detail="Code parrain invalide")
+    
+    # Check if user was already referred
+    if new_user_id in referral.get("referred_users", []):
+        raise HTTPException(status_code=400, detail="Cet utilisateur a déjà utilisé un code parrain")
+    
+    # Check max referrals
+    if referral.get("referrals_count", 0) >= REFERRAL_CONFIG["max_referrals_per_user"]:
+        raise HTTPException(status_code=400, detail="Ce code a atteint sa limite d'utilisation")
+    
+    # Update referral stats
+    await db.referrals.update_one(
+        {"code": code},
+        {
+            "$inc": {"referrals_count": 1},
+            "$push": {"referred_users": new_user_id}
+        }
+    )
+    
+    # Store referral relationship for the new user
+    await db.user_referrals.insert_one({
+        "user_id": new_user_id,
+        "referrer_code": code,
+        "referrer_user_id": referral["user_id"],
+        "discount_applied": False,
+        "reward_given": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Code parrain appliqué", "discount_percent": REFERRAL_CONFIG["referee_discount"]}
+
+@api_router.post("/referral/complete-purchase")
+async def complete_referral_purchase(request: Request):
+    """Called after a referred user makes their first purchase"""
+    body = await request.json()
+    user_id = body.get("user_id")
+    order_total = body.get("order_total", 0)
+    order_id = body.get("order_id")
+    
+    # Find referral relationship
+    user_referral = await db.user_referrals.find_one(
+        {"user_id": user_id, "reward_given": False}
+    )
+    
+    if not user_referral:
+        return {"message": "Pas de parrainage actif"}
+    
+    # Check minimum purchase
+    if order_total < REFERRAL_CONFIG["min_purchase_for_reward"]:
+        return {"message": f"Achat minimum de {REFERRAL_CONFIG['min_purchase_for_reward']} FCFA requis pour le parrainage"}
+    
+    # Credit referrer
+    await db.referrals.update_one(
+        {"user_id": user_referral["referrer_user_id"]},
+        {
+            "$inc": {
+                "successful_referrals": 1,
+                "total_earnings": REFERRAL_CONFIG["referrer_reward"],
+                "pending_earnings": REFERRAL_CONFIG["referrer_reward"]
+            }
+        }
+    )
+    
+    # Mark as completed
+    await db.user_referrals.update_one(
+        {"user_id": user_id},
+        {"$set": {"reward_given": True, "order_id": order_id, "completed_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Create reward record for referrer
+    referrer = await db.users.find_one({"user_id": user_referral["referrer_user_id"]}, {"email": 1, "name": 1})
+    await db.referral_rewards.insert_one({
+        "referrer_user_id": user_referral["referrer_user_id"],
+        "referred_user_id": user_id,
+        "order_id": order_id,
+        "reward_amount": REFERRAL_CONFIG["referrer_reward"],
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Send notification email to referrer
+    if referrer and referrer.get("email"):
+        try:
+            resend.emails.send({
+                "from": SENDER_EMAIL,
+                "to": referrer["email"],
+                "subject": f"🎉 Félicitations ! Vous avez gagné {REFERRAL_CONFIG['referrer_reward']} FCFA",
+                "html": f"""
+                <h2>Bravo {referrer.get('name', '')} !</h2>
+                <p>Un ami que vous avez parrainé vient de faire son premier achat sur YAMA+.</p>
+                <p>Vous avez gagné <strong>{REFERRAL_CONFIG['referrer_reward']} FCFA</strong> de crédit !</p>
+                <p>Continuez à partager votre code pour gagner encore plus.</p>
+                <p>L'équipe GROUPE YAMA+</p>
+                """
+            })
+        except Exception as e:
+            logger.error(f"Error sending referral reward email: {e}")
+    
+    return {"message": "Récompense parrainage créditée", "reward": REFERRAL_CONFIG["referrer_reward"]}
+
+@api_router.get("/referral/leaderboard")
+async def get_referral_leaderboard():
+    """Get top referrers leaderboard"""
+    top_referrers = await db.referrals.find(
+        {"successful_referrals": {"$gt": 0}},
+        {"_id": 0, "user_id": 1, "successful_referrals": 1, "total_earnings": 1}
+    ).sort("successful_referrals", -1).limit(10).to_list(10)
+    
+    # Enrich with user names (anonymized)
+    result = []
+    for i, ref in enumerate(top_referrers):
+        user = await db.users.find_one({"user_id": ref["user_id"]}, {"name": 1})
+        name = user.get("name", "Utilisateur") if user else "Utilisateur"
+        # Anonymize: "Amadou D." instead of full name
+        parts = name.split()
+        display_name = f"{parts[0]} {parts[1][0]}." if len(parts) > 1 else parts[0]
+        
+        result.append({
+            "rank": i + 1,
+            "name": display_name,
+            "referrals": ref["successful_referrals"],
+            "earnings": ref["total_earnings"]
+        })
+    
+    return result
+
+@api_router.get("/admin/referrals")
+async def get_admin_referrals(user: User = Depends(require_admin)):
+    """Admin: Get all referral stats"""
+    # Get total stats
+    pipeline = [
+        {"$group": {
+            "_id": None,
+            "total_referrals": {"$sum": "$referrals_count"},
+            "successful_referrals": {"$sum": "$successful_referrals"},
+            "total_rewards": {"$sum": "$total_earnings"}
+        }}
+    ]
+    stats = await db.referrals.aggregate(pipeline).to_list(1)
+    
+    # Get recent referrals
+    recent = await db.user_referrals.find({}, {"_id": 0}).sort("created_at", -1).limit(20).to_list(20)
+    
+    # Get top referrers
+    top = await db.referrals.find({}, {"_id": 0}).sort("successful_referrals", -1).limit(10).to_list(10)
+    
+    return {
+        "stats": stats[0] if stats else {"total_referrals": 0, "successful_referrals": 0, "total_rewards": 0},
+        "recent_referrals": recent,
+        "top_referrers": top,
+        "config": REFERRAL_CONFIG
+    }
+
+# ============== PUSH NOTIFICATIONS ==============
+
+class PushSubscription(BaseModel):
+    endpoint: str
+    keys: dict
+    user_id: Optional[str] = None
+
+@api_router.post("/notifications/subscribe")
+async def subscribe_push(subscription: PushSubscription, request: Request):
+    """Subscribe to push notifications"""
+    # Get user if authenticated
+    user_id = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        try:
+            token = auth_header.split(" ")[1]
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            user_id = payload.get("user_id")
+        except:
+            pass
+    
+    sub_doc = {
+        "endpoint": subscription.endpoint,
+        "keys": subscription.keys,
+        "user_id": user_id or subscription.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "active": True
+    }
+    
+    # Upsert subscription
+    await db.push_subscriptions.update_one(
+        {"endpoint": subscription.endpoint},
+        {"$set": sub_doc},
+        upsert=True
+    )
+    
+    return {"message": "Abonnement aux notifications activé"}
+
+@api_router.delete("/notifications/unsubscribe")
+async def unsubscribe_push(request: Request):
+    """Unsubscribe from push notifications"""
+    body = await request.json()
+    endpoint = body.get("endpoint")
+    
+    if endpoint:
+        await db.push_subscriptions.update_one(
+            {"endpoint": endpoint},
+            {"$set": {"active": False}}
+        )
+    
+    return {"message": "Désabonnement effectué"}
+
+@api_router.post("/admin/notifications/send")
+async def send_push_notification(request: Request, user: User = Depends(require_admin)):
+    """Admin: Send push notification to all subscribers"""
+    body = await request.json()
+    title = body.get("title", "YAMA+")
+    message = body.get("message", "")
+    url = body.get("url", "/")
+    target_users = body.get("user_ids")  # Optional: specific users
+    
+    # Get active subscriptions
+    query = {"active": True}
+    if target_users:
+        query["user_id"] = {"$in": target_users}
+    
+    subscriptions = await db.push_subscriptions.find(query, {"_id": 0}).to_list(1000)
+    
+    # Store notification
+    notification = {
+        "notification_id": f"notif_{uuid.uuid4().hex[:8]}",
+        "title": title,
+        "message": message,
+        "url": url,
+        "sent_to": len(subscriptions),
+        "sent_at": datetime.now(timezone.utc).isoformat(),
+        "sent_by": user.user_id
+    }
+    await db.notifications.insert_one(notification)
+    
+    # Note: Actual push sending requires web-push library and VAPID keys
+    # For now, we store the notification for client-side polling
+    
+    return {
+        "message": f"Notification envoyée à {len(subscriptions)} abonnés",
+        "notification_id": notification["notification_id"]
+    }
+
+@api_router.get("/notifications/recent")
+async def get_recent_notifications(request: Request):
+    """Get recent notifications for polling"""
+    # Get user if authenticated
+    user_id = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        try:
+            token = auth_header.split(" ")[1]
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            user_id = payload.get("user_id")
+        except:
+            pass
+    
+    # Get notifications from last 24 hours
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    notifications = await db.notifications.find(
+        {"sent_at": {"$gte": cutoff}},
+        {"_id": 0}
+    ).sort("sent_at", -1).limit(5).to_list(5)
+    
+    return notifications
+
+# ============== LIVE CHAT SYSTEM ==============
+
+class ChatMessage(BaseModel):
+    message: str
+    sender_type: str = "customer"  # customer or support
+
+@api_router.post("/chat/start")
+async def start_chat_session(request: Request):
+    """Start a new chat session"""
+    body = await request.json()
+    
+    # Get user info if authenticated
+    user_id = None
+    user_name = body.get("name", "Visiteur")
+    user_email = body.get("email", "")
+    
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        try:
+            token = auth_header.split(" ")[1]
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            user_id = payload.get("user_id")
+            user = await db.users.find_one({"user_id": user_id}, {"name": 1, "email": 1})
+            if user:
+                user_name = user.get("name", user_name)
+                user_email = user.get("email", user_email)
+        except:
+            pass
+    
+    session = {
+        "session_id": f"chat_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "user_name": user_name,
+        "user_email": user_email,
+        "status": "active",
+        "messages": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.chat_sessions.insert_one(session)
+    session.pop("_id", None)
+    
+    # Auto-reply
+    welcome_message = {
+        "message_id": f"msg_{uuid.uuid4().hex[:8]}",
+        "message": f"Bonjour {user_name} ! 👋 Comment puis-je vous aider aujourd'hui ?",
+        "sender_type": "support",
+        "sender_name": "Support YAMA+",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.chat_sessions.update_one(
+        {"session_id": session["session_id"]},
+        {"$push": {"messages": welcome_message}}
+    )
+    
+    session["messages"] = [welcome_message]
+    
+    return session
+
+@api_router.post("/chat/{session_id}/message")
+async def send_chat_message(session_id: str, msg: ChatMessage):
+    """Send a message in a chat session"""
+    session = await db.chat_sessions.find_one({"session_id": session_id})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session non trouvée")
+    
+    message = {
+        "message_id": f"msg_{uuid.uuid4().hex[:8]}",
+        "message": msg.message,
+        "sender_type": msg.sender_type,
+        "sender_name": session.get("user_name") if msg.sender_type == "customer" else "Support YAMA+",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.chat_sessions.update_one(
+        {"session_id": session_id},
+        {
+            "$push": {"messages": message},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    # Auto-responses based on keywords
+    auto_reply = None
+    msg_lower = msg.message.lower()
+    
+    if any(word in msg_lower for word in ["livraison", "délai", "expédition"]):
+        auto_reply = "📦 Nous livrons en 24-48h à Dakar et 3-5 jours pour les régions. Les frais de livraison sont de 2000 FCFA pour Dakar et 3500 FCFA ailleurs."
+    elif any(word in msg_lower for word in ["paiement", "payer", "wave", "orange money"]):
+        auto_reply = "💳 Nous acceptons Wave, Orange Money, Free Money, carte bancaire et paiement à la livraison. Tous les paiements sont sécurisés."
+    elif any(word in msg_lower for word in ["retour", "remboursement", "échange"]):
+        auto_reply = "↩️ Vous disposez de 7 jours pour retourner un article. Contactez-nous sur WhatsApp au +221 77 000 00 00 pour organiser le retour."
+    elif any(word in msg_lower for word in ["commande", "suivi", "tracking"]):
+        auto_reply = "📋 Pour suivre votre commande, rendez-vous dans 'Mon compte' > 'Mes commandes'. Vous y trouverez le statut en temps réel."
+    elif any(word in msg_lower for word in ["bonjour", "salut", "hello", "bonsoir"]):
+        auto_reply = "Bonjour ! 😊 Je suis là pour vous aider. Que puis-je faire pour vous ?"
+    elif any(word in msg_lower for word in ["merci", "thanks"]):
+        auto_reply = "Je vous en prie ! N'hésitez pas si vous avez d'autres questions. Bonne journée ! 🙏"
+    
+    if auto_reply and msg.sender_type == "customer":
+        auto_message = {
+            "message_id": f"msg_{uuid.uuid4().hex[:8]}",
+            "message": auto_reply,
+            "sender_type": "support",
+            "sender_name": "Support YAMA+",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "auto_reply": True
+        }
+        await db.chat_sessions.update_one(
+            {"session_id": session_id},
+            {"$push": {"messages": auto_message}}
+        )
+        return {"message": message, "auto_reply": auto_message}
+    
+    return {"message": message}
+
+@api_router.get("/chat/{session_id}")
+async def get_chat_session(session_id: str):
+    """Get chat session with messages"""
+    session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session non trouvée")
+    return session
+
+@api_router.post("/chat/{session_id}/close")
+async def close_chat_session(session_id: str):
+    """Close a chat session"""
+    await db.chat_sessions.update_one(
+        {"session_id": session_id},
+        {"$set": {"status": "closed", "closed_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"message": "Session fermée"}
+
+@api_router.get("/admin/chat/sessions")
+async def get_admin_chat_sessions(user: User = Depends(require_admin)):
+    """Admin: Get all chat sessions"""
+    sessions = await db.chat_sessions.find({}, {"_id": 0}).sort("updated_at", -1).limit(50).to_list(50)
+    
+    # Stats
+    active = await db.chat_sessions.count_documents({"status": "active"})
+    total = await db.chat_sessions.count_documents({})
+    
+    return {
+        "sessions": sessions,
+        "stats": {
+            "active": active,
+            "total": total
+        }
+    }
+
 # ============== SPIN WHEEL GAME ROUTES ==============
 
 import random
