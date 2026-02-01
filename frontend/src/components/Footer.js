@@ -136,11 +136,20 @@ export default function Footer() {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="tel:+221770000000"
+                  href="tel:+221783827575"
                   className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Phone className="w-5 h-5 flex-shrink-0" />
-                  <span>+221 77 000 00 00</span>
+                  <span>+221 78 382 75 75</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:+221778498137"
+                  className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Phone className="w-5 h-5 flex-shrink-0" />
+                  <span>+221 77 849 81 37</span>
                 </a>
               </li>
               <li>
@@ -164,21 +173,29 @@ export default function Footer() {
 
             {/* Payment Methods */}
             <h3 className="font-semibold mb-4 mt-8 text-sm tracking-wider uppercase">
-              Paiement
+              Paiement sécurisé
             </h3>
-            <div className="flex flex-wrap gap-3">
-              <div className="px-3 py-2 bg-white dark:bg-black/50 rounded-lg text-sm font-medium">
-                Wave
-              </div>
-              <div className="px-3 py-2 bg-white dark:bg-black/50 rounded-lg text-sm font-medium">
-                Orange Money
-              </div>
-              <div className="px-3 py-2 bg-white dark:bg-black/50 rounded-lg text-sm font-medium">
-                Visa
-              </div>
-              <div className="px-3 py-2 bg-white dark:bg-black/50 rounded-lg text-sm font-medium">
-                Mastercard
-              </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp" 
+                alt="Wave" 
+                className="h-8 w-auto object-contain bg-white rounded-lg px-2 py-1"
+              />
+              <img 
+                src="https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png" 
+                alt="Orange Money" 
+                className="h-8 w-auto object-contain bg-white rounded-lg px-2 py-1"
+              />
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" 
+                alt="Visa" 
+                className="h-6 w-auto object-contain bg-white rounded-lg px-2 py-1.5"
+              />
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" 
+                alt="Mastercard" 
+                className="h-6 w-auto object-contain bg-white rounded-lg px-2 py-1.5"
+              />
             </div>
           </div>
         </div>
