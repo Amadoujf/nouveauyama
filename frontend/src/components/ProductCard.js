@@ -140,7 +140,7 @@ export default function ProductCard({ product, index = 0 }) {
           >
             <Eye className="w-5 h-5" />
           </Link>
-        </div>
+        </motion.div>
 
         {/* Add to Cart - Bottom */}
         <motion.div 
