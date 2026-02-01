@@ -143,41 +143,61 @@ export default function ProductCard({ product, index = 0 }) {
         </div>
 
         {/* Add to Cart - Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              addToCart(product.product_id);
-            }}
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 p-4"
+          initial={{ y: "100%" }}
+          animate={{ y: isHovered ? 0 : "100%" }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.button
+            onClick={handleAddToCart}
             disabled={cartLoading || product.stock === 0}
+            whileTap={{ scale: 0.95 }}
             className={cn(
-              "w-full btn-primary justify-center py-3",
-              product.stock === 0 && "opacity-50 cursor-not-allowed"
+              "w-full btn-primary justify-center py-3 btn-ripple",
+              product.stock === 0 && "opacity-50 cursor-not-allowed",
+              addedToCart && "bg-green-500 hover:bg-green-600"
             )}
             data-testid={`add-to-cart-btn-${product.product_id}`}
           >
-            <ShoppingBag className="w-4 h-4" />
-            {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
-          </button>
-        </div>
+            {addedToCart ? (
+              <>
+                <Check className="w-4 h-4 animate-bounce-in" />
+                Ajouté !
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-4 h-4" />
+                {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
+              </>
+            )}
+          </motion.button>
+        </motion.div>
       </Link>
 
       {/* Product Info */}
       <div className="p-4">
-        <Link to={`/product/${product.product_id}`}>
-          <h3 className="font-medium text-[#1D1D1F] dark:text-white mb-1 line-clamp-1 group-hover:text-[#0071E3] transition-colors">
+        <Link to={`/product/${product.product_id}`} className="block">
+          <motion.h3 
+            className="font-medium text-[#1D1D1F] dark:text-white mb-1 line-clamp-1 transition-colors"
+            whileHover={{ color: "#0071E3" }}
+          >
             {product.name}
-          </h3>
+          </motion.h3>
           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
             {truncateText(product.short_description, 60)}
           </p>
         </Link>
         
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-[#1D1D1F] dark:text-white price-fcfa">
+          <motion.span 
+            className="font-semibold text-[#1D1D1F] dark:text-white price-fcfa"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             {formatPrice(product.price)}
-          </span>
+          </motion.span>
           {product.original_price && product.original_price > product.price && (
             <span className="text-sm text-muted-foreground line-through price-fcfa">
               {formatPrice(product.original_price)}
@@ -185,6 +205,18 @@ export default function ProductCard({ product, index = 0 }) {
           )}
         </div>
       </div>
+
+      {/* Hover shadow effect */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl pointer-events-none"
+        initial={{ boxShadow: "0 0 0 rgba(0,0,0,0)" }}
+        animate={{ 
+          boxShadow: isHovered 
+            ? "0 25px 50px -12px rgba(0,0,0,0.25)" 
+            : "0 0 0 rgba(0,0,0,0)" 
+        }}
+        transition={{ duration: 0.3 }}
+      />
     </motion.div>
   );
 }
