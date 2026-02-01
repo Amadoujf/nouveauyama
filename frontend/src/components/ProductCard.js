@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye, Scale } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Scale, Check } from "lucide-react";
 import { formatPrice, calculateDiscount, truncateText } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
@@ -11,6 +12,8 @@ export default function ProductCard({ product, index = 0 }) {
   const { addToCart, loading: cartLoading } = useCart();
   const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
   const { addToCompare, removeFromCompare, isInCompare } = useProductComparison();
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   
   const discount = calculateDiscount(product.original_price, product.price);
   const inWishlist = isInWishlist(product.product_id);
@@ -26,38 +29,82 @@ export default function ProductCard({ product, index = 0 }) {
     }
   };
 
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await addToCart(product.product_id, 1);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="product-card group"
+      transition={{ 
+        duration: 0.6, 
+        delay: index * 0.08,
+        ease: [0.16, 1, 0.3, 1]
+      }}
+      whileHover={{ y: -8 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="product-card group relative"
       data-testid={`product-card-${product.product_id}`}
     >
       {/* Image Container */}
       <Link
         to={`/product/${product.product_id}`}
-        className="block relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]"
+        className="block relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E] rounded-2xl"
       >
-        <img
+        <motion.img
           src={product.images?.[0] || "/placeholder.jpg"}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover"
+          animate={{ scale: isHovered ? 1.08 : 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           loading="lazy"
+        />
+
+        {/* Gradient overlay on hover */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
         />
         
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {product.is_new && (
-            <span className="badge-new">Nouveau</span>
+            <motion.span 
+              className="badge-new"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              Nouveau
+            </motion.span>
           )}
           {product.is_promo && discount > 0 && (
-            <span className="badge-promo">-{discount}%</span>
+            <motion.span 
+              className="badge-promo"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              -{discount}%
+            </motion.span>
           )}
         </div>
 
         {/* Quick Actions */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <motion.div 
+          className="absolute top-4 right-4 flex flex-col gap-2"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
+          transition={{ duration: 0.3 }}
+        >
           <button
             onClick={(e) => {
               e.preventDefault();
