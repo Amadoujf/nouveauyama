@@ -221,8 +221,8 @@ export default function HomePage() {
               >
                 Voir les nouveautés
               </Link>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Scroll Indicator */}
