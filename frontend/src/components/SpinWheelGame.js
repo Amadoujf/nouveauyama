@@ -7,15 +7,15 @@ import confetti from 'canvas-confetti';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Wheel segments configuration
+// Wheel segments configuration - Updated without CAN
 const WHEEL_SEGMENTS = [
   { type: "discount_5", label: "-5%", color: "#F5F5F7", textColor: "#000" },
-  { type: "discount_10", label: "-10%", color: "#1C1C1E", textColor: "#fff" },
+  { type: "discount_10", label: "-10%", color: "#8B5CF6", textColor: "#fff" },
   { type: "free_shipping", label: "Livraison\nGratuite", color: "#F5F5F7", textColor: "#000" },
   { type: "discount_5", label: "-5%", color: "#1C1C1E", textColor: "#fff" },
   { type: "discount_20", label: "-20%", color: "#D4AF37", textColor: "#000" },
   { type: "discount_5", label: "-5%", color: "#1C1C1E", textColor: "#fff" },
-  { type: "jersey", label: "🏆\nMAILLOT", color: "#00A651", textColor: "#fff" },
+  { type: "discount_15", label: "-15%", color: "#EC4899", textColor: "#fff" },
   { type: "discount_10", label: "-10%", color: "#F5F5F7", textColor: "#000" },
 ];
 
