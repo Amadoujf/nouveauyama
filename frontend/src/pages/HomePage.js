@@ -55,27 +55,37 @@ const categories = [
   },
 ];
 
-// Hero carousel images - Images ORIGINALES générées par IA pour YAMA+
+// Hero carousel images - Une image pour chaque univers YAMA+
 const heroImages = [
   {
-    url: "/hero-images/hero-1.png",
-    alt: "Électronique premium - Casque, smartphone et accessoires"
+    url: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/dmn8w95m_8CF357C8-ECFD-423B-9203-96F930691053.png",
+    alt: "Électronique - iPhone, AirPods, Apple Watch et accessoires premium",
+    category: "Électronique",
+    link: "/category/electronique"
   },
   {
-    url: "/hero-images/hero-2.png",
-    alt: "Décoration intérieur - Vase, bougies et plantes"
+    url: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/73q7zijc_F1B71D85-2102-4D21-B45A-5CC6BC7B6D14.png",
+    alt: "Électroménager - Réfrigérateur, lave-linge et appareils modernes",
+    category: "Électroménager",
+    link: "/category/electromenager"
   },
   {
-    url: "/hero-images/hero-3.png",
-    alt: "Mobilier - Canapé élégant et salon moderne"
+    url: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/47gc16fh_IMG_3040.jpeg",
+    alt: "Décoration & Mobilier - Salon moderne et confortable",
+    category: "Décoration & Mobilier",
+    link: "/category/decoration"
   },
   {
-    url: "/hero-images/hero-4.png",
-    alt: "Électroménager - Appareils de cuisine modernes"
+    url: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
+    alt: "Beauté - Parfums et cosmétiques de luxe",
+    category: "Beauté",
+    link: "/category/beaute"
   },
   {
-    url: "/hero-images/hero-5.png",
-    alt: "Beauté - Parfums et cosmétiques premium"
+    url: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/8g6b1p4r_E6A78E3A-E6D7-4CC2-AB1C-95D5689D1734.png",
+    alt: "Automobile - Mercedes-Benz et véhicules premium",
+    category: "Automobile",
+    link: "/category/automobile"
   }
 ];
 
