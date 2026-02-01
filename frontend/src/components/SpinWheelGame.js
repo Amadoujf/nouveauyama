@@ -258,7 +258,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
               <div className="space-y-4">
                 <div className="text-center mb-6">
                   <p className="text-muted-foreground">
-                    Inscrivez-vous pour obtenir un tour gratuit !
+                    Inscrivez-vous pour tourner la roue gratuitement !
                   </p>
                 </div>
                 
@@ -273,7 +273,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                     }}
                     onBlur={checkEligibility}
                     placeholder="votre@email.com"
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
                 
@@ -284,7 +284,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Votre nom"
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
 
@@ -293,7 +293,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                 )}
 
                 {eligibility && !eligibility.can_spin && eligibility.is_subscribed && (
-                  <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 p-4 rounded-xl text-sm text-center">
+                  <div className="bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl text-sm text-center">
                     Vous avez déjà utilisé votre tour gratuit. 
                     <br />
                     <strong>Achetez pour +25 000 FCFA</strong> pour un nouveau tour !
@@ -307,7 +307,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                     "w-full py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2",
                     loading || (eligibility && !eligibility.can_spin && eligibility.is_subscribed)
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700"
+                      : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
                   )}
                 >
                   {loading ? (
@@ -326,7 +326,8 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                   <div className="flex flex-wrap justify-center gap-2">
                     <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">-5%</span>
                     <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">-10%</span>
-                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">-20%</span>
+                    <span className="px-3 py-1 bg-violet-100 dark:bg-violet-800 rounded-full text-xs text-violet-700 dark:text-violet-200">-15%</span>
+                    <span className="px-3 py-1 bg-amber-100 dark:bg-amber-800 rounded-full text-xs text-amber-700 dark:text-amber-200">-20%</span>
                     <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs flex items-center gap-1">
                       <Truck className="w-3 h-3" /> Livraison gratuite
                     </span>
