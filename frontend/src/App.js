@@ -68,6 +68,7 @@ function PublicLayout({ children }) {
       {!isAdminPage && <GameFloatingButton />}
       {!isAdminPage && <CompareFloatingBar />}
       {!isAdminPage && <WhatsAppButton />}
+      {!isAdminPage && <LiveChatWidget />}
     </>
   );
 }
