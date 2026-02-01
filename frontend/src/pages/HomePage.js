@@ -6,6 +6,7 @@ import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import FlashSalesSection from "../components/FlashSalesSection";
 import TrustBanner from "../components/TrustBanner";
+import TestimonialsSection from "../components/TestimonialsSection";
 import SEO from "../components/SEO";
 import { formatPrice } from "../lib/utils";
 
