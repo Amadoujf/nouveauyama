@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Smartphone, Home, Sparkles, Sofa } from "lucide-react";
+import { ArrowRight, Smartphone, Home, Sparkles, Sofa, Car } from "lucide-react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import FlashSalesSection from "../components/FlashSalesSection";
@@ -18,7 +18,7 @@ const categories = [
     name: "Électronique",
     description: "Smartphones, ordinateurs et gadgets",
     icon: Smartphone,
-    image: "https://images.unsplash.com/photo-1695822958645-b2b058159215?w=800",
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/dmn8w95m_8CF357C8-ECFD-423B-9203-96F930691053.png",
     featured: true,
   },
   {
@@ -26,7 +26,7 @@ const categories = [
     name: "Électroménager",
     description: "Appareils du quotidien",
     icon: Home,
-    image: "https://images.pexels.com/photos/2724748/pexels-photo-2724748.jpeg?w=800",
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/73q7zijc_F1B71D85-2102-4D21-B45A-5CC6BC7B6D14.png",
     featured: false,
   },
   {
@@ -34,7 +34,7 @@ const categories = [
     name: "Décoration & Mobilier",
     description: "Design et confort",
     icon: Sofa,
-    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/47gc16fh_IMG_3040.jpeg",
     featured: false,
   },
   {
@@ -42,7 +42,15 @@ const categories = [
     name: "Beauté & Bien-être",
     description: "Soins et cosmétiques",
     icon: Sparkles,
-    image: "https://images.pexels.com/photos/3762882/pexels-photo-3762882.jpeg?w=800",
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
+    featured: true,
+  },
+  {
+    id: "automobile",
+    name: "Automobile",
+    description: "Véhicules et accessoires auto",
+    icon: Car,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/8g6b1p4r_E6A78E3A-E6D7-4CC2-AB1C-95D5689D1734.png",
     featured: true,
   },
 ];
