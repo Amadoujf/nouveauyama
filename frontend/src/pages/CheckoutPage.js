@@ -616,15 +616,15 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Method */}
-              <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 md:p-8">
-                <h2 className="text-2xl font-semibold italic mb-6">Mode de Paiement</h2>
+              <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl p-4 sm:p-6 md:p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold italic mb-5 sm:mb-6">Mode de Paiement</h2>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {paymentMethods.map((method) => (
                     <label
                       key={method.id}
                       className={cn(
-                        "block relative p-5 rounded-2xl border cursor-pointer transition-all",
+                        "block relative p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all",
                         formData.payment_method === method.id
                           ? "border-black dark:border-white bg-gray-50 dark:bg-white/5 shadow-sm"
                           : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
@@ -632,12 +632,12 @@ export default function CheckoutPage() {
                     >
                       {/* Recommended badge */}
                       {method.recommended && (
-                        <span className="absolute -top-3 left-4 px-4 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-sm">
+                        <span className="absolute -top-2.5 left-3 sm:left-4 px-3 py-0.5 sm:px-4 sm:py-1 bg-green-500 text-white text-[10px] sm:text-xs font-bold rounded-full shadow-sm">
                           Recommandé
                         </span>
                       )}
                       
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         {/* Radio button */}
                         <div className={cn(
                           "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
@@ -659,7 +659,7 @@ export default function CheckoutPage() {
                         />
                         
                         {/* Logos/Icons */}
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                           {method.logos ? (
                             <>
                               {method.logos.map((logo, idx) => (
@@ -667,13 +667,13 @@ export default function CheckoutPage() {
                                   key={idx}
                                   src={logo} 
                                   alt="" 
-                                  className="h-9 w-auto object-contain"
+                                  className="h-7 sm:h-9 w-auto object-contain"
                                 />
                               ))}
                             </>
                           ) : method.icon === "cash" ? (
-                            <div className="w-11 h-11 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                              <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                               </svg>
                             </div>
@@ -681,9 +681,9 @@ export default function CheckoutPage() {
                         </div>
                         
                         {/* Text */}
-                        <div className="flex-1 ml-1">
-                          <p className="font-semibold text-base">{method.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{method.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm sm:text-base">{method.name}</p>
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{method.description}</p>
                         </div>
                       </div>
                     </label>
@@ -692,16 +692,16 @@ export default function CheckoutPage() {
 
                 {/* Payment info box */}
                 {formData.payment_method && (
-                  <div className="mt-6 p-4 bg-gray-50 dark:bg-[#2C2C2E] rounded-xl border border-gray-100 dark:border-white/5">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-semibold text-sm">
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 dark:bg-[#2C2C2E] rounded-xl border border-gray-100 dark:border-white/5">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-xs sm:text-sm">
                           {formData.payment_method === "cash" 
                             ? "Paiement à la livraison" 
                             : "Paiement sécurisé via Paytech"}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {paymentMethods.find(m => m.id === formData.payment_method)?.infoText}
                         </p>
                       </div>
@@ -710,15 +710,15 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Order notes */}
-                <div className="mt-6">
-                  <label className="block text-sm font-medium mb-2">Notes de commande (optionnel)</label>
+                <div className="mt-4 sm:mt-6">
+                  <label className="block text-xs sm:text-sm font-medium mb-2">Notes de commande (optionnel)</label>
                   <textarea
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
                     rows={2}
                     placeholder="Instructions spéciales pour la livraison..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors resize-none"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors resize-none text-sm"
                   />
                 </div>
               </div>
