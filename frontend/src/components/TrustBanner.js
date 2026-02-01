@@ -55,10 +55,10 @@ export default function TrustBanner() {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="flex items-center gap-3 px-4"
               >
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${trustItems[currentIndex].color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                <div className="w-11 h-11 rounded-xl bg-black dark:bg-white flex items-center justify-center flex-shrink-0 shadow-lg">
                   {(() => {
                     const Icon = trustItems[currentIndex].icon;
-                    return <Icon className="w-5 h-5 text-white" />;
+                    return <Icon className="w-5 h-5 text-white dark:text-black" />;
                   })()}
                 </div>
                 <div>
