@@ -2465,8 +2465,8 @@ async def spin_wheel(data: SpinRequest):
         "prize_label": prize["label"],
         "prize_code": prize_code,
         "discount_value": prize.get("discount", 0),
-        "is_jersey": prize["type"] == "jersey",
-        "message": "🏆 Félicitations! Vous avez gagné un maillot CAN personnalisé!" if prize["type"] == "jersey" else f"Bravo! Vous avez gagné {prize['label']}!"
+        "is_jersey": False,
+        "message": f"Bravo! Vous avez gagné {prize['label']}!"
     }
 
 @api_router.get("/game/my-prizes")
