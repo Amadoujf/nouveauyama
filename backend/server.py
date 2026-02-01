@@ -1508,6 +1508,303 @@ async def validate_promo_code(promo_code: str):
         "message": f"-{subscriber['discount_percent']}% sur votre commande"
     }
 
+# ============== ADVANCED PROMO CODES SYSTEM ==============
+
+class PromoCodeCreate(BaseModel):
+    code: str
+    discount_type: str  # "percent", "fixed", "free_shipping"
+    discount_value: int  # Percentage or fixed amount in FCFA
+    min_purchase: Optional[int] = None  # Minimum purchase amount
+    max_discount: Optional[int] = None  # Maximum discount for percentage
+    categories: Optional[List[str]] = None  # Applicable categories (None = all)
+    products: Optional[List[str]] = None  # Specific product IDs
+    usage_limit: Optional[int] = None  # Total usage limit
+    per_user_limit: int = 1  # Usage per user
+    start_date: Optional[str] = None  # ISO datetime
+    end_date: Optional[str] = None  # ISO datetime
+    is_active: bool = True
+    description: Optional[str] = None
+
+@api_router.post("/admin/promo-codes")
+async def create_promo_code(promo: PromoCodeCreate, user: User = Depends(require_admin)):
+    """Create a new promo code"""
+    # Check if code already exists
+    existing = await db.promo_codes.find_one({"code": promo.code.upper()})
+    if existing:
+        raise HTTPException(status_code=400, detail="Ce code promo existe déjà")
+    
+    promo_doc = {
+        "promo_id": f"promo_{uuid.uuid4().hex[:8]}",
+        "code": promo.code.upper(),
+        "discount_type": promo.discount_type,
+        "discount_value": promo.discount_value,
+        "min_purchase": promo.min_purchase,
+        "max_discount": promo.max_discount,
+        "categories": promo.categories,
+        "products": promo.products,
+        "usage_limit": promo.usage_limit,
+        "per_user_limit": promo.per_user_limit,
+        "start_date": promo.start_date,
+        "end_date": promo.end_date,
+        "is_active": promo.is_active,
+        "description": promo.description,
+        "usage_count": 0,
+        "users_used": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": user.user_id
+    }
+    
+    await db.promo_codes.insert_one(promo_doc)
+    promo_doc.pop("_id", None)
+    return promo_doc
+
+@api_router.get("/admin/promo-codes")
+async def list_promo_codes(user: User = Depends(require_admin)):
+    """List all promo codes"""
+    codes = await db.promo_codes.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return codes
+
+@api_router.put("/admin/promo-codes/{promo_id}")
+async def update_promo_code(promo_id: str, promo: PromoCodeCreate, user: User = Depends(require_admin)):
+    """Update a promo code"""
+    result = await db.promo_codes.update_one(
+        {"promo_id": promo_id},
+        {"$set": {
+            "code": promo.code.upper(),
+            "discount_type": promo.discount_type,
+            "discount_value": promo.discount_value,
+            "min_purchase": promo.min_purchase,
+            "max_discount": promo.max_discount,
+            "categories": promo.categories,
+            "products": promo.products,
+            "usage_limit": promo.usage_limit,
+            "per_user_limit": promo.per_user_limit,
+            "start_date": promo.start_date,
+            "end_date": promo.end_date,
+            "is_active": promo.is_active,
+            "description": promo.description,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Code promo non trouvé")
+    return {"message": "Code promo mis à jour"}
+
+@api_router.delete("/admin/promo-codes/{promo_id}")
+async def delete_promo_code(promo_id: str, user: User = Depends(require_admin)):
+    """Delete a promo code"""
+    result = await db.promo_codes.delete_one({"promo_id": promo_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Code promo non trouvé")
+    return {"message": "Code promo supprimé"}
+
+@api_router.post("/promo-codes/validate")
+async def validate_advanced_promo_code(request: Request):
+    """Validate a promo code for checkout"""
+    body = await request.json()
+    code = body.get("code", "").upper()
+    cart_total = body.get("cart_total", 0)
+    cart_items = body.get("cart_items", [])
+    user_id = body.get("user_id")
+    
+    # Find promo code
+    promo = await db.promo_codes.find_one({"code": code, "is_active": True}, {"_id": 0})
+    
+    if not promo:
+        # Check newsletter promo codes as fallback
+        subscriber = await db.newsletter.find_one({"promo_code": code, "active": True}, {"_id": 0})
+        if subscriber and not subscriber.get("promo_used"):
+            return {
+                "valid": True,
+                "discount_type": "percent",
+                "discount_value": subscriber["discount_percent"],
+                "discount_amount": int(cart_total * subscriber["discount_percent"] / 100),
+                "message": f"-{subscriber['discount_percent']}% sur votre commande",
+                "source": "newsletter"
+            }
+        raise HTTPException(status_code=404, detail="Code promo invalide ou expiré")
+    
+    now = datetime.now(timezone.utc)
+    
+    # Check date validity
+    if promo.get("start_date"):
+        start = datetime.fromisoformat(promo["start_date"].replace("Z", "+00:00"))
+        if now < start:
+            raise HTTPException(status_code=400, detail="Ce code promo n'est pas encore actif")
+    
+    if promo.get("end_date"):
+        end = datetime.fromisoformat(promo["end_date"].replace("Z", "+00:00"))
+        if now > end:
+            raise HTTPException(status_code=400, detail="Ce code promo a expiré")
+    
+    # Check usage limit
+    if promo.get("usage_limit") and promo.get("usage_count", 0) >= promo["usage_limit"]:
+        raise HTTPException(status_code=400, detail="Ce code promo a atteint sa limite d'utilisation")
+    
+    # Check per-user limit
+    if user_id and promo.get("per_user_limit"):
+        user_usage = promo.get("users_used", []).count(user_id)
+        if user_usage >= promo["per_user_limit"]:
+            raise HTTPException(status_code=400, detail="Vous avez déjà utilisé ce code promo")
+    
+    # Check minimum purchase
+    if promo.get("min_purchase") and cart_total < promo["min_purchase"]:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Minimum d'achat requis: {promo['min_purchase']:,} FCFA".replace(",", " ")
+        )
+    
+    # Check category restrictions
+    applicable_total = cart_total
+    if promo.get("categories"):
+        applicable_total = 0
+        for item in cart_items:
+            product = await db.products.find_one({"product_id": item.get("product_id")}, {"category": 1})
+            if product and product.get("category") in promo["categories"]:
+                applicable_total += item.get("price", 0) * item.get("quantity", 1)
+        
+        if applicable_total == 0:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Ce code est valide uniquement pour: {', '.join(promo['categories'])}"
+            )
+    
+    # Check product restrictions
+    if promo.get("products"):
+        applicable_total = 0
+        for item in cart_items:
+            if item.get("product_id") in promo["products"]:
+                applicable_total += item.get("price", 0) * item.get("quantity", 1)
+        
+        if applicable_total == 0:
+            raise HTTPException(status_code=400, detail="Ce code n'est pas applicable aux produits de votre panier")
+    
+    # Calculate discount
+    discount_amount = 0
+    if promo["discount_type"] == "percent":
+        discount_amount = int(applicable_total * promo["discount_value"] / 100)
+        if promo.get("max_discount"):
+            discount_amount = min(discount_amount, promo["max_discount"])
+    elif promo["discount_type"] == "fixed":
+        discount_amount = promo["discount_value"]
+    elif promo["discount_type"] == "free_shipping":
+        discount_amount = 0  # Shipping handled separately
+    
+    # Build response message
+    message = ""
+    if promo["discount_type"] == "percent":
+        message = f"-{promo['discount_value']}%"
+        if promo.get("max_discount"):
+            message += f" (max {promo['max_discount']:,} FCFA)".replace(",", " ")
+    elif promo["discount_type"] == "fixed":
+        message = f"-{promo['discount_value']:,} FCFA".replace(",", " ")
+    elif promo["discount_type"] == "free_shipping":
+        message = "Livraison gratuite"
+    
+    return {
+        "valid": True,
+        "promo_id": promo["promo_id"],
+        "code": promo["code"],
+        "discount_type": promo["discount_type"],
+        "discount_value": promo["discount_value"],
+        "discount_amount": discount_amount,
+        "message": message,
+        "description": promo.get("description"),
+        "source": "promo_code"
+    }
+
+@api_router.post("/promo-codes/apply")
+async def apply_promo_code(request: Request):
+    """Apply promo code to an order (called after successful checkout)"""
+    body = await request.json()
+    code = body.get("code", "").upper()
+    user_id = body.get("user_id")
+    order_id = body.get("order_id")
+    
+    # Update promo code usage
+    result = await db.promo_codes.update_one(
+        {"code": code},
+        {
+            "$inc": {"usage_count": 1},
+            "$push": {"users_used": user_id} if user_id else {}
+        }
+    )
+    
+    # Also check newsletter codes
+    if result.modified_count == 0:
+        await db.newsletter.update_one(
+            {"promo_code": code},
+            {"$set": {"promo_used": True, "used_on_order": order_id}}
+        )
+    
+    return {"message": "Code promo appliqué"}
+
+# ============== HOMEPAGE REVIEWS/TESTIMONIALS ==============
+
+@api_router.get("/reviews/featured")
+async def get_featured_reviews():
+    """Get featured reviews for homepage testimonials section"""
+    # Get reviews with high ratings (4-5 stars) and verified purchases
+    reviews = await db.reviews.find(
+        {"rating": {"$gte": 4}, "verified_purchase": True},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(10).to_list(10)
+    
+    # Enrich with product info
+    enriched_reviews = []
+    for review in reviews:
+        product = await db.products.find_one(
+            {"product_id": review["product_id"]},
+            {"_id": 0, "name": 1, "images": 1}
+        )
+        if product:
+            review["product_name"] = product.get("name")
+            review["product_image"] = product.get("images", [""])[0] if product.get("images") else ""
+            enriched_reviews.append(review)
+    
+    return enriched_reviews[:6]  # Return top 6
+
+@api_router.get("/reviews/stats")
+async def get_reviews_stats():
+    """Get overall review statistics for trust indicators"""
+    pipeline = [
+        {"$group": {
+            "_id": None,
+            "total_reviews": {"$sum": 1},
+            "average_rating": {"$avg": "$rating"},
+            "five_star": {"$sum": {"$cond": [{"$eq": ["$rating", 5]}, 1, 0]}},
+            "four_star": {"$sum": {"$cond": [{"$eq": ["$rating", 4]}, 1, 0]}},
+            "three_star": {"$sum": {"$cond": [{"$eq": ["$rating", 3]}, 1, 0]}},
+            "two_star": {"$sum": {"$cond": [{"$eq": ["$rating", 2]}, 1, 0]}},
+            "one_star": {"$sum": {"$cond": [{"$eq": ["$rating", 1]}, 1, 0]}}
+        }}
+    ]
+    
+    stats = await db.reviews.aggregate(pipeline).to_list(1)
+    
+    if stats:
+        return {
+            "total_reviews": stats[0]["total_reviews"],
+            "average_rating": round(stats[0]["average_rating"], 1),
+            "rating_distribution": {
+                "5": stats[0]["five_star"],
+                "4": stats[0]["four_star"],
+                "3": stats[0]["three_star"],
+                "2": stats[0]["two_star"],
+                "1": stats[0]["one_star"]
+            },
+            "satisfaction_rate": round(
+                (stats[0]["five_star"] + stats[0]["four_star"]) / stats[0]["total_reviews"] * 100
+            ) if stats[0]["total_reviews"] > 0 else 0
+        }
+    
+    return {
+        "total_reviews": 0,
+        "average_rating": 0,
+        "rating_distribution": {"5": 0, "4": 0, "3": 0, "2": 0, "1": 0},
+        "satisfaction_rate": 0
+    }
+
 # ============== SPIN WHEEL GAME ROUTES ==============
 
 import random
