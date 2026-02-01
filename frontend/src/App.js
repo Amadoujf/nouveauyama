@@ -12,6 +12,7 @@ import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import GameFloatingButton from "./components/GameFloatingButton";
 import WhatsAppButton from "./components/WhatsAppButton";
+import LiveChatWidget from "./components/LiveChatWidget";
 import { CompareFloatingBar } from "./components/ProductComparison";
 
 import HomePage from "./pages/HomePage";
@@ -33,6 +34,7 @@ import AdminPage from "./pages/AdminPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import ProductComparisonPage from "./components/ProductComparison";
 import LoyaltyPage from "./components/LoyaltyProgram";
+import ReferralPage from "./pages/ReferralPage";
 import DeliveryPolicyPage from "./pages/DeliveryPolicyPage";
 import ReturnPolicyPage from "./pages/ReturnPolicyPage";
 import TermsPage from "./pages/TermsPage";
