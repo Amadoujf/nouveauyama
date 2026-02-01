@@ -225,7 +225,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-green-600 to-green-700 text-white p-6 text-center">
+          <div className="relative bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-6 text-center">
             <button
               onClick={handleClose}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
@@ -234,19 +234,19 @@ export default function SpinWheelGame({ isOpen, onClose }) {
             </button>
             
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-3xl">🇸🇳</span>
-              <Trophy className="w-8 h-8" />
-              <span className="text-3xl">⚽</span>
+              <span className="text-3xl">🎁</span>
+              <Gift className="w-8 h-8" />
+              <span className="text-3xl">✨</span>
             </div>
-            <h2 className="text-2xl font-bold">Roue CAN 2025</h2>
+            <h2 className="text-2xl font-bold">Roue de la Fortune</h2>
             <p className="text-white/80 text-sm mt-1">
-              Tentez de gagner un maillot personnalisé !
+              Tentez votre chance et gagnez des réductions !
             </p>
             
             {gameConfig && (
               <div className="mt-3 flex items-center justify-center gap-4 text-sm">
                 <span className="bg-white/20 px-3 py-1 rounded-full">
-                  🏆 {gameConfig.jerseys_remaining} maillots restants
+                  🎯 Jouez maintenant
                 </span>
               </div>
             )}
