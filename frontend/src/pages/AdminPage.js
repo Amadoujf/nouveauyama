@@ -35,6 +35,8 @@ import { toast } from "sonner";
 import EmailCampaignsPage from "./EmailCampaignsPage";
 import FlashSalesAdminPage from "./FlashSalesAdminPage";
 import AnalyticsDashboard from "./AnalyticsDashboard";
+import PromoCodesAdminPage from "./PromoCodesAdminPage";
+import AbandonedCartsAdminPage from "./AbandonedCartsAdminPage";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
