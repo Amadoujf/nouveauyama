@@ -140,7 +140,7 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-black">
         {/* Animated Background Images Carousel */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20 dark:from-black dark:via-black/90 dark:to-black/20 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent dark:from-black/95 dark:via-black/70 dark:to-transparent z-10" />
           <AnimatePresence mode="wait">
             <motion.img
               key={currentImageIndex}
