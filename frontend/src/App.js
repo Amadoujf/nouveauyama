@@ -53,6 +53,8 @@ function ScrollToTop() {
   return null;
 }
 
+import NotificationBanner from "./components/NotificationBanner";
+
 // Layout wrapper for public pages
 function PublicLayout({ children }) {
   const location = useLocation();
@@ -60,6 +62,7 @@ function PublicLayout({ children }) {
 
   return (
     <>
+      {!isAdminPage && <NotificationBanner />}
       {!isAdminPage && <Navbar />}
       {children}
       {!isAdminPage && <Footer />}
