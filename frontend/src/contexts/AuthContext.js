@@ -43,8 +43,7 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password, phone = null) => {
     const response = await axios.post(
       `${API_URL}/api/auth/register`,
-      { name, email, password, phone },
-      { withCredentials: true }
+      { name, email, password, phone }
     );
     
     const { token: newToken, ...userData } = response.data;
@@ -59,8 +58,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const response = await axios.post(
       `${API_URL}/api/auth/login`,
-      { email, password },
-      { withCredentials: true }
+      { email, password }
     );
     
     const { token: newToken, ...userData } = response.data;
