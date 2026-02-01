@@ -133,7 +133,7 @@ export default function CheckoutPage() {
     city: "",
     region: "Dakar",
     notes: "",
-    payment_method: "wave",
+    payment_method: "mobile_money",
   });
 
   useEffect(() => {
