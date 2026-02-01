@@ -26,6 +26,7 @@ import {
 } from "../lib/utils";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
+import PromoCodeInput from "../components/PromoCodeInput";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221770000000";
