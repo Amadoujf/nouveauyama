@@ -2308,15 +2308,15 @@ SPIN_PRIZES = [
     {"type": "discount_5", "label": "-5%", "probability": 0.50, "discount": 5},
     {"type": "discount_10", "label": "-10%", "probability": 0.25, "discount": 10},
     {"type": "free_shipping", "label": "Livraison Gratuite", "probability": 0.15, "discount": 0},
-    {"type": "discount_20", "label": "-20%", "probability": 0.08, "discount": 20},
-    {"type": "jersey", "label": "🏆 Maillot CAN", "probability": 0.02, "discount": 0},
+    {"type": "discount_15", "label": "-15%", "probability": 0.08, "discount": 15},
+    {"type": "discount_20", "label": "-20%", "probability": 0.02, "discount": 20},
 ]
 
 # Game configuration
 GAME_CONFIG = {
-    "name": "Roue CAN 2025",
-    "end_date": "2026-02-28T23:59:59Z",  # Extended for demo
-    "max_jerseys": 10,  # Maximum jerseys to give away
+    "name": "Roue de la Fortune",
+    "end_date": "2026-12-31T23:59:59Z",  # Extended for long-term use
+    "max_jerseys": 0,  # No more jerseys
     "min_purchase_for_spin": 25000,  # FCFA
 }
 
