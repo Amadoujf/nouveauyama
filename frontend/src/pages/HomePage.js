@@ -244,11 +244,11 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.7 }}
             >
               <Link
-                to="/category/electronique"
+                to={heroImages[currentImageIndex].link}
                 className="btn-primary btn-ripple btn-magnetic group"
                 data-testid="hero-cta"
               >
-                Explorer la boutique
+                Découvrir {heroImages[currentImageIndex].category}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
