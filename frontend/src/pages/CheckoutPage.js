@@ -613,20 +613,6 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   )}
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">
-                      Notes (optionnel)
-                    </label>
-                    <textarea
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleChange}
-                      rows={3}
-                      placeholder="Instructions de livraison supplémentaires"
-                      className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors resize-none"
-                    />
-                  </div>
                 </div>
               </div>
 
