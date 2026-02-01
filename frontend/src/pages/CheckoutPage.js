@@ -52,14 +52,13 @@ const paymentMethods = [
   { 
     id: "mobile_money", 
     name: "Mobile Money", 
-    description: "Wave, Orange Money, Free Money",
+    description: "Wave, Orange Money",
     recommended: true,
     logos: [
       "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp",
       "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
     ],
-    freeLetter: "F",
-    infoText: "Vous serez redirigé vers la page de paiement sécurisée Paytech pour choisir Wave, Orange Money ou Free Money."
+    infoText: "Vous serez redirigé vers la page de paiement sécurisée Paytech pour choisir Wave ou Orange Money."
   },
   { 
     id: "cash", 
