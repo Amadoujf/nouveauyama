@@ -116,132 +116,124 @@ function AnimatedCountdownTimer({ endDate }) {
 
 function FlashProductCard({ product, index }) {
   const { addToCart, loading } = useCart();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const discount = calculateDiscount(product.price, product.flash_sale_price || product.price);
   const savings = product.price - (product.flash_sale_price || product.price);
   
+  // Auto-scroll images if product has multiple images (max 3)
+  const images = product.images?.slice(0, 3) || ["/placeholder.jpg"];
+  
+  useEffect(() => {
+    if (images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [images.length]);
+  
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true }}
       transition={{ 
-        delay: index * 0.15,
+        delay: index * 0.1,
         type: "spring",
-        stiffness: 100,
+        stiffness: 120,
         damping: 15
       }}
       className="relative group"
     >
-      {/* Animated glow effect */}
       <motion.div 
-        className="absolute -inset-2 bg-gradient-to-r from-red-500/40 via-orange-500/40 to-yellow-500/40 rounded-3xl opacity-0 group-hover:opacity-100 blur-2xl transition-all duration-500"
-        animate={{
-          background: [
-            "linear-gradient(45deg, rgba(239,68,68,0.4), rgba(249,115,22,0.4), rgba(234,179,8,0.4))",
-            "linear-gradient(180deg, rgba(249,115,22,0.4), rgba(234,179,8,0.4), rgba(239,68,68,0.4))",
-            "linear-gradient(45deg, rgba(239,68,68,0.4), rgba(249,115,22,0.4), rgba(234,179,8,0.4))"
-          ]
-        }}
-        transition={{ duration: 3, repeat: Infinity }}
-      />
-      
-      <motion.div 
-        className="relative bg-white dark:bg-[#1C1C1E] rounded-3xl overflow-hidden shadow-xl"
-        whileHover={{ y: -10, scale: 1.02 }}
+        className="relative bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-lg"
+        whileHover={{ y: -5, scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300 }}
       >
-        {/* Flash Sale Badge - Animated */}
-        <motion.div 
-          className="absolute top-4 left-4 z-20"
-          animate={{ 
-            scale: [1, 1.1, 1],
-            rotate: [0, -3, 3, 0]
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="bg-gradient-to-r from-red-500 via-orange-500 to-red-500 bg-[length:200%_100%] text-white px-4 py-2 rounded-full text-sm font-black flex items-center gap-2 shadow-lg animate-gradient">
-            <Flame className="w-4 h-4" />
+        {/* Flash Sale Badge - Compact */}
+        <div className="absolute top-2 left-2 z-20">
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-md">
+            <Flame className="w-3 h-3" />
             -{discount}%
           </div>
-        </motion.div>
+        </div>
 
-        {/* Timer badge */}
-        <motion.div 
-          className="absolute top-4 right-4 z-20 bg-black/90 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5"
-          animate={{ opacity: [1, 0.7, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <Timer className="w-3 h-3 animate-pulse" />
+        {/* Timer badge - Compact */}
+        <div className="absolute top-2 right-2 z-20 bg-black/80 text-white px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
+          <Timer className="w-2.5 h-2.5" />
           LIMITÉ
-        </motion.div>
+        </div>
 
-        {/* Product Image */}
+        {/* Product Image Carousel */}
         <Link to={`/produit/${product.product_id}`} className="block">
-          <div className="relative aspect-square overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]">
-            <motion.img 
-              src={product.images?.[0] || "/placeholder.jpg"}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.6 }}
-            />
+          <div className="relative aspect-[4/3] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]">
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              />
+            </AnimatePresence>
             
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            {/* Sparkle effects */}
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
-            >
-              <Sparkles className="absolute top-1/4 left-1/4 w-6 h-6 text-yellow-400" />
-              <Sparkles className="absolute bottom-1/3 right-1/4 w-4 h-4 text-orange-400" />
-            </motion.div>
+            {/* Image indicators */}
+            {images.length > 1 && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                {images.map((_, idx) => (
+                  <div 
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      idx === currentImageIndex 
+                        ? 'bg-white w-3' 
+                        : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </Link>
         
-        {/* Product Info */}
-        <div className="p-5">
+        {/* Product Info - Compact */}
+        <div className="p-3">
           <Link to={`/produit/${product.product_id}`}>
-            <h3 className="font-semibold text-base line-clamp-2 mb-3 group-hover:text-red-500 transition-colors">
+            <h3 className="font-semibold text-sm line-clamp-1 mb-2 group-hover:text-red-500 transition-colors">
               {product.name}
             </h3>
           </Link>
           
-          {/* Price section */}
-          <div className="flex items-end gap-3 mb-4">
-            <motion.span 
-              className="text-2xl font-black text-red-500"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
+          {/* Price section - Compact */}
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-lg font-black text-red-500">
               {formatPrice(product.flash_sale_price || product.price)}
-            </motion.span>
-            <span className="text-sm text-muted-foreground line-through">
+            </span>
+            <span className="text-xs text-muted-foreground line-through">
               {formatPrice(product.price)}
             </span>
           </div>
           
-          {/* Savings badge */}
-          <div className="flex items-center gap-2 mb-4 p-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
-            <TrendingDown className="w-4 h-4 text-green-500" />
-            <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-              Économisez {formatPrice(savings)}
+          {/* Savings badge - Compact */}
+          <div className="flex items-center gap-1.5 mb-3 px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <TrendingDown className="w-3 h-3 text-green-500" />
+            <span className="text-xs font-semibold text-green-600 dark:text-green-400">
+              -{formatPrice(savings)}
             </span>
           </div>
           
-          {/* Add to cart button */}
+          {/* Add to cart button - Compact */}
           <motion.button
             onClick={() => addToCart(product.product_id)}
             disabled={loading}
-            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+            className="w-full py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white text-sm font-bold rounded-lg flex items-center justify-center gap-1.5 shadow-md"
           >
-            <ShoppingBag className="w-5 h-5" />
-            Ajouter au panier
+            <ShoppingBag className="w-4 h-4" />
+            Ajouter
           </motion.button>
         </div>
       </motion.div>
