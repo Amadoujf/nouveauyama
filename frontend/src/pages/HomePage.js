@@ -129,51 +129,87 @@ export default function HomePage() {
               src={heroImages[currentImageIndex].url}
               alt={heroImages[currentImageIndex].alt}
               className="absolute w-full h-full object-cover object-center"
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
+              initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             />
           </AnimatePresence>
         </div>
 
-        {/* Slide Indicators */}
+        {/* Slide Indicators with animation */}
         <div className="absolute bottom-24 right-10 z-20 flex gap-2">
           {heroImages.map((_, index) => (
-            <button
+            <motion.button
               key={index}
               onClick={() => setCurrentImageIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              className={`h-2 rounded-full transition-all duration-500 ${
                 index === currentImageIndex 
-                  ? "bg-black dark:bg-white w-6" 
-                  : "bg-black/30 dark:bg-white/30 hover:bg-black/50 dark:hover:bg-white/50"
+                  ? "bg-black dark:bg-white w-8" 
+                  : "bg-black/30 dark:bg-white/30 hover:bg-black/50 dark:hover:bg-white/50 w-2"
               }`}
               aria-label={`Slide ${index + 1}`}
             />
           ))}
         </div>
 
+        {/* Scroll Indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 hidden md:flex flex-col items-center gap-2 text-muted-foreground"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <span className="text-xs tracking-wider">SCROLL</span>
+          <motion.div 
+            className="w-5 h-8 border-2 border-current rounded-full flex justify-center pt-1"
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <motion.div className="w-1 h-2 bg-current rounded-full" />
+          </motion.div>
+        </motion.div>
+
         {/* Hero Content */}
         <div className="relative container-lumina pt-20 z-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl"
-          >
-            <p className="text-caption mb-6">Groupe YAMA+</p>
-            <h1 className="heading-hero mb-6">
+          <div className="max-w-2xl">
+            <motion.p 
+              className="text-caption mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Groupe YAMA+
+            </motion.p>
+            <motion.h1 
+              className="heading-hero mb-6"
+              initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
               Le shopping, autrement.
-            </h1>
-            <p className="text-body-lg mb-10">
+            </motion.h1>
+            <motion.p 
+              className="text-body-lg mb-10"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+            >
               Électronique, maison et essentiels du quotidien.
               <br />
               Sélectionnés avec exigence.
-            </p>
-            <div className="flex flex-col sm:flex-row items-start gap-4">
+            </motion.p>
+            <motion.div 
+              className="flex flex-col sm:flex-row items-start gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+            >
               <Link
                 to="/category/electronique"
-                className="btn-primary group"
+                className="btn-primary btn-ripple btn-magnetic group"
                 data-testid="hero-cta"
               >
                 Explorer la boutique
