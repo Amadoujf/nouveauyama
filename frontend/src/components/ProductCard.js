@@ -1,33 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye, Scale, Check } from "lucide-react";
-import { formatPrice, calculateDiscount, truncateText } from "../lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, ShoppingBag, Check } from "lucide-react";
+import { formatPrice, calculateDiscount } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
-import { useProductComparison } from "./ProductComparison";
 import { cn } from "../lib/utils";
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart, loading: cartLoading } = useCart();
   const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
-  const { addToCompare, removeFromCompare, isInCompare } = useProductComparison();
   const [addedToCart, setAddedToCart] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const discount = calculateDiscount(product.original_price, product.price);
   const inWishlist = isInWishlist(product.product_id);
-  const inCompare = isInCompare(product.product_id);
-
-  const handleCompareClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (inCompare) {
-      removeFromCompare(product.product_id);
-    } else {
-      addToCompare(product);
-    }
-  };
+  
+  // Auto-scroll images if product has multiple images (max 3)
+  const images = product.images?.slice(0, 3) || ["/placeholder.jpg"];
+  
+  useEffect(() => {
+    if (images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 3500);
+    
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -37,186 +37,146 @@ export default function ProductCard({ product, index = 0 }) {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product.product_id);
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
-        duration: 0.6, 
-        delay: index * 0.08,
+        duration: 0.4, 
+        delay: index * 0.05,
         ease: [0.16, 1, 0.3, 1]
       }}
-      whileHover={{ y: -8 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="product-card group relative"
+      className="product-card group relative bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
       data-testid={`product-card-${product.product_id}`}
     >
-      {/* Image Container */}
+      {/* Image Container with Carousel */}
       <Link
-        to={`/product/${product.product_id}`}
-        className="block relative aspect-[4/5] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E] rounded-2xl"
+        to={`/produit/${product.product_id}`}
+        className="block relative aspect-[4/3] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]"
       >
-        <motion.img
-          src={product.images?.[0] || "/placeholder.jpg"}
-          alt={product.name}
-          className="w-full h-full object-cover"
-          animate={{ scale: isHovered ? 1.08 : 1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          loading="lazy"
-        />
+        {/* Image Carousel */}
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            src={images[currentImageIndex]}
+            alt={product.name}
+            className="w-full h-full object-cover"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            loading="lazy"
+          />
+        </AnimatePresence>
 
-        {/* Gradient overlay on hover */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        />
+        {/* Image indicators */}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {images.map((_, idx) => (
+              <div 
+                key={idx}
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full transition-all",
+                  idx === currentImageIndex 
+                    ? 'bg-white w-3 shadow-sm' 
+                    : 'bg-white/50'
+                )}
+              />
+            ))}
+          </div>
+        )}
         
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2">
+        <div className="absolute top-2 left-2 flex flex-col gap-1.5">
           {product.is_new && (
-            <motion.span 
-              className="badge-new"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <span className="bg-black dark:bg-white text-white dark:text-black text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">
               Nouveau
-            </motion.span>
+            </span>
           )}
           {product.is_promo && discount > 0 && (
-            <motion.span 
-              className="badge-promo"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <span className="bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">
               -{discount}%
-            </motion.span>
+            </span>
           )}
         </div>
 
-        {/* Quick Actions */}
-        <motion.div 
-          className="absolute top-4 right-4 flex flex-col gap-2"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
-          transition={{ duration: 0.3 }}
+        {/* Wishlist Button */}
+        <button
+          onClick={handleWishlistClick}
+          disabled={wishlistLoading}
+          className={cn(
+            "absolute top-2 right-2 p-1.5 sm:p-2 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 z-10",
+            inWishlist && "text-red-500"
+          )}
+          aria-label={inWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
+          data-testid={`wishlist-btn-${product.product_id}`}
         >
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(product.product_id);
-            }}
-            disabled={wishlistLoading}
-            className={cn(
-              "p-2.5 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-lg transition-all hover:scale-110",
-              inWishlist && "text-red-500"
-            )}
-            aria-label={inWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
-            data-testid={`wishlist-btn-${product.product_id}`}
-          >
-            <Heart className={cn("w-5 h-5", inWishlist && "fill-current")} />
-          </button>
-          <button
-            onClick={handleCompareClick}
-            className={cn(
-              "p-2.5 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-lg transition-all hover:scale-110",
-              inCompare && "text-primary bg-primary/10"
-            )}
-            aria-label={inCompare ? "Retirer de la comparaison" : "Comparer"}
-            data-testid={`compare-btn-${product.product_id}`}
-          >
-            <Scale className="w-5 h-5" />
-          </button>
-          <Link
-            to={`/product/${product.product_id}`}
-            className="p-2.5 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-sm shadow-lg transition-all hover:scale-110"
-            aria-label="Voir le produit"
-            data-testid={`view-btn-${product.product_id}`}
-          >
-            <Eye className="w-5 h-5" />
-          </Link>
-        </motion.div>
+          <Heart className={cn("w-4 h-4", inWishlist && "fill-current")} />
+        </button>
 
-        {/* Add to Cart - Bottom */}
-        <motion.div 
-          className="absolute bottom-0 left-0 right-0 p-4"
-          initial={{ y: "100%" }}
-          animate={{ y: isHovered ? 0 : "100%" }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <motion.button
-            onClick={handleAddToCart}
-            disabled={cartLoading || product.stock === 0}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              "w-full btn-primary justify-center py-3 btn-ripple",
-              product.stock === 0 && "opacity-50 cursor-not-allowed",
-              addedToCart && "bg-green-500 hover:bg-green-600"
-            )}
-            data-testid={`add-to-cart-btn-${product.product_id}`}
-          >
-            {addedToCart ? (
-              <>
-                <Check className="w-4 h-4 animate-bounce-in" />
-                Ajouté !
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="w-4 h-4" />
-                {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
-              </>
-            )}
-          </motion.button>
-        </motion.div>
+        {/* Stock badge */}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">
+              Rupture
+            </span>
+          </div>
+        )}
       </Link>
 
-      {/* Product Info */}
-      <div className="p-4">
-        <Link to={`/product/${product.product_id}`} className="block">
-          <motion.h3 
-            className="font-medium text-[#1D1D1F] dark:text-white mb-1 line-clamp-1 transition-colors"
-            whileHover={{ color: "#0071E3" }}
-          >
+      {/* Product Info - Compact */}
+      <div className="p-2.5 sm:p-3">
+        <Link to={`/produit/${product.product_id}`} className="block">
+          <h3 className="font-semibold text-xs sm:text-sm line-clamp-1 mb-1 group-hover:text-primary transition-colors">
             {product.name}
-          </motion.h3>
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-            {truncateText(product.short_description, 60)}
-          </p>
+          </h3>
         </Link>
         
-        <div className="flex items-center gap-2">
-          <motion.span 
-            className="font-semibold text-[#1D1D1F] dark:text-white price-fcfa"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+        {/* Price section - Compact */}
+        <div className="flex items-baseline gap-1.5 mb-2">
+          <span className="text-sm sm:text-base font-bold text-[#1D1D1F] dark:text-white">
             {formatPrice(product.price)}
-          </motion.span>
+          </span>
           {product.original_price && product.original_price > product.price && (
-            <span className="text-sm text-muted-foreground line-through price-fcfa">
+            <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
               {formatPrice(product.original_price)}
             </span>
           )}
         </div>
+        
+        {/* Add to cart button - Compact */}
+        <motion.button
+          onClick={handleAddToCart}
+          disabled={cartLoading || product.stock === 0}
+          whileTap={{ scale: 0.97 }}
+          className={cn(
+            "w-full py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all",
+            addedToCart 
+              ? "bg-green-500 text-white" 
+              : "bg-black dark:bg-white text-white dark:text-black hover:opacity-90",
+            product.stock === 0 && "opacity-50 cursor-not-allowed"
+          )}
+          data-testid={`add-to-cart-btn-${product.product_id}`}
+        >
+          {addedToCart ? (
+            <>
+              <Check className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Ajouté</span>
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>{product.stock === 0 ? "Rupture" : "Ajouter"}</span>
+            </>
+          )}
+        </motion.button>
       </div>
-
-      {/* Hover shadow effect */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        initial={{ boxShadow: "0 0 0 rgba(0,0,0,0)" }}
-        animate={{ 
-          boxShadow: isHovered 
-            ? "0 25px 50px -12px rgba(0,0,0,0.25)" 
-            : "0 0 0 rgba(0,0,0,0)" 
-        }}
-        transition={{ duration: 0.3 }}
-      />
     </motion.div>
   );
 }
