@@ -4612,7 +4612,8 @@ async def get_categories():
         {"id": "electronique", "name": "Électronique", "icon": "Smartphone"},
         {"id": "electromenager", "name": "Électroménager", "icon": "Refrigerator"},
         {"id": "decoration", "name": "Décoration & Mobilier", "icon": "Sofa"},
-        {"id": "beaute", "name": "Beauté & Bien-être", "icon": "Sparkles"}
+        {"id": "beaute", "name": "Beauté & Bien-être", "icon": "Sparkles"},
+        {"id": "automobile", "name": "Automobile", "icon": "Car"}
     ]
 
 # ============== SEO - SITEMAP ==============
