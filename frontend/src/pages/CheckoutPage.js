@@ -50,32 +50,33 @@ const DAKAR_NEIGHBORHOODS = [
 
 const paymentMethods = [
   { 
-    id: "wave", 
-    name: "Wave", 
-    logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp"
-  },
-  { 
-    id: "orange_money", 
-    name: "Orange Money", 
-    logo: "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
-  },
-  { 
-    id: "free_money", 
-    name: "Free Money", 
-    color: "bg-[#00A651]",
-    textColor: "text-white",
-    letter: "F"
-  },
-  { 
-    id: "card", 
-    name: "Carte bancaire", 
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png",
-    logo2: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png"
+    id: "mobile_money", 
+    name: "Mobile Money", 
+    description: "Wave, Orange Money, Free Money",
+    recommended: true,
+    logos: [
+      "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp",
+      "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
+    ],
+    freeLetter: "F",
+    infoText: "Vous serez redirigé vers la page de paiement sécurisée Paytech pour choisir Wave, Orange Money ou Free Money."
   },
   { 
     id: "cash", 
     name: "Paiement à la livraison", 
-    icon: "💵" 
+    description: "Payez en espèces à la réception",
+    icon: "cash",
+    infoText: "Payez en espèces lors de la réception de votre commande."
+  },
+  { 
+    id: "card", 
+    name: "Carte Bancaire", 
+    description: "Visa, Mastercard",
+    logos: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png"
+    ],
+    infoText: "Paiement sécurisé par carte bancaire via Paytech."
   },
 ];
 
