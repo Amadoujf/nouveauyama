@@ -62,8 +62,11 @@ function PublicLayout({ children }) {
 
   return (
     <>
-      {!isAdminPage && <NotificationBanner />}
-      {!isAdminPage && <Navbar />}
+      {/* Sticky header container */}
+      <div className="sticky top-0 z-50">
+        {!isAdminPage && <NotificationBanner />}
+        {!isAdminPage && <Navbar />}
+      </div>
       {children}
       {!isAdminPage && <Footer />}
       <CartDrawer />
