@@ -122,9 +122,9 @@ export default function CategoryPage() {
 
           {/* Products Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="aspect-[4/5] rounded-3xl skeleton" />
+                <div key={i} className="aspect-[4/5] rounded-2xl skeleton" />
               ))}
             </div>
           ) : sortedProducts.length === 0 ? (
@@ -137,7 +137,7 @@ export default function CategoryPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {sortedProducts.map((product, index) => (
                 <ProductCard key={product.product_id} product={product} index={index} />
               ))}
