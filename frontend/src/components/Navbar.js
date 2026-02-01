@@ -89,8 +89,8 @@ export default function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled ? "glass-nav shadow-subtle" : "bg-transparent"
+          "relative w-full z-50 transition-all duration-300",
+          isScrolled ? "glass-nav shadow-subtle" : "bg-white/80 dark:bg-black/80 backdrop-blur-md"
         )}
       >
         <nav className="container-lumina">
