@@ -224,17 +224,6 @@ export default function HomePage() {
             </motion.div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <div className="w-6 h-10 border-2 border-black/20 dark:border-white/20 rounded-full flex items-start justify-center p-1">
-            <div className="w-1.5 h-3 bg-black/30 dark:bg-white/30 rounded-full" />
-          </div>
-        </motion.div>
       </section>
 
       {/* Trust Banner */}
