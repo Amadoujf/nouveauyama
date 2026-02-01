@@ -162,20 +162,94 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "nav-link",
-                    isActive(item.href) && "nav-link-active"
-                  )}
-                  data-testid={`nav-${item.name.toLowerCase()}`}
+            <div className="hidden lg:flex items-center gap-6">
+              {/* Categories Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  onMouseEnter={() => setIsCategoryDropdownOpen(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 font-medium hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
                 >
-                  {item.name}
-                </Link>
-              ))}
+                  Catégories
+                  <ChevronDown className={cn(
+                    "w-4 h-4 transition-transform duration-200",
+                    isCategoryDropdownOpen && "rotate-180"
+                  )} />
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {isCategoryDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      onMouseLeave={() => setIsCategoryDropdownOpen(false)}
+                      className="absolute top-full left-0 mt-2 w-[600px] bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden z-50"
+                    >
+                      <div className="p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          {categoryItems.map((category) => (
+                            <Link
+                              key={category.href}
+                              to={category.href}
+                              onClick={() => setIsCategoryDropdownOpen(false)}
+                              className="group flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                            >
+                              <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                                <img
+                                  src={category.image}
+                                  alt={category.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <category.icon className="w-4 h-4 text-muted-foreground" />
+                                  <span className="font-semibold group-hover:text-primary transition-colors">
+                                    {category.name}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {category.description}
+                                </p>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                            </Link>
+                          ))}
+                        </div>
+                        
+                        {/* View all categories link */}
+                        <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/10">
+                          <Link
+                            to="/produits"
+                            onClick={() => setIsCategoryDropdownOpen(false)}
+                            className="flex items-center justify-center gap-2 py-2 text-sm font-medium text-primary hover:underline"
+                          >
+                            Voir tous les produits
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Other nav items */}
+              <Link
+                to="/nouveautes"
+                className={cn("nav-link", isActive("/nouveautes") && "nav-link-active")}
+              >
+                Nouveautés
+              </Link>
+              <Link
+                to="/promotions"
+                className={cn("nav-link", isActive("/promotions") && "nav-link-active")}
+              >
+                Promotions
+              </Link>
             </div>
 
             {/* Right Actions */}
