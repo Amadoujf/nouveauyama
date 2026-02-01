@@ -197,12 +197,27 @@ export default function CheckoutPage() {
     setShowNeighborhoods(false);
   };
 
-  const shippingCost = shippingInfo.cost;
+  const shippingCost = appliedPromo?.discount_type === "free_shipping" ? 0 : shippingInfo.cost;
   const subtotal = cart.total;
-  const discount = appliedPromo ? Math.round(subtotal * (appliedPromo.discount_percent / 100)) : 0;
+  const discount = appliedPromo?.discount_amount || (appliedPromo?.discount_percent ? Math.round(subtotal * (appliedPromo.discount_percent / 100)) : 0);
   const total = subtotal - discount + shippingCost;
 
-  // Apply promo code
+  // Apply promo code (new advanced system)
+  const handleApplyPromoAdvanced = (promoData) => {
+    setAppliedPromo({
+      code: promoData.code,
+      discount_type: promoData.discount_type,
+      discount_value: promoData.discount_value,
+      discount_amount: promoData.discount_amount,
+      discount_percent: promoData.discount_type === "percent" ? promoData.discount_value : null,
+      message: promoData.message,
+      promo_id: promoData.promo_id,
+      source: promoData.source
+    });
+    toast.success(`Code promo appliqué ! ${promoData.message}`);
+  };
+
+  // Legacy apply promo (keeping for compatibility)
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     
@@ -210,12 +225,17 @@ export default function CheckoutPage() {
     setPromoError("");
     
     try {
-      const response = await axios.get(`${API_URL}/api/newsletter/validate/${promoCode.trim()}`);
-      setAppliedPromo({
+      const response = await axios.post(`${API_URL}/api/promo-codes/validate`, {
         code: promoCode.trim(),
-        discount_percent: response.data.discount_percent,
+        cart_total: subtotal,
+        cart_items: cart.items.map(item => ({
+          product_id: item.product_id,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        user_id: user?.user_id
       });
-      toast.success(`Code promo appliqué ! -${response.data.discount_percent}%`);
+      handleApplyPromoAdvanced(response.data);
     } catch (error) {
       setPromoError(error.response?.data?.detail || "Code promo invalide");
       setAppliedPromo(null);
