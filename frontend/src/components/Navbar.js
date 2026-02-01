@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,16 +21,56 @@ import {
   Phone,
   HelpCircle,
   ChevronRight,
+  Car,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { cn } from "../lib/utils";
+
+const categoryItems = [
+  { 
+    name: "Électronique", 
+    href: "/category/electronique", 
+    icon: Smartphone,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/dmn8w95m_8CF357C8-ECFD-423B-9203-96F930691053.png",
+    description: "Smartphones, ordinateurs et gadgets"
+  },
+  { 
+    name: "Électroménager", 
+    href: "/category/electromenager", 
+    icon: Home,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/73q7zijc_F1B71D85-2102-4D21-B45A-5CC6BC7B6D14.png",
+    description: "Appareils du quotidien"
+  },
+  { 
+    name: "Décoration", 
+    href: "/category/decoration", 
+    icon: Sofa,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/47gc16fh_IMG_3040.jpeg",
+    description: "Design et confort"
+  },
+  { 
+    name: "Beauté", 
+    href: "/category/beaute", 
+    icon: Sparkles,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
+    description: "Soins et cosmétiques"
+  },
+  { 
+    name: "Automobile", 
+    href: "/category/automobile", 
+    icon: Car,
+    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/8g6b1p4r_E6A78E3A-E6D7-4CC2-AB1C-95D5689D1734.png",
+    description: "Véhicules et accessoires"
+  },
+];
 
 const navItems = [
   { name: "Électronique", href: "/category/electronique", icon: Smartphone },
   { name: "Électroménager", href: "/category/electromenager", icon: Home },
   { name: "Décoration", href: "/category/decoration", icon: Sofa },
   { name: "Beauté", href: "/category/beaute", icon: Sparkles },
+  { name: "Automobile", href: "/category/automobile", icon: Car },
   { name: "Nouveautés", href: "/nouveautes", icon: Star },
   { name: "Promotions", href: "/promotions", icon: Percent },
 ];
