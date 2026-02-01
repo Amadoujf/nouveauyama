@@ -106,10 +106,10 @@ export default function TrustBanner() {
                   index === currentIndex ? "" : "hover:opacity-80"
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-md transition-shadow ${
+                <div className={`w-10 h-10 rounded-xl bg-black dark:bg-white flex items-center justify-center flex-shrink-0 shadow-md transition-shadow ${
                   index === currentIndex ? "shadow-lg" : ""
                 }`}>
-                  <item.icon className="w-5 h-5 text-white" />
+                  <item.icon className="w-5 h-5 text-white dark:text-black" />
                 </div>
                 <div>
                   <p className={`font-medium text-sm transition-colors ${
