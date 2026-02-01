@@ -26,6 +26,8 @@ import {
   Image as ImageIcon,
   Loader2,
   BarChart3,
+  Tag,
+  ShoppingBag,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
@@ -43,6 +45,8 @@ const menuItems = [
   { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
   { id: "users", label: "Utilisateurs", icon: Users, href: "/admin/users" },
+  { id: "promo-codes", label: "Codes Promo", icon: Tag, href: "/admin/promo-codes" },
+  { id: "abandoned-carts", label: "Paniers abandonnés", icon: ShoppingBag, href: "/admin/abandoned-carts" },
   { id: "email", label: "Campagnes Email", icon: Mail, href: "/admin/email" },
 ];
 
