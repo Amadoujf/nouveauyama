@@ -36,7 +36,7 @@ import FrequentlyBoughtTogether from "../components/FrequentlyBoughtTogether";
 import SEO from "../components/SEO";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const WHATSAPP_NUMBER = "+221770000000";
+const WHATSAPP_NUMBER = "+221783827575";
 
 export default function ProductPage() {
   const { productId } = useParams();

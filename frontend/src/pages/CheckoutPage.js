@@ -29,7 +29,7 @@ import { cn } from "../lib/utils";
 import PromoCodeInput from "../components/PromoCodeInput";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const WHATSAPP_NUMBER = "+221770000000";
+const WHATSAPP_NUMBER = "+221783827575";
 const STORE_ADDRESS = "Fass Paillote, Dakar";
 
 // Dakar neighborhoods for autocomplete

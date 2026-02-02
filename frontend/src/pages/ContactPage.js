@@ -75,7 +75,7 @@ export default function ContactPage() {
 
               <div className="space-y-6 mb-12">
                 <a
-                  href="https://wa.me/221770000000"
+                  href="https://wa.me/221783827575"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start gap-4 p-6 bg-[#25D366]/10 rounded-2xl hover:bg-[#25D366]/20 transition-colors group"

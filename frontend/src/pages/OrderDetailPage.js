@@ -261,7 +261,7 @@ export default function OrderDetailPage() {
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Besoin d'aide ?</p>
                 <a
-                  href="https://wa.me/221770000000"
+                  href="https://wa.me/221783827575"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#25D366] font-medium text-sm hover:underline"

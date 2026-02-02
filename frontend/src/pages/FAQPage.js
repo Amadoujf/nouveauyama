@@ -177,7 +177,7 @@ export default function FAQPage() {
                 Notre équipe est disponible pour vous aider via WhatsApp.
               </p>
               <a
-                href="https://wa.me/221770000000"
+                href="https://wa.me/221783827575"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary bg-[#25D366] border-[#25D366] hover:bg-[#25D366]/90 inline-flex"

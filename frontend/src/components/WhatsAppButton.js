@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Phone } from "lucide-react";
 
-const WHATSAPP_NUMBER = "221770000000"; // Replace with actual number
+const WHATSAPP_NUMBER = "221783827575"; // Replace with actual number
 const STORE_NAME = "YAMA+";
 
 const quickMessages = [
