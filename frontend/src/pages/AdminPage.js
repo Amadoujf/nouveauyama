@@ -103,6 +103,7 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [productFormLoading, setProductFormLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
   const [activeFormTab, setActiveFormTab] = useState("general");
   const [productForm, setProductForm] = useState({
     name: "",
