@@ -543,7 +543,7 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
-            {orders.length === 0 && (
+            {(Array.isArray(orders) ? orders : []).length === 0 && (
               <div className="p-8 text-center text-muted-foreground">
                 Aucune commande récente
               </div>
