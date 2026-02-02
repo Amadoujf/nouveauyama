@@ -13,6 +13,7 @@ import {
   Minus,
   Plus,
   ChevronDown,
+  Bell,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
@@ -34,6 +35,7 @@ import ProductReviews from "../components/ProductReviews";
 import SimilarProducts from "../components/SimilarProducts";
 import FrequentlyBoughtTogether from "../components/FrequentlyBoughtTogether";
 import SEO from "../components/SEO";
+import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221783827575";
@@ -44,6 +46,9 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyLoading, setNotifyLoading] = useState(false);
 
   const { addToCart, loading: cartLoading } = useCart();
   const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
