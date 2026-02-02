@@ -535,7 +535,7 @@ export default function AdminPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{order.order_id}</p>
-                  <p className="text-xs text-muted-foreground">{order.customer_name}</p>
+                  <p className="text-xs text-muted-foreground">{order.shipping?.full_name || order.customer_name || 'Client'}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-sm">{formatPrice(order.total)}</p>
