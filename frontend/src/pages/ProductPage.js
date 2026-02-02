@@ -290,18 +290,26 @@ export default function ProductPage() {
 
               {/* Actions */}
               <div className="flex flex-col gap-3 mb-8">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={cartLoading || product.stock === 0}
-                  className={cn(
-                    "btn-primary w-full justify-center py-4 text-base",
-                    product.stock === 0 && "opacity-50 cursor-not-allowed"
-                  )}
-                  data-testid="add-to-cart-btn"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
-                </button>
+                {product.stock === 0 ? (
+                  <button
+                    onClick={() => setShowNotifyModal(true)}
+                    className="btn-primary w-full justify-center py-4 text-base bg-orange-500 border-orange-500 hover:bg-orange-600"
+                    data-testid="notify-stock-btn"
+                  >
+                    <Bell className="w-5 h-5" />
+                    Prévenez-moi quand disponible
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={cartLoading}
+                    className="btn-primary w-full justify-center py-4 text-base"
+                    data-testid="add-to-cart-btn"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Ajouter au panier
+                  </button>
+                )}
 
                 <button
                   onClick={handleWhatsAppOrder}
