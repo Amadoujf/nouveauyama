@@ -281,7 +281,7 @@ export default function ProductPage() {
               <p className="text-body-lg mb-6">{product.short_description}</p>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3 mb-8">
+              <div className="flex items-baseline gap-3 mb-4">
                 <span
                   className="text-3xl font-semibold price-fcfa"
                   data-testid="product-price"
@@ -294,6 +294,18 @@ export default function ProductPage() {
                   </span>
                 )}
               </div>
+
+              {/* Price Alert Button */}
+              {product.stock > 0 && (
+                <button
+                  onClick={() => setShowPriceAlertModal(true)}
+                  className="mb-8 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                  data-testid="price-alert-btn"
+                >
+                  <TrendingDown className="w-4 h-4" />
+                  Alerte baisse de prix
+                </button>
+              )}
 
               {/* Quantity */}
               <div className="mb-6">
