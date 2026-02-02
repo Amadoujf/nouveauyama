@@ -120,7 +120,9 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - `GET /api/products` - Liste produits avec filtres (brand, colors, sizes)
 - `GET /api/orders/track?order_id=X&email=Y` - Suivi de commande public
 - `POST /api/products/{id}/notify-stock` - Inscription notification stock
+- `POST /api/products/{id}/price-alert` - Inscription alerte baisse de prix
 - `GET /api/products/{id}/reviews` - Avis produit avec statistiques
+- `GET /api/admin/stats` - Statistiques dashboard admin
 
 ## API Keys Required
 - `PAYTECH_API_KEY` & `PAYTECH_API_SECRET` - Paiements
