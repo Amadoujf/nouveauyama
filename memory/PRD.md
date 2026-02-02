@@ -78,6 +78,10 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 ### Bug Fixes (Feb 2, 2025)
 - [x] **Dashboard Admin corrigé** : Les stats (chiffre d'affaires, commandes, produits, clients) s'affichent maintenant correctement
 - [x] **Navigation Admin corrigée** : Tous les liens du menu latéral fonctionnent (Commandes, Utilisateurs, etc.)
+- [x] **Noms clients corrigés** : Affichage correct des noms dans les commandes récentes (shipping.full_name)
+
+### AI-Powered Features (Feb 2, 2025)
+- [x] **IA Auto-remplir produit** : Bouton magique dans le formulaire de création de produit qui analyse une image et remplit automatiquement le nom, description, catégorie, marque, couleurs et prix estimé
 
 ## Pending Issues (Blocked on User Action)
 
