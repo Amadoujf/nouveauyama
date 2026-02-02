@@ -1513,6 +1513,117 @@ async def get_stock_notifications(user: User = Depends(require_admin)):
     ).sort("created_at", -1).to_list(100)
     return notifications
 
+# ============== PRICE ALERT SYSTEM ==============
+
+class PriceAlertRequest(BaseModel):
+    email: EmailStr
+    product_id: str
+    target_price: Optional[int] = None  # If None, notify on any price drop
+
+@api_router.post("/products/{product_id}/price-alert")
+async def subscribe_price_alert(product_id: str, data: PriceAlertRequest):
+    """Subscribe to be notified when a product reaches target price or goes on sale"""
+    # Check if product exists
+    product = await db.products.find_one(
+        {"product_id": product_id}, 
+        {"_id": 0, "name": 1, "price": 1, "original_price": 1}
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    current_price = product.get("price", 0)
+    
+    # Validate target price
+    if data.target_price and data.target_price >= current_price:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Le prix cible doit être inférieur au prix actuel ({current_price} FCFA)"
+        )
+    
+    # Check if already subscribed for same product/email
+    existing = await db.price_alerts.find_one({
+        "email": data.email,
+        "product_id": product_id,
+        "notified": False
+    })
+    if existing:
+        # Update target price if different
+        if data.target_price != existing.get("target_price"):
+            await db.price_alerts.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"target_price": data.target_price}}
+            )
+            return {
+                "message": "Alerte prix mise à jour",
+                "already_subscribed": True,
+                "target_price": data.target_price
+            }
+        return {"message": "Vous êtes déjà inscrit pour ce produit", "already_subscribed": True}
+    
+    # Create price alert subscription
+    alert_doc = {
+        "alert_id": f"alert_{uuid.uuid4().hex[:12]}",
+        "email": data.email,
+        "product_id": product_id,
+        "product_name": product.get("name"),
+        "original_price": current_price,
+        "target_price": data.target_price,  # None means any discount
+        "notified": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.price_alerts.insert_one(alert_doc)
+    
+    message = "Vous serez notifié dès que le produit sera en promotion"
+    if data.target_price:
+        message = f"Vous serez notifié quand le prix atteindra {data.target_price} FCFA"
+    
+    return {
+        "message": message,
+        "already_subscribed": False,
+        "target_price": data.target_price
+    }
+
+@api_router.get("/products/{product_id}/price-alert/check")
+async def check_price_alert(product_id: str, email: str):
+    """Check if user has an active price alert for a product"""
+    alert = await db.price_alerts.find_one({
+        "email": email,
+        "product_id": product_id,
+        "notified": False
+    }, {"_id": 0})
+    
+    if alert:
+        return {
+            "has_alert": True,
+            "target_price": alert.get("target_price"),
+            "created_at": alert.get("created_at")
+        }
+    return {"has_alert": False}
+
+@api_router.delete("/products/{product_id}/price-alert")
+async def cancel_price_alert(product_id: str, email: str):
+    """Cancel a price alert subscription"""
+    result = await db.price_alerts.delete_one({
+        "email": email,
+        "product_id": product_id,
+        "notified": False
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Alerte non trouvée")
+    
+    return {"message": "Alerte prix annulée"}
+
+@api_router.get("/admin/price-alerts")
+async def get_price_alerts(user: User = Depends(require_admin)):
+    """Get all pending price alerts"""
+    alerts = await db.price_alerts.find(
+        {"notified": False},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return alerts
+
 # ============== NEWSLETTER ROUTES ==============
 
 @api_router.post("/newsletter/subscribe")
