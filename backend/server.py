@@ -1075,6 +1075,9 @@ async def get_products(
         "is_flash_sale": 1,
         "flash_sale_price": 1,
         "flash_sale_end": 1,
+        "brand": 1,
+        "colors": 1,
+        "sizes": 1,
         "created_at": 1,
         "updated_at": 1
     }
