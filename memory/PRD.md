@@ -73,6 +73,11 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [x] **Tableau de bord client** (historique commandes, adresses, favoris)
 - [x] **Produits similaires** ("Vous aimerez aussi") sur pages produits
 - [x] **Notifications de disponibilité** : Bouton "Prévenez-moi quand disponible" + modal email
+- [x] **Alertes de prix** : Bouton "Alerte baisse de prix" avec modal pour définir un prix cible
+
+### Bug Fixes (Feb 2, 2025)
+- [x] **Dashboard Admin corrigé** : Les stats (chiffre d'affaires, commandes, produits, clients) s'affichent maintenant correctement
+- [x] **Navigation Admin corrigée** : Tous les liens du menu latéral fonctionnent (Commandes, Utilisateurs, etc.)
 
 ## Pending Issues (Blocked on User Action)
 
