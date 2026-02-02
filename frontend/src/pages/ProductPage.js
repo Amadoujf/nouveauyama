@@ -119,6 +119,34 @@ export default function ProductPage() {
     window.open(generateWhatsAppLink(WHATSAPP_NUMBER, message), "_blank");
   };
 
+  const handleNotifyStock = async (e) => {
+    e.preventDefault();
+    if (!notifyEmail) {
+      toast.error("Veuillez entrer votre email");
+      return;
+    }
+    
+    setNotifyLoading(true);
+    try {
+      const response = await axios.post(`${API_URL}/api/products/${productId}/notify-stock`, {
+        email: notifyEmail,
+        product_id: productId
+      });
+      
+      if (response.data.already_subscribed) {
+        toast.info("Vous êtes déjà inscrit pour ce produit");
+      } else {
+        toast.success("Vous serez notifié dès que le produit sera disponible !");
+      }
+      setShowNotifyModal(false);
+      setNotifyEmail("");
+    } catch (error) {
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setNotifyLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-20" data-testid="product-page">
       <SEO 
