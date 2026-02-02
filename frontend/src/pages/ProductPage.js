@@ -573,6 +573,92 @@ export default function ProductPage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Price Alert Modal */}
+      {showPriceAlertModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowPriceAlertModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 md:p-8"
+          >
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 mb-4">
+                <TrendingDown className="w-8 h-8 text-blue-500" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Alerte baisse de prix</h3>
+              <p className="text-muted-foreground text-sm">
+                Recevez une notification quand <strong>{product.name}</strong> baisse de prix ou passe en promotion.
+              </p>
+            </div>
+
+            <form onSubmit={handlePriceAlert} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Votre email</label>
+                <input
+                  type="email"
+                  value={priceAlertEmail}
+                  onChange={(e) => setPriceAlertEmail(e.target.value)}
+                  required
+                  placeholder="votre@email.com"
+                  className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-blue-500 outline-none transition-colors"
+                  data-testid="price-alert-email-input"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Prix cible (optionnel)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={targetPrice}
+                    onChange={(e) => setTargetPrice(e.target.value)}
+                    placeholder={`Actuel: ${product.price} FCFA`}
+                    className="w-full h-12 px-4 pr-16 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-blue-500 outline-none transition-colors"
+                    data-testid="price-alert-target-input"
+                    max={product.price - 1}
+                    min={1}
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    FCFA
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Laissez vide pour être notifié de toute baisse de prix
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPriceAlertModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-black/10 dark:border-white/10 font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={priceAlertLoading}
+                  className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  data-testid="price-alert-submit-btn"
+                >
+                  {priceAlertLoading ? "Envoi..." : "Créer l'alerte"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
     </main>
   );
 }
