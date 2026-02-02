@@ -476,7 +476,7 @@ export default function AdminPage() {
         <StatsCard
           icon={DollarSign}
           title="Chiffre d'affaires"
-          value={formatPrice(stats?.revenue || 0)}
+          value={formatPrice(stats?.total_revenue || 0)}
           change="+12%"
           trend="up"
           color="bg-green-500"
