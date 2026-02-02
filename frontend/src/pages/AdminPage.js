@@ -293,7 +293,9 @@ export default function AdminPage() {
 
       if (currentPage === "users") {
         const response = await axios.get(`${API_URL}/api/admin/users`, { headers });
-        setUsers(response.data);
+        // Handle both array and object response formats
+        const usersData = Array.isArray(response.data) ? response.data : (response.data.users || []);
+        setUsers(usersData);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
