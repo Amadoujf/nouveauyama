@@ -991,12 +991,43 @@ export default function AdminPage() {
                   Remplissez les informations du produit
                 </p>
               </div>
-              <button
-                onClick={() => setShowProductForm(false)}
-                className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {!editingProduct && (
+                  <label className="relative cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAIAnalyzeImage}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={analyzingImage}
+                    />
+                    <div className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all",
+                      analyzingImage 
+                        ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30"
+                        : "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
+                    )}>
+                      {analyzingImage ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Analyse...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          IA Auto-remplir
+                        </>
+                      )}
+                    </div>
+                  </label>
+                )}
+                <button
+                  onClick={() => setShowProductForm(false)}
+                  className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Tabs */}
