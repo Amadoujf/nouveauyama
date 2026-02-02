@@ -36,13 +36,14 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [x] Inscription/Connexion JWT
 - [x] Google OAuth (Emergent-managed)
 - [x] Profil utilisateur
+- [x] Tableau de bord client (/account)
 
 ### Admin Panel
-- [x] Gestion des produits (CRUD)
+- [x] Gestion des produits (CRUD) avec options avancées (couleurs, tailles, marques)
 - [x] Gestion des commandes
 - [x] Gestion des codes promo
 - [x] Gestion des paniers abandonnés
-- [x] Dashboard analytics
+- [x] Dashboard analytics refait avec design professionnel
 
 ### Engagement Features
 - [x] **Programme de fidélité** : Points et récompenses
@@ -52,12 +53,26 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [x] **Programme de parrainage** : Code référent et récompenses
 - [x] **Widget chat en direct** : Support client (MOCKED - réponses automatiques)
 - [x] **Bannière de notification** : Promotions site-wide
+- [x] **Notifications de stock** : "Prévenez-moi quand disponible" pour produits en rupture
 
 ### UI/UX
 - [x] Animations premium avec Framer Motion
 - [x] Carrousel de confiance
 - [x] Design minimaliste et moderne
 - [x] Mode sombre/clair
+- [x] Section Ventes Flash animée
+- [x] Cartes produits compactes avec carrousel d'images
+
+### Phase 1 Features (Completed Feb 2, 2025)
+- [x] **Filtres avancés** sur CategoryPage (prix, couleur, taille, marque, disponibilité, tri)
+- [x] **Page Suivi de commande** (/suivi-commande) avec timeline de statut
+- [x] **Avis clients** affichés sur les pages produits avec statistiques
+- [x] **Pages légales** : CGV, Confidentialité, Retours, Livraison
+
+### Phase 2 Features (Completed Feb 2, 2025)
+- [x] **Tableau de bord client** (historique commandes, adresses, favoris)
+- [x] **Produits similaires** ("Vous aimerez aussi") sur pages produits
+- [x] **Notifications de disponibilité** : Bouton "Prévenez-moi quand disponible" + modal email
 
 ## Pending Issues (Blocked on User Action)
 
@@ -78,13 +93,14 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - **Mocked**: 
   - PayTech (mode test - montants incorrects de 100 FCFA)
   - Live Chat Widget (réponses automatiques uniquement)
-- **Incomplete**: Phases 3, 4, 5 du roadmap
+- **Incomplete**: Phase 3 (cartes cadeaux, bundles, fidélité avancée)
 
-## Upcoming Tasks (Phase 3)
-- [ ] Gift Card system (achat & remboursement)
-- [ ] Product Bundles ("Shop the Look")
-- [ ] Social Sharing Analytics
-- [ ] Affiliate Marketing Dashboard
+## Upcoming Tasks (Phase 3 - P2)
+- [ ] Système de cartes cadeaux (achat & remboursement)
+- [ ] Bundles/Packs ("Achetez ensemble et économisez")
+- [ ] Points de fidélité avancés
+- [ ] Boutons de partage social sur produits
+- [ ] Blog/Section actualités
 
 ## Future Tasks (Phases 4 & 5)
 - [ ] Custom Reporting Engine
@@ -95,6 +111,12 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [ ] Performance audit
 - [ ] Security scan
 
+## Key API Endpoints
+- `GET /api/products` - Liste produits avec filtres (brand, colors, sizes)
+- `GET /api/orders/track?order_id=X&email=Y` - Suivi de commande public
+- `POST /api/products/{id}/notify-stock` - Inscription notification stock
+- `GET /api/products/{id}/reviews` - Avis produit avec statistiques
+
 ## API Keys Required
 - `PAYTECH_API_KEY` & `PAYTECH_API_SECRET` - Paiements
 - `RESEND_API_KEY` - Emails transactionnels  
@@ -104,4 +126,4 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - **Admin**: admin@yama.sn / admin123
 
 ---
-*Last updated: February 1, 2025*
+*Last updated: February 2, 2025*
