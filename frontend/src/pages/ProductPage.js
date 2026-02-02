@@ -49,6 +49,12 @@ export default function ProductPage() {
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifyLoading, setNotifyLoading] = useState(false);
+  
+  // Price Alert state
+  const [showPriceAlertModal, setShowPriceAlertModal] = useState(false);
+  const [priceAlertEmail, setPriceAlertEmail] = useState("");
+  const [targetPrice, setTargetPrice] = useState("");
+  const [priceAlertLoading, setPriceAlertLoading] = useState(false);
 
   const { addToCart, loading: cartLoading } = useCart();
   const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
