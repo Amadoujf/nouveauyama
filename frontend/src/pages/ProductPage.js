@@ -153,6 +153,36 @@ export default function ProductPage() {
     }
   };
 
+  const handlePriceAlert = async (e) => {
+    e.preventDefault();
+    if (!priceAlertEmail) {
+      toast.error("Veuillez entrer votre email");
+      return;
+    }
+    
+    setPriceAlertLoading(true);
+    try {
+      const response = await axios.post(`${API_URL}/api/products/${productId}/price-alert`, {
+        email: priceAlertEmail,
+        product_id: productId,
+        target_price: targetPrice ? parseInt(targetPrice) : null
+      });
+      
+      if (response.data.already_subscribed) {
+        toast.info(response.data.message);
+      } else {
+        toast.success(response.data.message);
+      }
+      setShowPriceAlertModal(false);
+      setPriceAlertEmail("");
+      setTargetPrice("");
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Une erreur est survenue");
+    } finally {
+      setPriceAlertLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-20" data-testid="product-page">
       <SEO 
