@@ -761,22 +761,22 @@ export default function AdminPage() {
                     <p className="font-mono text-sm font-medium">{order.order_id}</p>
                   </td>
                   <td className="p-4">
-                    <p className="font-medium text-sm">{order.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{order.customer_email}</p>
+                    <p className="font-medium text-sm">{order.shipping?.full_name || order.customer_name || '-'}</p>
+                    <p className="text-xs text-muted-foreground">{order.shipping?.phone || order.customer_email || '-'}</p>
                   </td>
                   <td className="p-4">
                     <p className="font-semibold">{formatPrice(order.total)}</p>
                   </td>
                   <td className="p-4">
                     <select
-                      value={order.status}
+                      value={order.order_status || order.status || 'pending'}
                       onChange={(e) => handleOrderStatusUpdate(order.order_id, e.target.value)}
                       className={cn(
                         "px-3 py-1.5 rounded-lg text-xs font-bold border-0 cursor-pointer",
-                        order.status === "delivered" ? "bg-green-100 text-green-700" :
-                        order.status === "shipped" ? "bg-purple-100 text-purple-700" :
-                        order.status === "processing" ? "bg-blue-100 text-blue-700" :
-                        order.status === "cancelled" ? "bg-red-100 text-red-700" :
+                        (order.order_status || order.status) === "delivered" ? "bg-green-100 text-green-700" :
+                        (order.order_status || order.status) === "shipped" ? "bg-purple-100 text-purple-700" :
+                        (order.order_status || order.status) === "processing" ? "bg-blue-100 text-blue-700" :
+                        (order.order_status || order.status) === "cancelled" ? "bg-red-100 text-red-700" :
                         "bg-gray-100 text-gray-700"
                       )}
                     >
