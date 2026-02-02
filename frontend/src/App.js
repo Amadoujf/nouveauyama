@@ -39,6 +39,7 @@ import DeliveryPolicyPage from "./pages/DeliveryPolicyPage";
 import ReturnPolicyPage from "./pages/ReturnPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TrackOrderPage from "./pages/TrackOrderPage";
 
 import "./App.css";
 
