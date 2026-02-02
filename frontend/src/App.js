@@ -286,6 +286,14 @@ function AppRouter() {
           </PublicLayout>
         }
       />
+      <Route
+        path="/suivi-commande"
+        element={
+          <PublicLayout>
+            <TrackOrderPage />
+          </PublicLayout>
+        }
+      />
 
       {/* 404 */}
       <Route
