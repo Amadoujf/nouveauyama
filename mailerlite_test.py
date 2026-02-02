@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_mailerlite_endpoints():
-    base_url = "https://yama-market-1.preview.emergentagent.com"
+    base_url = "https://yamaplus-pro.preview.emergentagent.com"
     
     # First, login as admin
     login_data = {
