@@ -443,16 +443,87 @@ export default function ProductPage() {
           >
             <Heart className={cn("w-5 h-5", inWishlist && "fill-current")} />
           </button>
-          <button
-            onClick={handleAddToCart}
-            disabled={cartLoading || product.stock === 0}
-            className="btn-primary flex-1 flex items-center justify-center gap-2"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            {product.stock === 0 ? "Rupture" : "Ajouter"}
-          </button>
+          {product.stock === 0 ? (
+            <button
+              onClick={() => setShowNotifyModal(true)}
+              className="btn-primary flex-1 flex items-center justify-center gap-2 bg-orange-500 border-orange-500"
+            >
+              <Bell className="w-5 h-5" />
+              Prévenez-moi
+            </button>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={cartLoading}
+              className="btn-primary flex-1 flex items-center justify-center gap-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              Ajouter
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Stock Notification Modal */}
+      {showNotifyModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowNotifyModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 md:p-8"
+          >
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 mb-4">
+                <Bell className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Prévenez-moi</h3>
+              <p className="text-muted-foreground text-sm">
+                Entrez votre email pour être notifié dès que <strong>{product.name}</strong> sera de nouveau disponible.
+              </p>
+            </div>
+
+            <form onSubmit={handleNotifyStock} className="space-y-4">
+              <div>
+                <input
+                  type="email"
+                  value={notifyEmail}
+                  onChange={(e) => setNotifyEmail(e.target.value)}
+                  required
+                  placeholder="votre@email.com"
+                  className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-orange-500 outline-none transition-colors"
+                  data-testid="notify-email-input"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowNotifyModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-black/10 dark:border-white/10 font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={notifyLoading}
+                  className="flex-1 py-3 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
+                  data-testid="notify-submit-btn"
+                >
+                  {notifyLoading ? "Envoi..." : "Me notifier"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
     </main>
   );
 }
