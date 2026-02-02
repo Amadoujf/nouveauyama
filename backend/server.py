@@ -1464,6 +1464,55 @@ async def delete_review(review_id: str, user: User = Depends(require_auth)):
     await db.reviews.delete_one({"review_id": review_id})
     return {"message": "Avis supprimé"}
 
+# ============== STOCK NOTIFICATION ==============
+
+class StockNotificationRequest(BaseModel):
+    email: EmailStr
+    product_id: str
+
+@api_router.post("/products/{product_id}/notify-stock")
+async def subscribe_stock_notification(product_id: str, data: StockNotificationRequest):
+    """Subscribe to be notified when a product is back in stock"""
+    # Check if product exists
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "name": 1, "stock": 1})
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    # Check if already subscribed
+    existing = await db.stock_notifications.find_one({
+        "email": data.email,
+        "product_id": product_id,
+        "notified": False
+    })
+    if existing:
+        return {"message": "Vous êtes déjà inscrit pour ce produit", "already_subscribed": True}
+    
+    # Create notification subscription
+    notification_doc = {
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "email": data.email,
+        "product_id": product_id,
+        "product_name": product.get("name"),
+        "notified": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.stock_notifications.insert_one(notification_doc)
+    
+    return {
+        "message": "Vous serez notifié dès que le produit sera disponible",
+        "already_subscribed": False
+    }
+
+@api_router.get("/admin/stock-notifications")
+async def get_stock_notifications(user: User = Depends(require_admin)):
+    """Get all pending stock notifications"""
+    notifications = await db.stock_notifications.find(
+        {"notified": False},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return notifications
+
 # ============== NEWSLETTER ROUTES ==============
 
 @api_router.post("/newsletter/subscribe")
