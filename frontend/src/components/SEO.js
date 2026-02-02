@@ -51,7 +51,7 @@ export default function SEO({
     "logo": DEFAULT_IMAGE,
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+221-77-000-0000",
+      "telephone": "+221-78-382-75-75",
       "contactType": "customer service",
       "email": "contact@groupeyamaplus.com",
       "areaServed": "SN",
