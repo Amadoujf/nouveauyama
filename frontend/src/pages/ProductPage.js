@@ -14,6 +14,7 @@ import {
   Plus,
   ChevronDown,
   Bell,
+  TrendingDown,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
