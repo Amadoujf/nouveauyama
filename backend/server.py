@@ -14,6 +14,7 @@ import asyncio
 import re
 import time
 import aiohttp
+import base64
 from collections import defaultdict
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, validator
@@ -26,6 +27,9 @@ import jwt
 import resend
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
+# AI Image Analysis
+from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
 
 # PDF Generation
 from reportlab.lib.pagesizes import A4
