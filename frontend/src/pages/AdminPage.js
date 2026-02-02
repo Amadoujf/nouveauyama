@@ -272,10 +272,10 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const headers = { Authorization: `Bearer ${token}` };
+
       if (currentPage === "admin" || currentPage === "") {
-        const response = await axios.get(`${API_URL}/api/admin/stats`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(`${API_URL}/api/admin/stats`, { headers });
         setStats(response.data);
       }
 
@@ -285,16 +285,12 @@ export default function AdminPage() {
       }
 
       if (currentPage === "orders" || currentPage === "admin") {
-        const response = await axios.get(`${API_URL}/api/admin/orders`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(`${API_URL}/api/admin/orders`, { headers });
         setOrders(response.data);
       }
 
       if (currentPage === "users") {
-        const response = await axios.get(`${API_URL}/api/admin/users`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(`${API_URL}/api/admin/users`, { headers });
         setUsers(response.data);
       }
     } catch (error) {
