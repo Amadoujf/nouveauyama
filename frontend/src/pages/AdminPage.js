@@ -520,7 +520,7 @@ export default function AdminPage() {
             </Link>
           </div>
           <div className="divide-y divide-black/5 dark:divide-white/5">
-            {orders.slice(0, 5).map((order) => (
+            {(Array.isArray(orders) ? orders : []).slice(0, 5).map((order) => (
               <div key={order.order_id} className="p-4 flex items-center gap-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                 <div className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center",
