@@ -304,6 +304,11 @@ class ProductBase(BaseModel):
     flash_sale_end: Optional[str] = None  # ISO datetime string
     flash_sale_price: Optional[int] = None
     specs: Optional[dict] = None
+    # Product variants/options
+    brand: Optional[str] = None
+    colors: Optional[List[str]] = None  # Available colors
+    sizes: Optional[List[str]] = None   # Available sizes
+    variants: Optional[List[dict]] = None  # Complex variants [{color, size, stock, price_modifier}]
 
 class ProductCreate(ProductBase):
     pass
