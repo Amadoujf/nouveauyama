@@ -127,6 +127,7 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - `POST /api/products/{id}/price-alert` - Inscription alerte baisse de prix
 - `GET /api/products/{id}/reviews` - Avis produit avec statistiques
 - `GET /api/admin/stats` - Statistiques dashboard admin
+- `POST /api/admin/analyze-product-image` - Analyse IA d'image pour création produit
 
 ## API Keys Required
 - `PAYTECH_API_KEY` & `PAYTECH_API_SECRET` - Paiements
