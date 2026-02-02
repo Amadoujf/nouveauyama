@@ -3699,6 +3699,87 @@ async def get_order(order_id: str, request: Request):
     
     return order
 
+# ============== ORDER TRACKING (PUBLIC) ==============
+
+@api_router.get("/orders/track")
+async def track_order(order_id: str, email: str):
+    """Public endpoint to track an order by order_id and email"""
+    # Find order by order_id
+    order = await db.orders.find_one({"order_id": order_id.upper()}, {"_id": 0})
+    
+    if not order:
+        raise HTTPException(status_code=404, detail="Commande non trouvée")
+    
+    # Verify email matches
+    order_email = order.get("shipping", {}).get("email") or order.get("customer_email")
+    
+    # If order has user_id, get user's email
+    if order.get("user_id"):
+        user = await db.users.find_one({"user_id": order["user_id"]}, {"_id": 0, "email": 1})
+        if user:
+            order_email = user.get("email")
+    
+    # Also check if email is in shipping info
+    shipping_email = order.get("shipping", {}).get("email")
+    
+    # Verify email (case insensitive)
+    email_lower = email.lower().strip()
+    valid_email = False
+    
+    if order_email and order_email.lower() == email_lower:
+        valid_email = True
+    if shipping_email and shipping_email.lower() == email_lower:
+        valid_email = True
+    # Also allow if phone matches (for guest orders)
+    shipping_phone = order.get("shipping", {}).get("phone", "")
+    if shipping_phone and email_lower in shipping_phone.replace(" ", ""):
+        valid_email = True
+    
+    if not valid_email:
+        raise HTTPException(status_code=404, detail="Commande non trouvée pour cet email")
+    
+    # Map order_status to tracking status
+    status_mapping = {
+        "pending": "pending",
+        "confirmed": "processing",
+        "processing": "processing",
+        "shipped": "shipped",
+        "delivered": "delivered",
+        "cancelled": "cancelled"
+    }
+    
+    tracking_status = status_mapping.get(order.get("order_status", "pending"), "pending")
+    
+    # Build response with tracking info
+    result = {
+        "order_id": order["order_id"],
+        "status": tracking_status,
+        "order_status": order.get("order_status", "pending"),
+        "payment_status": order.get("payment_status", "pending"),
+        "created_at": order.get("created_at"),
+        "items": order.get("items", []),
+        "shipping": {
+            "name": order.get("shipping", {}).get("full_name"),
+            "address": order.get("shipping", {}).get("address"),
+            "city": order.get("shipping", {}).get("city"),
+            "region": order.get("shipping", {}).get("region"),
+            "phone": order.get("shipping", {}).get("phone")
+        },
+        "subtotal": order.get("subtotal", 0),
+        "shipping_cost": order.get("shipping_cost", 0),
+        "discount": order.get("discount", 0),
+        "total": order.get("total", 0),
+        "customer_name": order.get("shipping", {}).get("full_name"),
+        # Status timestamps
+        "pending_at": order.get("created_at"),
+        "processing_at": order.get("processing_at"),
+        "shipped_at": order.get("shipped_at"),
+        "delivered_at": order.get("delivered_at"),
+        "cancelled_at": order.get("cancelled_at")
+    }
+    
+    return result
+
 # ============== PAYTECH PAYMENT INTEGRATION ==============
 
 PAYTECH_API_URL = "https://paytech.sn/api/payment/request-payment"
