@@ -286,7 +286,9 @@ export default function AdminPage() {
 
       if (currentPage === "orders" || currentPage === "admin") {
         const response = await axios.get(`${API_URL}/api/admin/orders`, { headers });
-        setOrders(response.data);
+        // Handle both array and object response formats
+        const ordersData = Array.isArray(response.data) ? response.data : (response.data.orders || []);
+        setOrders(ordersData);
       }
 
       if (currentPage === "users") {
