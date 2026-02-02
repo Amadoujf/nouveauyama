@@ -3250,6 +3250,121 @@ async def send_order_status_update_email(email: str, order_id: str, new_status: 
     html = get_email_template(content)
     await send_email_async(email, f"{status_info['title']} - Commande #{order_id}", html)
 
+# ============== AI IMAGE ANALYSIS FOR PRODUCT CREATION ==============
+
+@api_router.post("/admin/analyze-product-image")
+async def analyze_product_image(file: UploadFile = File(...), user: User = Depends(require_admin)):
+    """Analyze an uploaded image using AI to extract product information"""
+    try:
+        # Read and validate image
+        contents = await file.read()
+        
+        # Check file size (max 10MB)
+        if len(contents) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image trop grande (max 10MB)")
+        
+        # Validate file type
+        content_type = file.content_type or ""
+        if not content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Le fichier doit être une image")
+        
+        # Convert to base64
+        image_base64 = base64.b64encode(contents).decode("utf-8")
+        
+        # Get AI API key
+        ai_key = os.environ.get("EMERGENT_LLM_KEY")
+        if not ai_key:
+            raise HTTPException(status_code=500, detail="Clé API IA non configurée")
+        
+        # Create AI chat instance
+        chat = LlmChat(
+            api_key=ai_key,
+            session_id=f"product_analysis_{uuid.uuid4().hex[:8]}",
+            system_message="""Tu es un expert en e-commerce spécialisé dans l'analyse de produits.
+Analyse l'image fournie et extrais les informations du produit.
+Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire, sans backticks.
+
+Le JSON doit avoir cette structure exacte:
+{
+  "name": "Nom du produit en français",
+  "description": "Description détaillée du produit (2-3 phrases)",
+  "short_description": "Description courte (max 50 caractères)",
+  "category": "electronique|electromenager|decoration|beaute|automobile",
+  "brand": "Marque du produit si visible, sinon null",
+  "estimated_price": "Prix estimé en FCFA (nombre entier)",
+  "colors": ["Couleur1", "Couleur2"],
+  "suggested_tags": ["tag1", "tag2", "tag3"],
+  "is_new": true/false,
+  "confidence": "high|medium|low"
+}
+
+Pour la catégorie, choisis parmi:
+- electronique: téléphones, ordinateurs, écouteurs, montres connectées, TV
+- electromenager: aspirateurs, machines à café, réfrigérateurs, climatiseurs
+- decoration: meubles, luminaires, tapis, cadres, vases
+- beaute: parfums, cosmétiques, soins, accessoires beauté
+- automobile: accessoires auto, pièces, équipements
+
+Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
+        ).with_model("openai", "gpt-4o")
+        
+        # Create image content
+        image_content = ImageContent(image_base64=image_base64)
+        
+        # Create message with image
+        user_message = UserMessage(
+            text="Analyse cette image de produit et extrais les informations. Réponds uniquement en JSON valide.",
+            file_contents=[image_content]
+        )
+        
+        # Send to AI and get response
+        response = await chat.send_message(user_message)
+        
+        # Parse AI response
+        try:
+            # Clean response if needed (remove markdown code blocks)
+            cleaned_response = response.strip()
+            if cleaned_response.startswith("```"):
+                cleaned_response = cleaned_response.split("```")[1]
+                if cleaned_response.startswith("json"):
+                    cleaned_response = cleaned_response[4:]
+            cleaned_response = cleaned_response.strip()
+            
+            product_data = json.loads(cleaned_response)
+            
+            # Validate and clean data
+            result = {
+                "success": True,
+                "product": {
+                    "name": product_data.get("name", "Nouveau produit"),
+                    "description": product_data.get("description", ""),
+                    "short_description": product_data.get("short_description", ""),
+                    "category": product_data.get("category", "electronique"),
+                    "brand": product_data.get("brand"),
+                    "estimated_price": int(product_data.get("estimated_price", 0)),
+                    "colors": product_data.get("colors", []),
+                    "suggested_tags": product_data.get("suggested_tags", []),
+                    "is_new": product_data.get("is_new", True),
+                    "confidence": product_data.get("confidence", "medium")
+                }
+            }
+            
+            return result
+            
+        except json.JSONDecodeError as e:
+            logging.error(f"AI response not valid JSON: {response}")
+            return {
+                "success": False,
+                "error": "L'IA n'a pas pu analyser l'image correctement",
+                "raw_response": response[:500]
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error analyzing image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur d'analyse: {str(e)}")
+
 # ============== DELIVERY ZONES ROUTES ==============
 
 @api_router.get("/delivery/zones")
