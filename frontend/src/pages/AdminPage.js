@@ -38,6 +38,7 @@ import {
   Building2,
   ChevronDown,
   GripVertical,
+  Sparkles,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
