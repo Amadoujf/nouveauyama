@@ -188,6 +188,92 @@ export default function AdminPage() {
     setProductForm({ ...productForm, images: newImages });
   };
 
+  // AI Image Analysis for product creation
+  const handleAIAnalyzeImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Veuillez sélectionner une image");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image trop grande (max 10MB)");
+      return;
+    }
+
+    setAnalyzingImage(true);
+    toast.info("🤖 Analyse IA en cours...");
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(`${API_URL}/api/admin/analyze-product-image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        const product = response.data.product;
+        
+        // Update form with AI-extracted data
+        setProductForm(prev => ({
+          ...prev,
+          name: product.name || prev.name,
+          description: product.description || prev.description,
+          short_description: product.short_description || prev.short_description,
+          category: product.category || prev.category,
+          brand: product.brand || prev.brand,
+          price: product.estimated_price?.toString() || prev.price,
+          colors: product.colors?.length > 0 ? product.colors : prev.colors,
+          is_new: product.is_new ?? prev.is_new,
+        }));
+
+        // Upload the analyzed image
+        const imageFormData = new FormData();
+        imageFormData.append('file', file);
+        
+        try {
+          const uploadResponse = await axios.post(`${API_URL}/api/upload/image`, imageFormData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (uploadResponse.data.success) {
+            setProductForm(prev => ({
+              ...prev,
+              images: [...prev.images, uploadResponse.data.url]
+            }));
+          }
+        } catch (uploadErr) {
+          console.error("Upload error:", uploadErr);
+        }
+
+        const confidenceEmoji = product.confidence === 'high' ? '🎯' : product.confidence === 'medium' ? '✅' : '⚠️';
+        toast.success(`${confidenceEmoji} Produit analysé avec succès !`);
+        
+        if (product.suggested_tags?.length > 0) {
+          toast.info(`Tags suggérés: ${product.suggested_tags.join(', ')}`);
+        }
+      } else {
+        toast.error(response.data.error || "Erreur d'analyse");
+      }
+    } catch (error) {
+      console.error("AI analysis error:", error);
+      toast.error(error.response?.data?.detail || "Erreur lors de l'analyse IA");
+    } finally {
+      setAnalyzingImage(false);
+    }
+  };
+
   // Toggle color selection
   const handleColorToggle = (colorName) => {
     const newColors = productForm.colors.includes(colorName)
