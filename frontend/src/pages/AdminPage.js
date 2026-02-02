@@ -794,7 +794,7 @@ export default function AdminPage() {
                       order.payment_status === "pending" ? "bg-yellow-100 text-yellow-700" :
                       "bg-red-100 text-red-700"
                     )}>
-                      {getPaymentStatusDisplay(order.payment_status)}
+                      {getPaymentStatusDisplay(order.payment_status)?.label || order.payment_status}
                     </span>
                   </td>
                   <td className="p-4">
