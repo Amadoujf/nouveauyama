@@ -360,7 +360,7 @@ export default function ProductPage() {
 
               {/* Actions */}
               <div className="flex flex-col gap-3 mb-8">
-                {product.stock === 0 ? (
+                {product.stock === 0 && !product.is_on_order ? (
                   <button
                     onClick={() => setShowNotifyModal(true)}
                     className="btn-primary w-full justify-center py-4 text-base bg-orange-500 border-orange-500 hover:bg-orange-600"
@@ -368,6 +368,16 @@ export default function ProductPage() {
                   >
                     <Bell className="w-5 h-5" />
                     Prévenez-moi quand disponible
+                  </button>
+                ) : product.is_on_order ? (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={cartLoading}
+                    className="btn-primary w-full justify-center py-4 text-base bg-orange-500 border-orange-500 hover:bg-orange-600"
+                    data-testid="add-to-cart-btn"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Commander ce produit
                   </button>
                 ) : (
                   <button
