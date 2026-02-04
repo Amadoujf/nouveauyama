@@ -2852,14 +2852,15 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
                         <!-- Footer -->
                         <tr>
                             <td style="background-color: #1a1a1a; padding: 30px; text-align: center;">
-                                <p style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 0 0 5px 0;">
-                                    GROUPE YAMA<span style="color: #ff6b00;">+</span>
+                                <!-- Signature style cursive -->
+                                <p style="font-family: 'Brush Script MT', 'Segoe Script', 'Bradley Hand', cursive; font-size: 32px; color: #ffffff; margin: 0 0 20px 0; font-weight: normal; font-style: italic;">
+                                    Groupe Yama <span style="color: #ff6b00;">+</span>
                                 </p>
-                                <p style="color: #888888; font-size: 12px; margin: 0 0 15px 0;">
+                                <p style="color: #888888; font-size: 12px; margin: 0 0 15px 0; letter-spacing: 1px;">
                                     groupeyamaplus.com
                                 </p>
                                 <p style="color: #666666; font-size: 11px; margin: 0 0 8px 0;">
-                                    📍 Dakar, Sénégal | 📞 +221 77 000 00 00
+                                    📍 Dakar, Sénégal | 📞 WhatsApp: +221 78 382 75 75
                                 </p>
                                 <p style="color: #555555; font-size: 10px; margin: 15px 0 0 0;">
                                     © 2025 GROUPE YAMA+ - Tous droits réservés
