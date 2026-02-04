@@ -24,7 +24,7 @@ from datetime import datetime, timezone, timedelta
 import httpx
 import bcrypt
 import jwt
-from mailersend import emails as mailersend_emails
+from mailersend import MailerSendClient, EmailBuilder
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -45,25 +45,28 @@ load_dotenv(ROOT_DIR / '.env')
 MAILERSEND_API_KEY = os.environ.get("MAILERSEND_API_KEY")
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@groupeyamaplus.com")
 
-# Initialize MailerSend
-mailer = mailersend_emails.NewEmail(MAILERSEND_API_KEY)
+# Initialize MailerSend client
+mailersend_client = MailerSendClient(api_key=MAILERSEND_API_KEY) if MAILERSEND_API_KEY else None
 
 async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_content: str, text_content: str = None):
     """Send email using MailerSend API"""
+    if not mailersend_client:
+        logger.warning("MailerSend not configured - skipping email")
+        return {"success": False, "error": "MailerSend not configured"}
+    
     try:
-        mail_body = {}
-        
-        mailer.set_mail_from({"name": "YAMA+", "email": SENDER_EMAIL}, mail_body)
-        mailer.set_mail_to([{"name": to_name or to_email, "email": to_email}], mail_body)
-        mailer.set_subject(subject, mail_body)
-        mailer.set_html_content(html_content, mail_body)
+        email = EmailBuilder()
+        email.set_from(SENDER_EMAIL, "YAMA+")
+        email.add_recipient(to_email, to_name or to_email)
+        email.set_subject(subject)
+        email.set_html_content(html_content)
         if text_content:
-            mailer.set_plaintext_content(text_content, mail_body)
+            email.set_text_content(text_content)
         
         # Send email in thread to keep async
-        response = await asyncio.to_thread(mailer.send, mail_body)
-        logger.info(f"Email sent to {to_email}: {response}")
-        return {"success": True, "response": response}
+        response = await asyncio.to_thread(mailersend_client.send, email)
+        logger.info(f"Email sent to {to_email}")
+        return {"success": True, "response": str(response)}
     except Exception as e:
         logger.error(f"Failed to send email to {to_email}: {str(e)}")
         return {"success": False, "error": str(e)}
