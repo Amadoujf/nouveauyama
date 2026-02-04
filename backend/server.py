@@ -65,8 +65,8 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         if text_content:
             email.text(text_content)
         
-        # Send email in thread to keep async
-        response = await asyncio.to_thread(mailersend_client.send, email)
+        # Send email using emails.send()
+        response = await asyncio.to_thread(mailersend_client.emails.send, email)
         logger.info(f"Email sent to {to_email}")
         return {"success": True, "response": str(response)}
     except Exception as e:
