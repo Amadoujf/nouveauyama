@@ -2877,15 +2877,6 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
     </body>
     </html>
     """
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </body>
-    </html>
-    """
 
 # ============== EMAIL TEMPLATES ==============
 
