@@ -887,6 +887,9 @@ async def register(user_data: UserCreate, response: Response):
     
     await db.users.insert_one(user_doc)
     
+    # Send welcome email asynchronously
+    asyncio.create_task(send_welcome_email(user_doc))
+    
     token = create_token(user_id, user_data.email)
     response.set_cookie(
         key="session_token",
