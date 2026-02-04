@@ -136,8 +136,8 @@ JWT_EXPIRATION_HOURS = 168  # 7 days
 # Store Configuration
 STORE_NAME = "GROUPE YAMA+"
 STORE_ADDRESS = "Fass Paillote, Dakar, Sénégal"
-STORE_PHONE = "+221 77 000 00 00"
-STORE_WHATSAPP = "221770000000"  # Without + for WhatsApp links
+STORE_PHONE = "+221 78 382 75 75"
+STORE_WHATSAPP = "221783827575"  # Without + for WhatsApp links
 STORE_EMAIL = "contact@groupeyamaplus.com"
 ADMIN_NOTIFICATION_EMAIL = "contact@groupeyamaplus.com"  # Email to receive order notifications
 
