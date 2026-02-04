@@ -1194,7 +1194,38 @@ export default function AdminPage() {
                         />
                         <span className="text-sm font-medium">Mis en avant</span>
                       </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={productForm.is_on_order}
+                          onChange={(e) => setProductForm({ ...productForm, is_on_order: e.target.checked })}
+                          className="w-5 h-5 rounded border-black/20 dark:border-white/20"
+                        />
+                        <span className="text-sm font-medium">Sur commande</span>
+                      </label>
                     </div>
+
+                    {/* On Order Delivery Duration */}
+                    {productForm.is_on_order && (
+                      <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                        <label className="block text-sm font-medium mb-2 text-orange-700 dark:text-orange-300">
+                          Délai de livraison estimé (en jours) *
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="90"
+                          required={productForm.is_on_order}
+                          value={productForm.order_delivery_days}
+                          onChange={(e) => setProductForm({ ...productForm, order_delivery_days: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl border border-orange-300 dark:border-orange-700 bg-white dark:bg-[#1C1C1E] focus:ring-2 focus:ring-orange-500 outline-none"
+                          placeholder="Ex: 7, 14, 21..."
+                        />
+                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
+                          Ce produit sera affiché comme "Disponible sur commande" avec le délai indiqué.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
