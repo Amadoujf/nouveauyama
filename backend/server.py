@@ -55,13 +55,15 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         return {"success": False, "error": "MailerSend not configured"}
     
     try:
-        email = EmailBuilder()
-        email.set_from(SENDER_EMAIL, "YAMA+")
-        email.add_recipient(to_email, to_name or to_email)
-        email.set_subject(subject)
-        email.set_html_content(html_content)
+        email = (
+            EmailBuilder()
+            .from_email(SENDER_EMAIL, "YAMA+")
+            .to(to_email, to_name or to_email)
+            .subject(subject)
+            .html(html_content)
+        )
         if text_content:
-            email.set_text_content(text_content)
+            email.text(text_content)
         
         # Send email in thread to keep async
         response = await asyncio.to_thread(mailersend_client.send, email)
