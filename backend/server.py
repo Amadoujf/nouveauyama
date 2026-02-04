@@ -1168,6 +1168,10 @@ async def create_product(product_data: ProductCreate, user: User = Depends(requi
     
     await db.products.insert_one(product_doc)
     
+    # Clear products cache
+    clear_cache("products")
+    clear_cache("flash_sales")
+    
     product_doc["created_at"] = now
     product_doc["updated_at"] = now
     
@@ -1187,6 +1191,10 @@ async def update_product(product_id: str, product_data: ProductCreate, user: Use
         {"$set": update_doc}
     )
     
+    # Clear products cache
+    clear_cache("products")
+    clear_cache("flash_sales")
+    
     updated = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     for field in ['created_at', 'updated_at']:
         if isinstance(updated.get(field), str):
@@ -1199,6 +1207,11 @@ async def delete_product(product_id: str, user: User = Depends(require_admin)):
     result = await db.products.delete_one({"product_id": product_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    # Clear products cache
+    clear_cache("products")
+    clear_cache("flash_sales")
+    
     return {"message": "Produit supprimé"}
 
 # ============== FLASH SALES ROUTES ==============
