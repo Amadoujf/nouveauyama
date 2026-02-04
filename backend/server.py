@@ -313,6 +313,9 @@ class ProductBase(BaseModel):
     colors: Optional[List[str]] = None  # Available colors
     sizes: Optional[List[str]] = None   # Available sizes
     variants: Optional[List[dict]] = None  # Complex variants [{color, size, stock, price_modifier}]
+    # On-order products
+    is_on_order: bool = False  # Product available only on order
+    order_delivery_days: Optional[int] = None  # Estimated delivery time in days
 
 class ProductCreate(ProductBase):
     pass
