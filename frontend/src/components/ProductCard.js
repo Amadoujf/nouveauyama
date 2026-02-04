@@ -57,7 +57,7 @@ export default function ProductCard({ product, index = 0 }) {
     >
       {/* Image Container with Carousel */}
       <Link
-        to={`/produit/${product.product_id}`}
+        to={`/product/${product.product_id}`}
         className="block relative aspect-[4/3] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]"
       >
         {/* Image Carousel */}
