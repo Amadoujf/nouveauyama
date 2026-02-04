@@ -404,9 +404,15 @@ export default function AdminPage() {
     setProductFormLoading(true);
 
     try {
+      // Add default image if no images provided
+      const images = productForm.images.length > 0 
+        ? productForm.images 
+        : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"];
+
       const productData = {
         ...productForm,
-        price: parseInt(productForm.price),
+        images,
+        price: parseInt(productForm.price) || 0,
         original_price: productForm.original_price ? parseInt(productForm.original_price) : null,
         stock: parseInt(productForm.stock) || 0,
         order_delivery_days: productForm.order_delivery_days ? parseInt(productForm.order_delivery_days) : null,
