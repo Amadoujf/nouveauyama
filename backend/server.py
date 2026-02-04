@@ -2231,18 +2231,18 @@ async def complete_referral_purchase(request: Request):
     # Send notification email to referrer
     if referrer and referrer.get("email"):
         try:
-            resend.emails.send({
-                "from": SENDER_EMAIL,
-                "to": referrer["email"],
-                "subject": f"🎉 Félicitations ! Vous avez gagné {REFERRAL_CONFIG['referrer_reward']} FCFA",
-                "html": f"""
+            await send_email_mailersend(
+                to_email=referrer["email"],
+                to_name=referrer.get('name', ''),
+                subject=f"🎉 Félicitations ! Vous avez gagné {REFERRAL_CONFIG['referrer_reward']} FCFA",
+                html_content=f"""
                 <h2>Bravo {referrer.get('name', '')} !</h2>
                 <p>Un ami que vous avez parrainé vient de faire son premier achat sur YAMA+.</p>
                 <p>Vous avez gagné <strong>{REFERRAL_CONFIG['referrer_reward']} FCFA</strong> de crédit !</p>
                 <p>Continuez à partager votre code pour gagner encore plus.</p>
                 <p>L'équipe GROUPE YAMA+</p>
                 """
-            })
+            )
         except Exception as e:
             logger.error(f"Error sending referral reward email: {e}")
     
