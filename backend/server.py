@@ -2528,7 +2528,7 @@ async def send_chat_message(session_id: str, msg: ChatMessage):
     elif any(word in msg_lower for word in ["paiement", "payer", "wave", "orange money"]):
         auto_reply = "💳 Nous acceptons Wave, Orange Money, Free Money, carte bancaire et paiement à la livraison. Tous les paiements sont sécurisés."
     elif any(word in msg_lower for word in ["retour", "remboursement", "échange"]):
-        auto_reply = "↩️ Vous disposez de 7 jours pour retourner un article. Contactez-nous sur WhatsApp au +221 77 000 00 00 pour organiser le retour."
+        auto_reply = "↩️ Vous disposez de 7 jours pour retourner un article. Contactez-nous sur WhatsApp au +221 78 382 75 75 pour organiser le retour."
     elif any(word in msg_lower for word in ["commande", "suivi", "tracking"]):
         auto_reply = "📋 Pour suivre votre commande, rendez-vous dans 'Mon compte' > 'Mes commandes'. Vous y trouverez le statut en temps réel."
     elif any(word in msg_lower for word in ["bonjour", "salut", "hello", "bonsoir"]):
@@ -3053,7 +3053,7 @@ def get_abandoned_cart_template(name: str, items: list, cart_total: int, recover
     </div>
     
     <p style="color: #999; font-size: 12px; text-align: center; margin-top: 25px;">
-        Besoin d'aide ? Contactez-nous sur WhatsApp : +221 77 000 00 00
+        Besoin d'aide ? Contactez-nous sur WhatsApp : +221 78 382 75 75
     </p>
     """
     return get_email_template(content, "Votre panier vous attend !")
@@ -5273,7 +5273,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         elements.append(Paragraph("GROUPE YAMA+", title_style))
         elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
     
-    elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 77 000 00 00", header_style))
+    elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 78 382 75 75", header_style))
     elements.append(Spacer(1, 15))
     
     # Divider line
@@ -5425,7 +5425,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         alignment=1  # Center
     )
     elements.append(Paragraph("Merci pour votre achat chez YAMA+ !", footer_style))
-    elements.append(Paragraph("Pour toute question, contactez-nous sur WhatsApp: +221 77 000 00 00", footer_style))
+    elements.append(Paragraph("Pour toute question, contactez-nous sur WhatsApp: +221 78 382 75 75", footer_style))
     elements.append(Paragraph("www.yama.sn", footer_style))
     
     # Build PDF
@@ -5842,7 +5842,7 @@ async def seed_database():
             "user_id": f"user_{uuid.uuid4().hex[:12]}",
             "email": "admin@yama.sn",
             "name": "Admin YAMA+",
-            "phone": "+221770000000",
+            "phone": "+221783827575",
             "password": hash_password("admin123"),
             "role": "admin",
             "picture": None,
@@ -6202,7 +6202,7 @@ async def seed_database():
             "user_id": f"user_{uuid.uuid4().hex[:12]}",
             "email": "admin@lumina.sn",
             "name": "Admin Lumina",
-            "phone": "+221 77 000 00 00",
+            "phone": "+221 78 382 75 75",
             "password": hash_password("admin123"),
             "role": "admin",
             "picture": None,
