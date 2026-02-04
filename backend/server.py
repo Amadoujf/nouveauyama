@@ -6008,7 +6008,53 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    """Start the abandoned cart scheduler on application startup"""
+    """Initialize database indexes and start scheduler on application startup"""
+    logger.info("Initializing database indexes for optimal performance...")
+    
+    # Create indexes for better query performance
+    try:
+        # Products indexes
+        await db.products.create_index("product_id", unique=True)
+        await db.products.create_index("category")
+        await db.products.create_index("featured")
+        await db.products.create_index("is_new")
+        await db.products.create_index("is_promo")
+        await db.products.create_index("is_flash_sale")
+        await db.products.create_index([("name", "text"), ("description", "text")])
+        
+        # Orders indexes
+        await db.orders.create_index("order_id", unique=True)
+        await db.orders.create_index("user_id")
+        await db.orders.create_index("created_at")
+        await db.orders.create_index("order_status")
+        
+        # Users indexes
+        await db.users.create_index("user_id", unique=True)
+        await db.users.create_index("email", unique=True)
+        
+        # Reviews indexes
+        await db.reviews.create_index("product_id")
+        await db.reviews.create_index("user_id")
+        
+        # Blog posts indexes
+        await db.blog_posts.create_index("slug", unique=True)
+        await db.blog_posts.create_index("category")
+        await db.blog_posts.create_index("is_published")
+        
+        # Cart indexes
+        await db.carts.create_index("cart_id", unique=True)
+        await db.carts.create_index("user_id")
+        await db.carts.create_index("session_id")
+        
+        # Sessions indexes
+        await db.user_sessions.create_index("session_token")
+        await db.user_sessions.create_index("user_id")
+        
+        logger.info("Database indexes created successfully")
+    except Exception as e:
+        logger.warning(f"Index creation warning (may already exist): {e}")
+    
+    # Start abandoned cart scheduler
     logger.info("Starting abandoned cart scheduler...")
     scheduler.add_job(
         detect_and_process_abandoned_carts,
