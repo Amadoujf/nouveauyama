@@ -1020,11 +1020,8 @@ export default function AdminPage() {
           className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-8"
           onClick={() => setShowProductForm(false)}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="w-full max-w-3xl mx-4 bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden"
+          <div
+            className="w-full max-w-3xl mx-4 bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
