@@ -277,9 +277,11 @@ class TestBlogAPI:
         response = requests.get(f"{BASE_URL}/api/blog/posts/guide-achat-smartphone-2025")
         assert response.status_code == 200
         data = response.json()
-        assert "title" in data
-        assert "content" in data
-        print(f"✓ Got blog post: {data['title']}")
+        # API returns {post: {...}, related: [...]}
+        post = data.get("post", data)
+        assert "title" in post
+        assert "content" in post
+        print(f"✓ Got blog post: {post['title']}")
     
     def test_get_nonexistent_blog_post(self):
         """Test getting non-existent blog post returns 404"""
