@@ -336,6 +336,8 @@ export default function AdminPage() {
       colors: product.colors || [],
       sizes: product.sizes || [],
       specs: product.specs || {},
+      is_on_order: product.is_on_order || false,
+      order_delivery_days: product.order_delivery_days?.toString() || "",
     });
     setShowProductForm(true);
     setActiveFormTab("general");
