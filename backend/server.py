@@ -54,8 +54,8 @@ ABANDONED_CART_TIMEOUT_HOURS = 1  # Send email after 1 hour of inactivity
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(
     mongo_url,
-    maxPoolSize=10,  # Limit connection pool size
-    minPoolSize=1,
+    maxPoolSize=15,  # Increased pool size for better concurrency
+    minPoolSize=2,
     maxIdleTimeMS=30000,  # Close idle connections after 30s
     serverSelectionTimeoutMS=5000,  # Faster timeout
     socketTimeoutMS=20000,  # Socket timeout
@@ -63,6 +63,38 @@ client = AsyncIOMotorClient(
     retryWrites=True
 )
 db = client[os.environ['DB_NAME']]
+
+# Simple in-memory cache for frequently accessed data
+_cache = {}
+_cache_ttl = {}
+CACHE_DURATION = 60  # Cache for 60 seconds
+
+def get_cached(key):
+    """Get value from cache if not expired"""
+    if key in _cache and key in _cache_ttl:
+        if time.time() < _cache_ttl[key]:
+            return _cache[key]
+        else:
+            del _cache[key]
+            del _cache_ttl[key]
+    return None
+
+def set_cached(key, value, ttl=CACHE_DURATION):
+    """Set value in cache with TTL"""
+    _cache[key] = value
+    _cache_ttl[key] = time.time() + ttl
+
+def clear_cache(prefix=None):
+    """Clear cache, optionally by prefix"""
+    global _cache, _cache_ttl
+    if prefix:
+        keys_to_delete = [k for k in _cache.keys() if k.startswith(prefix)]
+        for k in keys_to_delete:
+            _cache.pop(k, None)
+            _cache_ttl.pop(k, None)
+    else:
+        _cache = {}
+        _cache_ttl = {}
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'lumina-senegal-secret-key-2024')
