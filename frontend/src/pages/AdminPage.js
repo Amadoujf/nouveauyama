@@ -1111,7 +1111,7 @@ export default function AdminPage() {
                         type="text"
                         required
                         value={productForm.name}
-                        onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                        onChange={(e) => updateFormField('name', e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                         placeholder="Ex: iPhone 15 Pro Max"
                       />
@@ -1123,7 +1123,7 @@ export default function AdminPage() {
                         <select
                           required
                           value={productForm.category}
-                          onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                          onChange={(e) => updateFormField('category', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                         >
                           {categories.map((cat) => (
@@ -1136,7 +1136,7 @@ export default function AdminPage() {
                         <input
                           type="text"
                           value={productForm.brand}
-                          onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+                          onChange={(e) => updateFormField('brand', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                           placeholder="Ex: Apple, Samsung, Nike..."
                         />
