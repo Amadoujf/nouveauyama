@@ -295,8 +295,29 @@ export default function ProductPage() {
                 )}
               </div>
 
+              {/* On Order Badge */}
+              {product.is_on_order && (
+                <div className="mb-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-orange-700 dark:text-orange-300">Disponible sur commande</p>
+                      {product.order_delivery_days && (
+                        <p className="text-sm text-orange-600 dark:text-orange-400">
+                          Livraison estimée : {product.order_delivery_days} jours
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Price Alert Button */}
-              {product.stock > 0 && (
+              {(product.stock > 0 || product.is_on_order) && (
                 <button
                   onClick={() => setShowPriceAlertModal(true)}
                   className="mb-8 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors"
