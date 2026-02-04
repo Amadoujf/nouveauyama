@@ -5822,6 +5822,99 @@ def get_sample_blog_post(slug: str):
                 <h2>5. Faites appel à des professionnels</h2>
                 <p>Un entretien préventif coûte moins cher qu'une réparation majeure.</p>
             """
+        },
+        "nouveautes-apple-2025": {
+            "post_id": "sample_4",
+            "slug": "nouveautes-apple-2025",
+            "title": "Apple 2025 : Toutes les nouveautés à venir",
+            "excerpt": "iPhone 17, MacBook M4, Apple Watch X... Tour d'horizon des produits Apple attendus cette année.",
+            "image": "https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=1200",
+            "category": "Nouveautés",
+            "tags": ["apple", "iPhone", "MacBook", "tech", "2025"],
+            "date": "2025-01-20",
+            "readTime": 7,
+            "author": "YAMA+",
+            "relatedCategory": "electronique",
+            "content": """
+                <p>Apple prépare une année 2025 riche en nouveautés. Voici ce qui nous attend.</p>
+                
+                <h2>iPhone 17 : Une révolution design</h2>
+                <p>La nouvelle génération d'iPhone devrait abandonner l'encoche pour un design plus épuré. Les premières fuites évoquent un écran entièrement borderless.</p>
+                
+                <h2>MacBook Air M4</h2>
+                <p>Le MacBook Air recevra la puce M4, promettant des performances encore meilleures et une autonomie record de 24 heures.</p>
+                
+                <h2>Apple Watch X</h2>
+                <p>Pour les 10 ans de l'Apple Watch, Apple prépare un modèle anniversaire avec un nouveau design et des fonctionnalités santé avancées.</p>
+                
+                <h2>Vision Pro 2</h2>
+                <p>La deuxième génération du casque de réalité mixte devrait être plus légère et plus abordable.</p>
+                
+                <h2>Conclusion</h2>
+                <p>2025 s'annonce comme une année charnière pour Apple. Restez connectés pour les dernières actualités !</p>
+            """
+        },
+        "routine-beaute-naturelle": {
+            "post_id": "sample_5",
+            "slug": "routine-beaute-naturelle",
+            "title": "Routine beauté : Les indispensables pour une peau éclatante",
+            "excerpt": "Découvrez notre sélection de produits pour une routine beauté efficace et naturelle.",
+            "image": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200",
+            "category": "Conseils",
+            "tags": ["beauté", "skincare", "routine", "naturel"],
+            "date": "2025-01-18",
+            "readTime": 4,
+            "author": "YAMA+",
+            "relatedCategory": "beaute",
+            "content": """
+                <p>Une belle peau passe par une routine adaptée. Voici les essentiels pour un teint éclatant.</p>
+                
+                <h2>Le double nettoyage</h2>
+                <p>Commencez par une huile démaquillante pour éliminer le maquillage et le sébum, puis enchaînez avec un nettoyant doux à l'eau.</p>
+                
+                <h2>L'hydratation quotidienne</h2>
+                <p>Une crème hydratante adaptée à votre type de peau est indispensable. N'oubliez pas le contour des yeux !</p>
+                
+                <h2>La protection solaire</h2>
+                <p>Le SPF est votre meilleur allié anti-âge. Appliquez-le chaque matin, même par temps nuageux.</p>
+                
+                <h2>Les soins hebdomadaires</h2>
+                <p>Un gommage doux une fois par semaine et un masque hydratant complètent votre routine.</p>
+            """
+        },
+        "guide-televiseur-4k": {
+            "post_id": "sample_6",
+            "slug": "guide-televiseur-4k",
+            "title": "TV 4K ou 8K : Quel téléviseur choisir en 2025 ?",
+            "excerpt": "OLED, QLED, Mini-LED... On vous explique tout pour faire le bon choix.",
+            "image": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=1200",
+            "category": "Guides d'achat",
+            "tags": ["TV", "4K", "8K", "OLED", "QLED"],
+            "date": "2025-01-15",
+            "readTime": 9,
+            "author": "YAMA+",
+            "relatedCategory": "electronique",
+            "content": """
+                <p>Le choix d'un téléviseur en 2025 peut sembler complexe. Voici notre guide complet.</p>
+                
+                <h2>4K vs 8K : que choisir ?</h2>
+                <p>La 4K reste le choix optimal en 2025. Le contenu 8K est encore rare et les téléviseurs 4K offrent un excellent rapport qualité-prix.</p>
+                
+                <h2>OLED : le roi des noirs</h2>
+                <p>Les dalles OLED offrent des noirs parfaits et un contraste infini. Idéal pour les cinéphiles et les salons sombres.</p>
+                
+                <h2>QLED : la luminosité avant tout</h2>
+                <p>Les TV QLED excellent en luminosité et sont parfaits pour les pièces lumineuses. Les couleurs sont vibrantes et durables.</p>
+                
+                <h2>Mini-LED : le meilleur des deux mondes</h2>
+                <p>Cette technologie combine haute luminosité et excellent contraste, à un prix intermédiaire.</p>
+                
+                <h2>Quelle taille choisir ?</h2>
+                <p>La règle : divisez la distance de visionnage par 1,5. À 3 mètres, optez pour un 55-65 pouces minimum.</p>
+                
+                <h2>Notre conseil</h2>
+                <p>Pour un salon standard, un TV OLED ou Mini-LED de 55-65 pouces en 4K reste le meilleur investissement en 2025.</p>
+            """
         }
     }
     
