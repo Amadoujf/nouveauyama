@@ -1114,10 +1114,9 @@ export default function AdminPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">Description courte *</label>
+                      <label className="block text-sm font-medium mb-2">Description courte</label>
                       <input
                         type="text"
-                        required
                         value={productForm.short_description}
                         onChange={(e) => setProductForm({ ...productForm, short_description: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
