@@ -88,6 +88,17 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [x] **Produits sur commande** : Option "Sur commande" avec délai de livraison estimé en jours
 - [x] **Badge "Sur commande"** : Affiché sur les cartes produits et pages produits avec icône horloge et délai
 
+### Blog & SEO Features (Feb 4, 2025)
+- [x] **Blog YAMA+** : Section blog complète avec articles SEO
+  - Page liste des articles (/blog) avec hero, recherche, filtres par catégorie
+  - Page article individuel (/blog/:slug) avec contenu riche, partage social
+  - 6 articles de démonstration (guides d'achat, conseils, tendances, nouveautés)
+  - API backend complète (GET /api/blog/posts, GET /api/blog/posts/:slug)
+  - Administration des articles (création, modification, suppression)
+- [x] **Google Analytics 4** : Suivi des pages et événements
+- [x] **Facebook Pixel** : Tracking marketing pour les conversions
+- [x] **PWA Ready** : Application web progressive avec manifest.json
+
 ## Pending Issues (Blocked on User Action)
 
 ### P1 - Resend Domain Verification
