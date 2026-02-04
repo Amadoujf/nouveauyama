@@ -55,7 +55,7 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         return {"success": False, "error": "MailerSend not configured"}
     
     try:
-        email = (
+        email_builder = (
             EmailBuilder()
             .from_email(SENDER_EMAIL, "YAMA+")
             .to(to_email, to_name or to_email)
@@ -63,10 +63,13 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
             .html(html_content)
         )
         if text_content:
-            email.text(text_content)
+            email_builder.text(text_content)
+        
+        # Build the email request
+        email_request = email_builder.build()
         
         # Send email using emails.send()
-        response = await asyncio.to_thread(mailersend_client.emails.send, email)
+        response = await asyncio.to_thread(mailersend_client.emails.send, email_request)
         logger.info(f"Email sent to {to_email}")
         return {"success": True, "response": str(response)}
     except Exception as e:
