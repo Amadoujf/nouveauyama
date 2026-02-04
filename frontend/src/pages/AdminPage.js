@@ -404,17 +404,42 @@ export default function AdminPage() {
     setProductFormLoading(true);
 
     try {
+      // Validate minimum required fields
+      if (!productForm.name || !productForm.name.trim()) {
+        toast.error("Le nom du produit est obligatoire");
+        setProductFormLoading(false);
+        return;
+      }
+
+      if (!productForm.price || parseInt(productForm.price) <= 0) {
+        toast.error("Le prix doit être supérieur à 0");
+        setProductFormLoading(false);
+        return;
+      }
+
       // Add default image if no images provided
       const images = productForm.images.length > 0 
         ? productForm.images 
         : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"];
 
       const productData = {
-        ...productForm,
-        images,
+        name: productForm.name.trim(),
+        description: productForm.description?.trim() || productForm.name.trim(),
+        short_description: productForm.short_description?.trim() || "",
         price: parseInt(productForm.price) || 0,
         original_price: productForm.original_price ? parseInt(productForm.original_price) : null,
+        category: productForm.category || "electronique",
+        subcategory: productForm.subcategory || null,
+        images,
         stock: parseInt(productForm.stock) || 0,
+        featured: productForm.featured || false,
+        is_new: productForm.is_new || false,
+        is_promo: productForm.is_promo || false,
+        brand: productForm.brand?.trim() || null,
+        colors: productForm.colors || [],
+        sizes: productForm.sizes || [],
+        specs: productForm.specs || {},
+        is_on_order: productForm.is_on_order || false,
         order_delivery_days: productForm.order_delivery_days ? parseInt(productForm.order_delivery_days) : null,
       };
 
