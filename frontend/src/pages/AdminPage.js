@@ -1095,7 +1095,7 @@ export default function AdminPage() {
       </main>
 
       {/* Product Form Modal */}
-      <ProductFormModal />
+      {renderProductFormModal()}
     </div>
   );
 }
