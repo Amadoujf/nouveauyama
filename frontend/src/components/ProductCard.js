@@ -126,11 +126,21 @@ export default function ProductCard({ product, index = 0 }) {
         </button>
 
         {/* Stock badge */}
-        {product.stock === 0 && (
+        {product.stock === 0 && !product.is_on_order && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">
               Rupture
             </span>
+          </div>
+        )}
+        
+        {/* On Order delivery info */}
+        {product.is_on_order && product.order_delivery_days && (
+          <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {product.order_delivery_days}j
           </div>
         )}
       </Link>
