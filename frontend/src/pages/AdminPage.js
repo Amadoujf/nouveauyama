@@ -1461,9 +1461,9 @@ export default function AdminPage() {
               </div>
             </form>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 
   // Render content based on current page
