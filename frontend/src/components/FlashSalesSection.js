@@ -166,7 +166,7 @@ function FlashProductCard({ product, index }) {
         </div>
 
         {/* Product Image Carousel */}
-        <Link to={`/produit/${product.product_id}`} className="block">
+        <Link to={`/product/${product.product_id}`} className="block">
           <div className="relative aspect-[4/3] overflow-hidden bg-[#F5F5F7] dark:bg-[#2C2C2E]">
             <AnimatePresence mode="wait">
               <motion.img 
@@ -201,7 +201,7 @@ function FlashProductCard({ product, index }) {
         
         {/* Product Info - Compact */}
         <div className="p-3">
-          <Link to={`/produit/${product.product_id}`}>
+          <Link to={`/product/${product.product_id}`}>
             <h3 className="font-semibold text-sm line-clamp-1 mb-2 group-hover:text-red-500 transition-colors">
               {product.name}
             </h3>

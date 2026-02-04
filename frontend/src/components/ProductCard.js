@@ -147,7 +147,7 @@ export default function ProductCard({ product, index = 0 }) {
 
       {/* Product Info - Compact */}
       <div className="p-2.5 sm:p-3">
-        <Link to={`/produit/${product.product_id}`} className="block">
+        <Link to={`/product/${product.product_id}`} className="block">
           <h3 className="font-semibold text-xs sm:text-sm line-clamp-1 mb-1 group-hover:text-primary transition-colors">
             {product.name}
           </h3>

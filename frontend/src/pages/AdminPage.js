@@ -840,7 +840,7 @@ export default function AdminPage() {
                         <Edit className="w-4 h-4" />
                       </button>
                       <Link
-                        to={`/produit/${product.product_id}`}
+                        to={`/product/${product.product_id}`}
                         className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                         title="Voir"
                       >
