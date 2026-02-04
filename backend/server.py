@@ -1085,6 +1085,8 @@ async def get_products(
         "brand": 1,
         "colors": 1,
         "sizes": 1,
+        "is_on_order": 1,
+        "order_delivery_days": 1,
         "created_at": 1,
         "updated_at": 1
     }
