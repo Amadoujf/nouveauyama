@@ -4701,9 +4701,7 @@ async def create_order(order_data: OrderCreate, request: Request):
         await db.carts.delete_one({"user_id": user.user_id})
     
     # Send order confirmation email (async, don't wait)
-    shipping_email = order_doc.get("shipping", {}).get("email")
-    if shipping_email:
-        asyncio.create_task(send_order_confirmation_email(shipping_email, order_doc))
+    asyncio.create_task(send_order_confirmation_email(order_doc))
     
     # Send notification to admin
     asyncio.create_task(send_admin_order_notification(order_doc))
