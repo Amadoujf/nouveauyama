@@ -1148,7 +1148,7 @@ export default function AdminPage() {
                       <input
                         type="text"
                         value={productForm.short_description}
-                        onChange={(e) => setProductForm({ ...productForm, short_description: e.target.value })}
+                        onChange={(e) => updateFormField('short_description', e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                         placeholder="Résumé en une phrase"
                       />
@@ -1159,7 +1159,7 @@ export default function AdminPage() {
                       <textarea
                         rows={4}
                         value={productForm.description}
-                        onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                        onChange={(e) => updateFormField('description', e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none resize-none"
                         placeholder="Description détaillée du produit..."
                       />
@@ -1173,7 +1173,7 @@ export default function AdminPage() {
                           required
                           min="1"
                           value={productForm.price}
-                          onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                          onChange={(e) => updateFormField('price', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                           placeholder="0"
                         />
@@ -1183,7 +1183,7 @@ export default function AdminPage() {
                         <input
                           type="number"
                           value={productForm.original_price}
-                          onChange={(e) => setProductForm({ ...productForm, original_price: e.target.value })}
+                          onChange={(e) => updateFormField('original_price', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                           placeholder="0"
                         />
@@ -1194,7 +1194,7 @@ export default function AdminPage() {
                           type="number"
                           min="0"
                           value={productForm.stock}
-                          onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                          onChange={(e) => updateFormField('stock', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
                           placeholder="0"
                         />
@@ -1206,7 +1206,7 @@ export default function AdminPage() {
                         <input
                           type="checkbox"
                           checked={productForm.is_new}
-                          onChange={(e) => setProductForm({ ...productForm, is_new: e.target.checked })}
+                          onChange={(e) => updateFormField('is_new', e.target.checked)}
                           className="w-5 h-5 rounded border-black/20 dark:border-white/20"
                         />
                         <span className="text-sm font-medium">Nouveau</span>
@@ -1215,7 +1215,7 @@ export default function AdminPage() {
                         <input
                           type="checkbox"
                           checked={productForm.is_promo}
-                          onChange={(e) => setProductForm({ ...productForm, is_promo: e.target.checked })}
+                          onChange={(e) => updateFormField('is_promo', e.target.checked)}
                           className="w-5 h-5 rounded border-black/20 dark:border-white/20"
                         />
                         <span className="text-sm font-medium">En promotion</span>
@@ -1224,7 +1224,7 @@ export default function AdminPage() {
                         <input
                           type="checkbox"
                           checked={productForm.featured}
-                          onChange={(e) => setProductForm({ ...productForm, featured: e.target.checked })}
+                          onChange={(e) => updateFormField('featured', e.target.checked)}
                           className="w-5 h-5 rounded border-black/20 dark:border-white/20"
                         />
                         <span className="text-sm font-medium">Mis en avant</span>
@@ -1233,7 +1233,7 @@ export default function AdminPage() {
                         <input
                           type="checkbox"
                           checked={productForm.is_on_order}
-                          onChange={(e) => setProductForm({ ...productForm, is_on_order: e.target.checked })}
+                          onChange={(e) => updateFormField('is_on_order', e.target.checked)}
                           className="w-5 h-5 rounded border-black/20 dark:border-white/20"
                         />
                         <span className="text-sm font-medium">Sur commande</span>
@@ -1252,7 +1252,7 @@ export default function AdminPage() {
                           max="90"
                           required={productForm.is_on_order}
                           value={productForm.order_delivery_days}
-                          onChange={(e) => setProductForm({ ...productForm, order_delivery_days: e.target.value })}
+                          onChange={(e) => updateFormField('order_delivery_days', e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-orange-300 dark:border-orange-700 bg-white dark:bg-[#1C1C1E] focus:ring-2 focus:ring-orange-500 outline-none"
                           placeholder="Ex: 7, 14, 21..."
                         />
