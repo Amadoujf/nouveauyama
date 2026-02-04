@@ -405,18 +405,20 @@ export default function AdminPage() {
         stock: parseInt(productForm.stock) || 0,
       };
 
+      const headers = { Authorization: `Bearer ${token}` };
+
       if (editingProduct) {
         await axios.put(
-          `${API_URL}/api/admin/products/${editingProduct.product_id}`,
+          `${API_URL}/api/products/${editingProduct.product_id}`,
           productData,
-          { withCredentials: true }
+          { headers }
         );
         toast.success("Produit modifié avec succès");
       } else {
         await axios.post(
-          `${API_URL}/api/admin/products`,
+          `${API_URL}/api/products`,
           productData,
-          { withCredentials: true }
+          { headers }
         );
         toast.success("Produit créé avec succès");
       }
@@ -425,6 +427,7 @@ export default function AdminPage() {
       resetProductForm();
       fetchData();
     } catch (error) {
+      console.error("Product submit error:", error);
       toast.error(error.response?.data?.detail || "Erreur lors de la sauvegarde");
     } finally {
       setProductFormLoading(false);
@@ -435,9 +438,8 @@ export default function AdminPage() {
     if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) return;
 
     try {
-      await axios.delete(`${API_URL}/api/admin/products/${productId}`, {
-        withCredentials: true,
-      });
+      const headers = { Authorization: `Bearer ${token}` };
+      await axios.delete(`${API_URL}/api/products/${productId}`, { headers });
       toast.success("Produit supprimé");
       fetchData();
     } catch (error) {
@@ -447,10 +449,11 @@ export default function AdminPage() {
 
   const handleOrderStatusUpdate = async (orderId, newStatus) => {
     try {
+      const headers = { Authorization: `Bearer ${token}` };
       await axios.put(
         `${API_URL}/api/admin/orders/${orderId}/status`,
         { status: newStatus },
-        { withCredentials: true }
+        { headers }
       );
       toast.success("Statut mis à jour");
       fetchData();
