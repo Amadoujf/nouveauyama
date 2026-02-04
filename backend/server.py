@@ -2810,7 +2810,7 @@ async def get_jersey_winners():
 # ============== EMAIL CAMPAIGN ROUTES ==============
 
 def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
-    """Generate a beautiful HTML email template"""
+    """Generate a beautiful HTML email template with GROUPE YAMA+ branding"""
     return f"""
     <!DOCTYPE html>
     <html>
@@ -2823,11 +2823,24 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
             <tr>
                 <td align="center">
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <!-- Header -->
+                        <!-- Header with GROUPE YAMA+ Logo -->
                         <tr>
-                            <td style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%); padding: 30px; text-align: center;">
-                                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">{title}</h1>
-                                <p style="color: #888888; margin: 8px 0 0 0; font-size: 14px;">Votre boutique premium au Sénégal</p>
+                            <td style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 35px 30px; text-align: center;">
+                                <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <div style="display: inline-block; background: #ffffff; border-radius: 12px; padding: 12px 25px; margin-bottom: 15px;">
+                                                <span style="font-size: 24px; font-weight: 800; color: #000000; letter-spacing: 1px;">GROUPE YAMA</span>
+                                                <span style="font-size: 28px; font-weight: 800; color: #ff6b00; margin-left: 2px;">+</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <p style="color: #888888; margin: 0; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">Votre boutique premium au Sénégal</p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                         <!-- Content -->
@@ -2838,16 +2851,32 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
                         </tr>
                         <!-- Footer -->
                         <tr>
-                            <td style="background-color: #f8f8f8; padding: 25px 30px; text-align: center; border-top: 1px solid #eee;">
-                                <p style="color: #666666; font-size: 12px; margin: 0;">
+                            <td style="background-color: #1a1a1a; padding: 30px; text-align: center;">
+                                <p style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 0 0 5px 0;">
+                                    GROUPE YAMA<span style="color: #ff6b00;">+</span>
+                                </p>
+                                <p style="color: #888888; font-size: 12px; margin: 0 0 15px 0;">
+                                    groupeyamaplus.com
+                                </p>
+                                <p style="color: #666666; font-size: 11px; margin: 0 0 8px 0;">
+                                    📍 Dakar, Sénégal | 📞 +221 77 000 00 00
+                                </p>
+                                <p style="color: #555555; font-size: 10px; margin: 15px 0 0 0;">
                                     © 2025 GROUPE YAMA+ - Tous droits réservés
                                 </p>
-                                <p style="color: #999999; font-size: 11px; margin: 10px 0 0 0;">
-                                    Dakar, Sénégal | WhatsApp: +221 77 000 00 00
-                                </p>
-                                <p style="margin: 15px 0 0 0;">
-                                    <a href="https://groupeyamaplus.com" style="color: #007AFF; text-decoration: none; font-size: 12px;">Visiter notre site</a>
-                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- Unsubscribe -->
+                    <p style="color: #999; font-size: 11px; margin-top: 20px; text-align: center;">
+                        <a href="https://groupeyamaplus.com/unsubscribe" style="color: #999; text-decoration: underline;">Se désabonner</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
                             </td>
                         </tr>
                     </table>
