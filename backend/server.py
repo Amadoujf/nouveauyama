@@ -819,13 +819,14 @@ async def detect_and_process_abandoned_carts():
             if not cart_items_with_details:
                 continue
             
-            # Add to MailerLite
-            result = await mailerlite_service.add_subscriber_to_abandoned_cart(
-                email=email,
-                name=name,
-                cart_items=cart_items_with_details,
-                cart_total=cart_total,
-                cart_url=f"https://groupeyamaplus.com/checkout"
+            # Send abandoned cart email via MailerSend
+            recovery_link = f"https://groupeyamaplus.com/panier?recover={cart.get('cart_id', '')}"
+            html = get_abandoned_cart_template(name or "Client", cart_items_with_details, cart_total, recovery_link)
+            
+            result = await send_email_async(
+                to=email,
+                subject="🛒 Votre panier vous attend - YAMA+",
+                html=html
             )
             
             if result.get("success"):
@@ -834,6 +835,16 @@ async def detect_and_process_abandoned_carts():
                     {"cart_id": cart.get("cart_id")},
                     {"$set": {"abandoned_email_sent": True, "abandoned_at": datetime.now(timezone.utc).isoformat()}}
                 )
+                
+                # Log email sent
+                await db.abandoned_cart_emails.insert_one({
+                    "email": email,
+                    "cart_id": cart.get("cart_id"),
+                    "cart_total": cart_total,
+                    "items_count": len(cart_items_with_details),
+                    "sent_at": datetime.now(timezone.utc).isoformat()
+                })
+                
                 processed_count += 1
                 logger.info(f"Sent abandoned cart email for {email}")
         
