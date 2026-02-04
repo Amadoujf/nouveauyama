@@ -5463,6 +5463,356 @@ async def seed_database():
     
     return {"message": "Base de données initialisée", "products": total_products, "flash_sales": len(flash_sale_updates)}
 
+# ============== BLOG ROUTES ==============
+
+class BlogPostCreate(BaseModel):
+    title: str
+    slug: str
+    excerpt: str
+    content: str
+    image: str
+    category: str
+    tags: Optional[List[str]] = []
+    author: str = "YAMA+"
+    read_time: int = 5
+    related_category: Optional[str] = None
+    is_published: bool = True
+
+class BlogPost(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    post_id: str
+    title: str
+    slug: str
+    excerpt: str
+    content: str
+    image: str
+    category: str
+    tags: List[str] = []
+    author: str
+    read_time: int
+    related_category: Optional[str] = None
+    is_published: bool = True
+    views: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+@api_router.get("/blog/posts")
+async def get_blog_posts(
+    category: Optional[str] = None,
+    limit: int = 20,
+    skip: int = 0
+):
+    """Get all published blog posts"""
+    query = {"is_published": True}
+    if category and category != "all":
+        query["category"] = category
+    
+    posts = await db.blog_posts.find(
+        query,
+        {"_id": 0, "content": 0}  # Exclude content for list view
+    ).sort("created_at", -1).skip(skip).limit(min(limit, 50)).to_list(50)
+    
+    # If no posts in DB, return sample posts
+    if not posts:
+        return get_sample_blog_posts()
+    
+    return posts
+
+@api_router.get("/blog/posts/{slug}")
+async def get_blog_post(slug: str):
+    """Get a single blog post by slug"""
+    post = await db.blog_posts.find_one(
+        {"slug": slug, "is_published": True},
+        {"_id": 0}
+    )
+    
+    if not post:
+        # Return sample post if not found in DB
+        sample = get_sample_blog_post(slug)
+        if sample:
+            return sample
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    # Increment view count
+    await db.blog_posts.update_one(
+        {"slug": slug},
+        {"$inc": {"views": 1}}
+    )
+    
+    # Get related posts from same category
+    related = await db.blog_posts.find(
+        {
+            "category": post.get("category"),
+            "slug": {"$ne": slug},
+            "is_published": True
+        },
+        {"_id": 0, "content": 0}
+    ).limit(3).to_list(3)
+    
+    return {"post": post, "related": related}
+
+@api_router.post("/admin/blog/posts")
+async def create_blog_post(post_data: BlogPostCreate, user: User = Depends(require_admin)):
+    """Create a new blog post"""
+    # Check if slug exists
+    existing = await db.blog_posts.find_one({"slug": post_data.slug})
+    if existing:
+        raise HTTPException(status_code=400, detail="Un article avec ce slug existe déjà")
+    
+    post_id = f"post_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+    
+    post_doc = {
+        "post_id": post_id,
+        "title": post_data.title,
+        "slug": post_data.slug,
+        "excerpt": post_data.excerpt,
+        "content": post_data.content,
+        "image": post_data.image,
+        "category": post_data.category,
+        "tags": post_data.tags or [],
+        "author": post_data.author,
+        "read_time": post_data.read_time,
+        "related_category": post_data.related_category,
+        "is_published": post_data.is_published,
+        "views": 0,
+        "created_at": now.isoformat(),
+        "updated_at": now.isoformat()
+    }
+    
+    await db.blog_posts.insert_one(post_doc)
+    post_doc.pop("_id", None)
+    
+    return post_doc
+
+@api_router.put("/admin/blog/posts/{post_id}")
+async def update_blog_post(post_id: str, post_data: BlogPostCreate, user: User = Depends(require_admin)):
+    """Update a blog post"""
+    existing = await db.blog_posts.find_one({"post_id": post_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    
+    # Check if new slug conflicts with another post
+    if post_data.slug != existing.get("slug"):
+        slug_exists = await db.blog_posts.find_one({
+            "slug": post_data.slug,
+            "post_id": {"$ne": post_id}
+        })
+        if slug_exists:
+            raise HTTPException(status_code=400, detail="Ce slug est déjà utilisé")
+    
+    update_doc = {
+        "title": post_data.title,
+        "slug": post_data.slug,
+        "excerpt": post_data.excerpt,
+        "content": post_data.content,
+        "image": post_data.image,
+        "category": post_data.category,
+        "tags": post_data.tags or [],
+        "author": post_data.author,
+        "read_time": post_data.read_time,
+        "related_category": post_data.related_category,
+        "is_published": post_data.is_published,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.blog_posts.update_one(
+        {"post_id": post_id},
+        {"$set": update_doc}
+    )
+    
+    return {"message": "Article mis à jour"}
+
+@api_router.delete("/admin/blog/posts/{post_id}")
+async def delete_blog_post(post_id: str, user: User = Depends(require_admin)):
+    """Delete a blog post"""
+    result = await db.blog_posts.delete_one({"post_id": post_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Article non trouvé")
+    return {"message": "Article supprimé"}
+
+@api_router.get("/admin/blog/posts")
+async def get_admin_blog_posts(user: User = Depends(require_admin)):
+    """Get all blog posts for admin (including unpublished)"""
+    posts = await db.blog_posts.find(
+        {},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return posts
+
+def get_sample_blog_posts():
+    """Return sample blog posts for demo/fallback"""
+    return [
+        {
+            "post_id": "sample_1",
+            "slug": "guide-achat-smartphone-2025",
+            "title": "Guide d'achat : Comment choisir son smartphone en 2025",
+            "excerpt": "Découvrez les critères essentiels pour choisir le smartphone parfait selon vos besoins et votre budget.",
+            "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800",
+            "category": "Guides d'achat",
+            "date": "2025-02-01",
+            "readTime": 8,
+            "author": "YAMA+"
+        },
+        {
+            "post_id": "sample_2",
+            "slug": "tendances-decoration-2025",
+            "title": "Les tendances déco 2025 : Ce qui va transformer votre intérieur",
+            "excerpt": "Couleurs, matériaux, styles... Découvrez toutes les tendances décoration pour cette année.",
+            "image": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800",
+            "category": "Tendances",
+            "date": "2025-01-28",
+            "readTime": 6,
+            "author": "YAMA+"
+        },
+        {
+            "post_id": "sample_3",
+            "slug": "conseils-entretien-electromenager",
+            "title": "5 conseils pour prolonger la durée de vie de vos appareils",
+            "excerpt": "Nos astuces simples pour entretenir vos appareils électroménagers et éviter les pannes.",
+            "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
+            "category": "Conseils",
+            "date": "2025-01-25",
+            "readTime": 5,
+            "author": "YAMA+"
+        },
+        {
+            "post_id": "sample_4",
+            "slug": "nouveautes-apple-2025",
+            "title": "Apple 2025 : Toutes les nouveautés à venir",
+            "excerpt": "iPhone 17, MacBook M4, Apple Watch X... Tour d'horizon des produits Apple attendus cette année.",
+            "image": "https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=800",
+            "category": "Nouveautés",
+            "date": "2025-01-20",
+            "readTime": 7,
+            "author": "YAMA+"
+        },
+        {
+            "post_id": "sample_5",
+            "slug": "routine-beaute-naturelle",
+            "title": "Routine beauté : Les indispensables pour une peau éclatante",
+            "excerpt": "Découvrez notre sélection de produits pour une routine beauté efficace et naturelle.",
+            "image": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800",
+            "category": "Conseils",
+            "date": "2025-01-18",
+            "readTime": 4,
+            "author": "YAMA+"
+        },
+        {
+            "post_id": "sample_6",
+            "slug": "guide-televiseur-4k",
+            "title": "TV 4K ou 8K : Quel téléviseur choisir en 2025 ?",
+            "excerpt": "OLED, QLED, Mini-LED... On vous explique tout pour faire le bon choix.",
+            "image": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800",
+            "category": "Guides d'achat",
+            "date": "2025-01-15",
+            "readTime": 9,
+            "author": "YAMA+"
+        }
+    ]
+
+def get_sample_blog_post(slug: str):
+    """Return a sample blog post by slug"""
+    posts = {
+        "guide-achat-smartphone-2025": {
+            "post_id": "sample_1",
+            "slug": "guide-achat-smartphone-2025",
+            "title": "Guide d'achat : Comment choisir son smartphone en 2025",
+            "excerpt": "Découvrez les critères essentiels pour choisir le smartphone parfait selon vos besoins et votre budget.",
+            "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200",
+            "category": "Guides d'achat",
+            "tags": ["smartphone", "guide", "tech", "2025"],
+            "date": "2025-02-01",
+            "readTime": 8,
+            "author": "YAMA+",
+            "relatedCategory": "electronique",
+            "content": """
+                <p>Choisir un smartphone en 2025 peut sembler complexe face à la multitude d'options disponibles. Ce guide vous aidera à faire le meilleur choix selon vos besoins.</p>
+                
+                <h2>1. Définir son budget</h2>
+                <p>Le marché des smartphones se divise en trois grandes catégories :</p>
+                <ul>
+                    <li><strong>Entrée de gamme (100 000 - 200 000 FCFA)</strong> : Parfait pour les usages basiques</li>
+                    <li><strong>Milieu de gamme (200 000 - 500 000 FCFA)</strong> : Excellent rapport qualité-prix</li>
+                    <li><strong>Haut de gamme (500 000+ FCFA)</strong> : Pour les utilisateurs exigeants</li>
+                </ul>
+                
+                <h2>2. L'écran : taille et technologie</h2>
+                <p>En 2025, les écrans AMOLED sont devenus la norme, même sur les appareils milieu de gamme. Privilégiez un taux de rafraîchissement de 90Hz minimum pour une navigation fluide.</p>
+                
+                <h2>3. La puissance : processeur et RAM</h2>
+                <p>Pour un usage quotidien fluide, optez pour au moins 6 Go de RAM. Les processeurs Snapdragon 8 Gen 3 ou Apple A17 Pro offrent les meilleures performances.</p>
+                
+                <h2>4. L'appareil photo</h2>
+                <p>Ne vous fiez pas uniquement aux mégapixels ! La taille du capteur et le traitement logiciel sont tout aussi importants. Recherchez des capteurs de 1/1.5" ou plus grands.</p>
+                
+                <h2>5. L'autonomie</h2>
+                <p>Une batterie de 4500 mAh minimum est recommandée. La charge rapide (65W+) est devenue indispensable pour les utilisateurs actifs.</p>
+                
+                <h2>Conclusion</h2>
+                <p>Le meilleur smartphone est celui qui répond à VOS besoins. N'hésitez pas à consulter notre boutique pour découvrir notre sélection soigneusement choisie.</p>
+            """
+        },
+        "tendances-decoration-2025": {
+            "post_id": "sample_2",
+            "slug": "tendances-decoration-2025",
+            "title": "Les tendances déco 2025 : Ce qui va transformer votre intérieur",
+            "excerpt": "Couleurs, matériaux, styles... Découvrez toutes les tendances décoration pour cette année.",
+            "image": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200",
+            "category": "Tendances",
+            "tags": ["décoration", "tendances", "maison", "intérieur"],
+            "date": "2025-01-28",
+            "readTime": 6,
+            "author": "YAMA+",
+            "relatedCategory": "decoration",
+            "content": """
+                <p>L'année 2025 apporte son lot de nouvelles tendances en matière de décoration intérieure. Voici ce qui va transformer nos intérieurs.</p>
+                
+                <h2>Les couleurs phares</h2>
+                <p>Le vert sauge et le terracotta continuent leur règne, mais 2025 voit l'émergence du "Mocha Mousse", un brun chaleureux élu couleur de l'année.</p>
+                
+                <h2>Le retour du vintage</h2>
+                <p>Les années 70 font un retour remarqué avec des formes organiques, du velours côtelé et des tons chauds.</p>
+                
+                <h2>Le minimalisme chaleureux</h2>
+                <p>Fini le minimalisme froid ! On privilégie désormais des espaces épurés mais accueillants, avec des textures douces et des matériaux naturels.</p>
+                
+                <h2>La durabilité au cœur des choix</h2>
+                <p>Les consommateurs privilégient les meubles durables, les matériaux recyclés et les artisans locaux.</p>
+            """
+        },
+        "conseils-entretien-electromenager": {
+            "post_id": "sample_3",
+            "slug": "conseils-entretien-electromenager",
+            "title": "5 conseils pour prolonger la durée de vie de vos appareils",
+            "excerpt": "Nos astuces simples pour entretenir vos appareils électroménagers et éviter les pannes.",
+            "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200",
+            "category": "Conseils",
+            "tags": ["entretien", "électroménager", "conseils"],
+            "date": "2025-01-25",
+            "readTime": 5,
+            "author": "YAMA+",
+            "content": """
+                <h2>1. Nettoyez régulièrement</h2>
+                <p>Un nettoyage régulier prévient l'accumulation de saletés qui peuvent endommager vos appareils.</p>
+                
+                <h2>2. Respectez les charges recommandées</h2>
+                <p>Ne surchargez pas vos appareils ! Un lave-linge ou réfrigérateur surchargé s'use plus vite.</p>
+                
+                <h2>3. Utilisez les bons produits</h2>
+                <p>Chaque appareil a ses produits adaptés. Évitez les produits abrasifs.</p>
+                
+                <h2>4. Vérifiez les branchements</h2>
+                <p>Des branchements défectueux peuvent causer des surtensions.</p>
+                
+                <h2>5. Faites appel à des professionnels</h2>
+                <p>Un entretien préventif coûte moins cher qu'une réparation majeure.</p>
+            """
+        }
+    }
+    
+    return posts.get(slug)
+
 # ============== ROOT ==============
 
 @api_router.get("/")
