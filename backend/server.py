@@ -5530,7 +5530,8 @@ async def get_blog_post(slug: str):
         # Return sample post if not found in DB
         sample = get_sample_blog_post(slug)
         if sample:
-            return sample
+            # Return in same format as DB posts for consistency
+            return {"post": sample, "related": []}
         raise HTTPException(status_code=404, detail="Article non trouvé")
     
     # Increment view count
