@@ -40,6 +40,8 @@ import ReturnPolicyPage from "./pages/ReturnPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TrackOrderPage from "./pages/TrackOrderPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 
 import "./App.css";
 
