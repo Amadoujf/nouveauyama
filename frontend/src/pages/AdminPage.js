@@ -1167,6 +1167,7 @@ export default function AdminPage() {
                         <input
                           type="number"
                           required
+                          min="1"
                           value={productForm.price}
                           onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
@@ -1184,10 +1185,10 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">Stock *</label>
+                        <label className="block text-sm font-medium mb-2">Stock</label>
                         <input
                           type="number"
-                          required
+                          min="0"
                           value={productForm.stock}
                           onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
                           className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 outline-none"
