@@ -409,6 +409,7 @@ export default function AdminPage() {
         price: parseInt(productForm.price),
         original_price: productForm.original_price ? parseInt(productForm.original_price) : null,
         stock: parseInt(productForm.stock) || 0,
+        order_delivery_days: productForm.order_delivery_days ? parseInt(productForm.order_delivery_days) : null,
       };
 
       const headers = { Authorization: `Bearer ${token}` };
