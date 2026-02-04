@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import ProductFormModal from "../components/ProductFormModal";
 import {
   LayoutDashboard,
   Package,
