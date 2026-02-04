@@ -1011,12 +1011,9 @@ export default function AdminPage() {
 
   // Product Form Modal
   const ProductFormModal = () => (
-    <AnimatePresence>
+    <>
       {showProductForm && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-8"
           onClick={() => setShowProductForm(false)}
         >
