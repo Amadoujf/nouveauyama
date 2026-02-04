@@ -23,11 +23,13 @@ export default function BlogPostPage() {
     setLoading(true);
     try {
       const response = await axios.get(`${API_URL}/api/blog/posts/${slug}`);
-      setPost(response.data);
+      // API returns {post: {...}, related: [...]}
+      const postData = response.data.post || response.data;
+      setPost(postData);
       
       // Fetch related products
-      if (response.data.relatedCategory) {
-        const productsRes = await axios.get(`${API_URL}/api/products?category=${response.data.relatedCategory}&limit=4`);
+      if (postData.relatedCategory) {
+        const productsRes = await axios.get(`${API_URL}/api/products?category=${postData.relatedCategory}&limit=4`);
         setRelatedProducts(productsRes.data);
       }
     } catch (error) {
