@@ -83,6 +83,11 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 ### AI-Powered Features (Feb 2, 2025)
 - [x] **IA Auto-remplir produit** : Bouton magique dans le formulaire de création de produit qui analyse une image et remplit automatiquement le nom, description, catégorie, marque, couleurs et prix estimé
 
+### Product Management Features (Feb 4, 2025)
+- [x] **Correction création produit** : Fixed authentication issues (withCredentials → Bearer token)
+- [x] **Produits sur commande** : Option "Sur commande" avec délai de livraison estimé en jours
+- [x] **Badge "Sur commande"** : Affiché sur les cartes produits et pages produits avec icône horloge et délai
+
 ## Pending Issues (Blocked on User Action)
 
 ### P1 - Resend Domain Verification
