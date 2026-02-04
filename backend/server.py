@@ -2843,6 +2843,649 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
     </html>
     """
 
+# ============== EMAIL TEMPLATES ==============
+
+def get_password_reset_template(name: str, reset_link: str) -> str:
+    """Password reset email template"""
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Réinitialisation de mot de passe</h2>
+    <p style="color: #333; font-size: 16px; line-height: 1.6;">Bonjour {name},</p>
+    <p style="color: #666; font-size: 15px; line-height: 1.6;">
+        Vous avez demandé à réinitialiser votre mot de passe sur YAMA+.
+    </p>
+    <p style="color: #666; font-size: 15px; line-height: 1.6;">
+        Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{reset_link}" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Réinitialiser mon mot de passe
+        </a>
+    </div>
+    <p style="color: #999; font-size: 13px; line-height: 1.6;">
+        Ce lien expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+    </p>
+    """
+    return get_email_template(content, "Réinitialisation de mot de passe")
+
+def get_order_confirmation_template(order: dict) -> str:
+    """Order confirmation email template"""
+    items_html = ""
+    for item in order.get("items", []):
+        items_html += f"""
+        <tr>
+            <td style="padding: 15px 0; border-bottom: 1px solid #eee;">
+                <div style="display: flex; align-items: center;">
+                    <img src="{item.get('image', '')}" alt="{item.get('name', '')}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
+                    <div>
+                        <p style="margin: 0; font-weight: 600; color: #333;">{item.get('name', '')}</p>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Qté: {item.get('quantity', 1)}</p>
+                    </div>
+                </div>
+            </td>
+            <td style="padding: 15px 0; border-bottom: 1px solid #eee; text-align: right; font-weight: 600; color: #333;">
+                {item.get('price', 0):,} FCFA
+            </td>
+        </tr>
+        """
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="width: 60px; height: 60px; background-color: #4CAF50; border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 30px;">✓</span>
+        </div>
+        <h2 style="color: #1a1a1a; margin: 0;">Commande confirmée !</h2>
+        <p style="color: #666; margin: 10px 0 0 0;">Merci pour votre achat</p>
+    </div>
+    
+    <div style="background-color: #f8f8f8; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <p style="margin: 0; color: #666; font-size: 14px;">Numéro de commande</p>
+        <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 700; color: #000;">{order.get('order_id', '')}</p>
+    </div>
+    
+    <h3 style="color: #333; margin: 25px 0 15px 0; font-size: 16px;">Récapitulatif</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+        {items_html}
+        <tr>
+            <td style="padding: 15px 0; font-weight: 600; color: #333;">Sous-total</td>
+            <td style="padding: 15px 0; text-align: right; color: #333;">{order.get('subtotal', 0):,} FCFA</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px 0; color: #666;">Livraison</td>
+            <td style="padding: 10px 0; text-align: right; color: #666;">{order.get('shipping_cost', 0):,} FCFA</td>
+        </tr>
+        <tr>
+            <td style="padding: 15px 0; font-size: 18px; font-weight: 700; color: #000; border-top: 2px solid #000;">Total</td>
+            <td style="padding: 15px 0; text-align: right; font-size: 18px; font-weight: 700; color: #000; border-top: 2px solid #000;">{order.get('total', 0):,} FCFA</td>
+        </tr>
+    </table>
+    
+    <div style="background-color: #f0f7ff; border-radius: 12px; padding: 20px; margin-top: 25px;">
+        <h4 style="margin: 0 0 10px 0; color: #333;">📦 Adresse de livraison</h4>
+        <p style="margin: 0; color: #666; line-height: 1.6;">
+            {order.get('shipping_address', {}).get('full_name', '')}<br>
+            {order.get('shipping_address', {}).get('address', '')}<br>
+            {order.get('shipping_address', {}).get('city', '')} - {order.get('shipping_address', {}).get('zone', '')}<br>
+            📞 {order.get('shipping_address', {}).get('phone', '')}
+        </p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="https://groupeyamaplus.com/suivi-commande" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Suivre ma commande
+        </a>
+    </div>
+    """
+    return get_email_template(content, "Confirmation de commande")
+
+def get_shipping_update_template(order: dict, status: str, message: str) -> str:
+    """Shipping status update email template"""
+    status_icons = {
+        "processing": "📋",
+        "shipped": "🚚",
+        "out_for_delivery": "📍",
+        "delivered": "✅",
+        "cancelled": "❌"
+    }
+    status_labels = {
+        "processing": "En préparation",
+        "shipped": "Expédiée",
+        "out_for_delivery": "En cours de livraison",
+        "delivered": "Livrée",
+        "cancelled": "Annulée"
+    }
+    
+    icon = status_icons.get(status, "📦")
+    label = status_labels.get(status, status)
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="font-size: 50px; margin-bottom: 15px;">{icon}</div>
+        <h2 style="color: #1a1a1a; margin: 0;">Mise à jour de votre commande</h2>
+        <p style="color: #666; margin: 10px 0 0 0;">Commande #{order.get('order_id', '')}</p>
+    </div>
+    
+    <div style="background-color: #f8f8f8; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 25px;">
+        <p style="margin: 0; color: #666; font-size: 14px;">Statut actuel</p>
+        <p style="margin: 10px 0 0 0; font-size: 22px; font-weight: 700; color: #000;">{label}</p>
+    </div>
+    
+    <p style="color: #666; font-size: 15px; line-height: 1.6; text-align: center;">
+        {message}
+    </p>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="https://groupeyamaplus.com/suivi-commande" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Suivre ma commande
+        </a>
+    </div>
+    """
+    return get_email_template(content, "Mise à jour de commande")
+
+def get_abandoned_cart_template(name: str, items: list, cart_total: int, recovery_link: str) -> str:
+    """Abandoned cart reminder email template"""
+    items_html = ""
+    for item in items[:3]:  # Show max 3 items
+        items_html += f"""
+        <div style="display: inline-block; width: 150px; margin: 10px; text-align: center; vertical-align: top;">
+            <img src="{item.get('image', '')}" alt="{item.get('name', '')}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;">
+            <p style="margin: 10px 0 5px 0; font-weight: 600; color: #333; font-size: 13px;">{item.get('name', '')[:25]}...</p>
+            <p style="margin: 0; color: #000; font-weight: 700;">{item.get('price', 0):,} FCFA</p>
+        </div>
+        """
+    
+    content = f"""
+    <h2 style="color: #1a1a1a; margin: 0 0 20px 0; text-align: center;">Vous avez oublié quelque chose ? 🛒</h2>
+    
+    <p style="color: #666; font-size: 15px; line-height: 1.6; text-align: center;">
+        Bonjour {name},<br>
+        Votre panier vous attend ! Finalisez votre commande avant que vos articles préférés ne soient épuisés.
+    </p>
+    
+    <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f8f8f8; border-radius: 12px;">
+        {items_html}
+    </div>
+    
+    <div style="background-color: #fff3cd; border-radius: 12px; padding: 20px; margin: 25px 0; text-align: center;">
+        <p style="margin: 0; color: #856404; font-size: 14px;">💰 Total de votre panier</p>
+        <p style="margin: 10px 0 0 0; font-size: 28px; font-weight: 700; color: #000;">{cart_total:,} FCFA</p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{recovery_link}" style="background-color: #ff6b00; color: #fff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+            🛒 Finaliser ma commande
+        </a>
+    </div>
+    
+    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 25px;">
+        Besoin d'aide ? Contactez-nous sur WhatsApp : +221 77 000 00 00
+    </p>
+    """
+    return get_email_template(content, "Votre panier vous attend !")
+
+def get_welcome_template(name: str, promo_code: str = None) -> str:
+    """Welcome email for new users"""
+    promo_section = ""
+    if promo_code:
+        promo_section = f"""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+            <p style="color: #fff; margin: 0 0 10px 0; font-size: 14px;">🎁 Cadeau de bienvenue</p>
+            <p style="color: #fff; margin: 0; font-size: 28px; font-weight: 700;">-10% sur votre 1ère commande</p>
+            <div style="background: #fff; border-radius: 8px; padding: 12px 20px; display: inline-block; margin-top: 15px;">
+                <span style="font-family: monospace; font-size: 20px; font-weight: 700; color: #333;">{promo_code}</span>
+            </div>
+        </div>
+        """
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1a1a1a; margin: 0;">Bienvenue chez YAMA+ ! 🎉</h2>
+    </div>
+    
+    <p style="color: #666; font-size: 15px; line-height: 1.6;">
+        Bonjour {name},
+    </p>
+    <p style="color: #666; font-size: 15px; line-height: 1.6;">
+        Nous sommes ravis de vous compter parmi nous ! Chez YAMA+, vous trouverez les meilleurs produits soigneusement sélectionnés pour vous.
+    </p>
+    
+    {promo_section}
+    
+    <h3 style="color: #333; margin: 30px 0 15px 0;">Pourquoi choisir YAMA+ ?</h3>
+    <ul style="color: #666; font-size: 14px; line-height: 2;">
+        <li>✅ Produits 100% authentiques</li>
+        <li>✅ Livraison rapide partout au Sénégal</li>
+        <li>✅ Paiement sécurisé (Wave, Orange Money, Carte)</li>
+        <li>✅ Service client disponible 7j/7</li>
+    </ul>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="https://groupeyamaplus.com" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Découvrir la boutique
+        </a>
+    </div>
+    """
+    return get_email_template(content, "Bienvenue chez YAMA+")
+
+def get_flash_sale_template(products: list, end_time: str) -> str:
+    """Flash sale announcement email template"""
+    products_html = ""
+    for product in products[:4]:
+        discount = 0
+        if product.get('original_price') and product.get('flash_sale_price'):
+            discount = int((1 - product['flash_sale_price'] / product['original_price']) * 100)
+        
+        products_html += f"""
+        <div style="display: inline-block; width: 140px; margin: 10px; text-align: center; vertical-align: top;">
+            <div style="position: relative;">
+                <img src="{product.get('images', [''])[0]}" alt="{product.get('name', '')}" style="width: 130px; height: 130px; object-fit: cover; border-radius: 12px;">
+                <span style="position: absolute; top: 5px; right: 5px; background: #ff0000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700;">-{discount}%</span>
+            </div>
+            <p style="margin: 10px 0 5px 0; font-size: 12px; color: #333; height: 30px; overflow: hidden;">{product.get('name', '')[:30]}</p>
+            <p style="margin: 0; color: #999; text-decoration: line-through; font-size: 12px;">{product.get('original_price', 0):,} F</p>
+            <p style="margin: 5px 0 0 0; color: #ff0000; font-weight: 700; font-size: 16px;">{product.get('flash_sale_price', 0):,} F</p>
+        </div>
+        """
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 20px;">
+        <div style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); border-radius: 12px; padding: 25px;">
+            <p style="color: #fff; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">⚡ Vente Flash</p>
+            <h2 style="color: #fff; margin: 10px 0; font-size: 32px;">Jusqu'à -50%</h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">Se termine dans {end_time}</p>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 25px 0; padding: 15px; background-color: #f8f8f8; border-radius: 12px;">
+        {products_html}
+    </div>
+    
+    <div style="text-align: center; margin-top: 25px;">
+        <a href="https://groupeyamaplus.com" style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: #fff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+            ⚡ Voir toutes les offres
+        </a>
+    </div>
+    
+    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
+        Offre limitée - Dans la limite des stocks disponibles
+    </p>
+    """
+    return get_email_template(content, "⚡ VENTE FLASH - Jusqu'à -50%")
+
+def get_new_arrivals_template(products: list) -> str:
+    """New arrivals announcement email template"""
+    products_html = ""
+    for product in products[:6]:
+        products_html += f"""
+        <div style="display: inline-block; width: 140px; margin: 10px; text-align: center; vertical-align: top;">
+            <img src="{product.get('images', [''])[0]}" alt="{product.get('name', '')}" style="width: 130px; height: 130px; object-fit: cover; border-radius: 12px;">
+            <p style="margin: 10px 0 5px 0; font-size: 12px; color: #333; height: 30px; overflow: hidden;">{product.get('name', '')[:30]}</p>
+            <p style="margin: 0; color: #000; font-weight: 700;">{product.get('price', 0):,} FCFA</p>
+        </div>
+        """
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="color: #1a1a1a; margin: 0;">✨ Nouveautés</h2>
+        <p style="color: #666; margin: 10px 0 0 0;">Découvrez nos dernières arrivées</p>
+    </div>
+    
+    <div style="text-align: center; margin: 25px 0; padding: 15px; background-color: #f8f8f8; border-radius: 12px;">
+        {products_html}
+    </div>
+    
+    <div style="text-align: center; margin-top: 25px;">
+        <a href="https://groupeyamaplus.com/nouveautes" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Voir toutes les nouveautés
+        </a>
+    </div>
+    """
+    return get_email_template(content, "✨ Nouveautés YAMA+")
+
+def get_weekly_promo_template(promo_code: str, discount: int, products: list) -> str:
+    """Weekly promotion email template"""
+    products_html = ""
+    for product in products[:4]:
+        products_html += f"""
+        <div style="display: inline-block; width: 140px; margin: 10px; text-align: center; vertical-align: top;">
+            <img src="{product.get('images', [''])[0]}" alt="{product.get('name', '')}" style="width: 130px; height: 130px; object-fit: cover; border-radius: 12px;">
+            <p style="margin: 10px 0 5px 0; font-size: 12px; color: #333;">{product.get('name', '')[:25]}</p>
+            <p style="margin: 0; color: #000; font-weight: 700;">{product.get('price', 0):,} F</p>
+        </div>
+        """
+    
+    content = f"""
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="color: #1a1a1a; margin: 0;">🔥 Offre de la semaine</h2>
+        <p style="color: #666; margin: 10px 0 0 0;">Profitez de réductions exclusives</p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 25px; margin: 20px 0; text-align: center;">
+        <p style="color: #fff; margin: 0; font-size: 14px;">Code promo exclusif</p>
+        <p style="color: #fff; margin: 10px 0; font-size: 36px; font-weight: 700;">-{discount}%</p>
+        <div style="background: #fff; border-radius: 8px; padding: 12px 25px; display: inline-block;">
+            <span style="font-family: monospace; font-size: 22px; font-weight: 700; color: #333;">{promo_code}</span>
+        </div>
+        <p style="color: rgba(255,255,255,0.9); margin: 15px 0 0 0; font-size: 13px;">Valable 7 jours sur tout le site</p>
+    </div>
+    
+    <h3 style="color: #333; margin: 25px 0 15px 0; text-align: center;">Nos suggestions</h3>
+    <div style="text-align: center; padding: 15px; background-color: #f8f8f8; border-radius: 12px;">
+        {products_html}
+    </div>
+    
+    <div style="text-align: center; margin-top: 25px;">
+        <a href="https://groupeyamaplus.com" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+            Profiter de l'offre
+        </a>
+    </div>
+    """
+    return get_email_template(content, "🔥 Offre de la semaine - Code promo inside")
+
+# ============== PASSWORD RESET ==============
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: PasswordResetRequest):
+    """Send password reset email"""
+    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "Si cette adresse existe, vous recevrez un email de réinitialisation"}
+    
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token
+    await db.password_resets.insert_one({
+        "user_id": user["user_id"],
+        "email": data.email,
+        "token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "used": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Send reset email
+    reset_link = f"https://groupeyamaplus.com/reset-password?token={reset_token}"
+    html = get_password_reset_template(user.get("name", "Client"), reset_link)
+    
+    await send_email_async(
+        to=data.email,
+        subject="🔐 Réinitialisation de votre mot de passe - YAMA+",
+        html=html
+    )
+    
+    logger.info(f"Password reset email sent to {data.email}")
+    return {"message": "Si cette adresse existe, vous recevrez un email de réinitialisation"}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(data: PasswordResetConfirm):
+    """Reset password with token"""
+    # Find valid reset token
+    reset_record = await db.password_resets.find_one({
+        "token": data.token,
+        "used": False
+    })
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="Lien invalide ou expiré")
+    
+    # Check expiration
+    expires_at = datetime.fromisoformat(reset_record["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Ce lien a expiré. Veuillez en demander un nouveau.")
+    
+    # Validate new password
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 6 caractères")
+    
+    # Hash new password
+    hashed_password = bcrypt.hashpw(data.new_password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Update user password
+    await db.users.update_one(
+        {"user_id": reset_record["user_id"]},
+        {"$set": {"password": hashed_password.decode('utf-8')}}
+    )
+    
+    # Mark token as used
+    await db.password_resets.update_one(
+        {"token": data.token},
+        {"$set": {"used": True, "used_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    logger.info(f"Password reset successful for user {reset_record['user_id']}")
+    return {"message": "Mot de passe réinitialisé avec succès"}
+
+# ============== AUTOMATED EMAIL TRIGGERS ==============
+
+async def send_order_confirmation_email(order: dict):
+    """Send order confirmation email"""
+    if not order.get("shipping_address", {}).get("email"):
+        return
+    
+    html = get_order_confirmation_template(order)
+    await send_email_async(
+        to=order["shipping_address"]["email"],
+        subject=f"✅ Commande {order['order_id']} confirmée - YAMA+",
+        html=html
+    )
+    logger.info(f"Order confirmation email sent for {order['order_id']}")
+
+async def send_shipping_update_email(order: dict, new_status: str):
+    """Send shipping status update email"""
+    if not order.get("shipping_address", {}).get("email"):
+        return
+    
+    status_messages = {
+        "processing": "Votre commande est en cours de préparation. Nous la préparons avec soin !",
+        "shipped": "Bonne nouvelle ! Votre commande a été expédiée et est en route.",
+        "out_for_delivery": "Votre commande est en cours de livraison. Elle arrivera très bientôt !",
+        "delivered": "Votre commande a été livrée. Merci pour votre confiance !",
+        "cancelled": "Votre commande a été annulée. Si vous avez des questions, contactez-nous."
+    }
+    
+    message = status_messages.get(new_status, "Le statut de votre commande a été mis à jour.")
+    html = get_shipping_update_template(order, new_status, message)
+    
+    await send_email_async(
+        to=order["shipping_address"]["email"],
+        subject=f"📦 Mise à jour commande {order['order_id']} - YAMA+",
+        html=html
+    )
+    logger.info(f"Shipping update email sent for {order['order_id']} - Status: {new_status}")
+
+async def send_welcome_email(user: dict):
+    """Send welcome email to new user"""
+    promo_code = f"BIENVENUE{secrets.token_hex(3).upper()}"
+    
+    # Save promo code
+    await db.promo_codes.insert_one({
+        "code": promo_code,
+        "discount_percent": 10,
+        "max_uses": 1,
+        "current_uses": 0,
+        "min_order": 20000,
+        "user_id": user["user_id"],
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    html = get_welcome_template(user.get("name", "Client"), promo_code)
+    await send_email_async(
+        to=user["email"],
+        subject="🎉 Bienvenue chez YAMA+ - Cadeau de bienvenue inside !",
+        html=html
+    )
+    logger.info(f"Welcome email sent to {user['email']}")
+
+async def process_abandoned_carts():
+    """Process and send abandoned cart emails"""
+    # Find carts abandoned for more than 1 hour
+    threshold = datetime.now(timezone.utc) - timedelta(hours=ABANDONED_CART_TIMEOUT_HOURS)
+    
+    abandoned_carts = await db.carts.find({
+        "updated_at": {"$lt": threshold.isoformat()},
+        "items": {"$ne": []},
+        "abandoned_email_sent": {"$ne": True}
+    }).to_list(50)
+    
+    for cart in abandoned_carts:
+        # Get user email
+        email = None
+        name = "Client"
+        
+        if cart.get("user_id"):
+            user = await db.users.find_one({"user_id": cart["user_id"]}, {"email": 1, "name": 1})
+            if user:
+                email = user.get("email")
+                name = user.get("name", "Client")
+        
+        if not email:
+            continue
+        
+        # Get cart items details
+        items = []
+        total = 0
+        for item in cart.get("items", []):
+            product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
+            if product:
+                items.append({
+                    "name": product["name"],
+                    "price": product["price"],
+                    "image": product["images"][0] if product.get("images") else "",
+                    "quantity": item["quantity"]
+                })
+                total += product["price"] * item["quantity"]
+        
+        if not items:
+            continue
+        
+        # Send abandoned cart email
+        recovery_link = f"https://groupeyamaplus.com/panier?recover={cart.get('cart_id', '')}"
+        html = get_abandoned_cart_template(name, items, total, recovery_link)
+        
+        result = await send_email_async(
+            to=email,
+            subject="🛒 Votre panier vous attend - YAMA+",
+            html=html
+        )
+        
+        if result.get("success"):
+            # Mark as sent
+            await db.carts.update_one(
+                {"cart_id": cart["cart_id"]},
+                {"$set": {"abandoned_email_sent": True, "abandoned_email_sent_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            logger.info(f"Abandoned cart email sent to {email}")
+
+# ============== MARKETING EMAIL ENDPOINTS ==============
+
+@api_router.post("/admin/email/flash-sale")
+async def send_flash_sale_email(user: User = Depends(require_admin)):
+    """Send flash sale announcement to all subscribers"""
+    # Get flash sale products
+    now = datetime.now(timezone.utc).isoformat()
+    products = await db.products.find(
+        {"is_flash_sale": True, "flash_sale_end": {"$gt": now}},
+        {"_id": 0}
+    ).limit(4).to_list(4)
+    
+    if not products:
+        raise HTTPException(status_code=400, detail="Aucun produit en vente flash")
+    
+    # Calculate time remaining
+    if products[0].get("flash_sale_end"):
+        end = datetime.fromisoformat(products[0]["flash_sale_end"].replace("Z", "+00:00"))
+        delta = end - datetime.now(timezone.utc)
+        hours = int(delta.total_seconds() // 3600)
+        end_time = f"{hours}h" if hours > 0 else "quelques minutes"
+    else:
+        end_time = "bientôt"
+    
+    html = get_flash_sale_template(products, end_time)
+    
+    # Get newsletter subscribers
+    subscribers = await db.newsletter.find({"subscribed": True}, {"email": 1}).to_list(500)
+    
+    sent_count = 0
+    for sub in subscribers:
+        result = await send_email_async(sub["email"], "⚡ VENTE FLASH - Jusqu'à -50% - YAMA+", html)
+        if result.get("success"):
+            sent_count += 1
+    
+    return {"message": f"Email envoyé à {sent_count} abonnés", "products_featured": len(products)}
+
+@api_router.post("/admin/email/new-arrivals")
+async def send_new_arrivals_email(user: User = Depends(require_admin)):
+    """Send new arrivals announcement"""
+    # Get new products
+    products = await db.products.find(
+        {"is_new": True},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(6).to_list(6)
+    
+    if not products:
+        raise HTTPException(status_code=400, detail="Aucun nouveau produit")
+    
+    html = get_new_arrivals_template(products)
+    
+    subscribers = await db.newsletter.find({"subscribed": True}, {"email": 1}).to_list(500)
+    
+    sent_count = 0
+    for sub in subscribers:
+        result = await send_email_async(sub["email"], "✨ Nouveautés YAMA+ - Découvrez nos dernières arrivées", html)
+        if result.get("success"):
+            sent_count += 1
+    
+    return {"message": f"Email envoyé à {sent_count} abonnés", "products_featured": len(products)}
+
+@api_router.post("/admin/email/weekly-promo")
+async def send_weekly_promo_email(discount: int = 15, user: User = Depends(require_admin)):
+    """Send weekly promotion email with promo code"""
+    # Generate promo code
+    promo_code = f"SEMAINE{datetime.now().strftime('%V')}"
+    
+    # Create or update promo code
+    await db.promo_codes.update_one(
+        {"code": promo_code},
+        {"$set": {
+            "discount_percent": discount,
+            "max_uses": 1000,
+            "current_uses": 0,
+            "min_order": 15000,
+            "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
+    )
+    
+    # Get featured products
+    products = await db.products.find(
+        {"featured": True},
+        {"_id": 0}
+    ).limit(4).to_list(4)
+    
+    html = get_weekly_promo_template(promo_code, discount, products)
+    
+    subscribers = await db.newsletter.find({"subscribed": True}, {"email": 1}).to_list(500)
+    
+    sent_count = 0
+    for sub in subscribers:
+        result = await send_email_async(sub["email"], f"🔥 -{discount}% cette semaine - Code promo exclusif", html)
+        if result.get("success"):
+            sent_count += 1
+    
+    return {"message": f"Email envoyé à {sent_count} abonnés", "promo_code": promo_code}
+
 async def send_email_async(to: str, subject: str, html: str) -> dict:
     """Send email using MailerSend API asynchronously"""
     result = await send_email_mailersend(
