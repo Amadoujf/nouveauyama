@@ -127,6 +127,11 @@ export default function AdminPage() {
     order_delivery_days: "",
   });
 
+  // Stable form field update function to prevent re-renders
+  const updateFormField = useCallback((field, value) => {
+    setProductForm(prev => ({ ...prev, [field]: value }));
+  }, []);
+
   const currentPage = location.pathname.split("/").pop() || "admin";
 
   // Reset form
