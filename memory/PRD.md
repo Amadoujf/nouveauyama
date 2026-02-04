@@ -125,16 +125,7 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [ ] Bundles/Packs ("Achetez ensemble et économisez")
 - [ ] Points de fidélité avancés
 - [ ] Boutons de partage social sur produits
-- [ ] Blog/Section actualités
-
-## Future Tasks (Phases 4 & 5)
-- [ ] Custom Reporting Engine
-- [ ] Segment integration
-- [ ] Heatmap & Session Recording (Hotjar)
-- [ ] A/B Testing framework
-- [ ] Full E2E testing
-- [ ] Performance audit
-- [ ] Security scan
+- [ ] Notifications WhatsApp Business
 
 ## Key API Endpoints
 - `GET /api/products` - Liste produits avec filtres (brand, colors, sizes)
@@ -144,6 +135,11 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - `GET /api/products/{id}/reviews` - Avis produit avec statistiques
 - `GET /api/admin/stats` - Statistiques dashboard admin
 - `POST /api/admin/analyze-product-image` - Analyse IA d'image pour création produit
+- `GET /api/blog/posts` - Liste des articles de blog (filtrable par catégorie)
+- `GET /api/blog/posts/{slug}` - Article de blog individuel
+- `POST /api/admin/blog/posts` - Créer un article de blog (admin)
+- `PUT /api/admin/blog/posts/{post_id}` - Modifier un article de blog (admin)
+- `DELETE /api/admin/blog/posts/{post_id}` - Supprimer un article de blog (admin)
 
 ## API Keys Required
 - `PAYTECH_API_KEY` & `PAYTECH_API_SECRET` - Paiements
