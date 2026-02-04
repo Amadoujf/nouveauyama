@@ -1205,7 +1205,12 @@ async def delete_product(product_id: str, user: User = Depends(require_admin)):
 
 @api_router.get("/flash-sales")
 async def get_flash_sales():
-    """Get all active flash sale products with memory optimization"""
+    """Get all active flash sale products with memory optimization and caching"""
+    # Check cache first
+    cached = get_cached("flash_sales")
+    if cached:
+        return cached
+    
     now = datetime.now(timezone.utc).isoformat()
     
     # Use projection to limit data transfer
@@ -1246,6 +1251,9 @@ async def get_flash_sales():
             product['created_at'] = datetime.fromisoformat(product['created_at'])
         if isinstance(product.get('updated_at'), str):
             product['updated_at'] = datetime.fromisoformat(product['updated_at'])
+    
+    # Cache for 30 seconds
+    set_cached("flash_sales", products, ttl=30)
     
     return products
 
