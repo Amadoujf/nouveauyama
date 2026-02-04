@@ -2825,22 +2825,8 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <!-- Header with GROUPE YAMA+ Logo -->
                         <tr>
-                            <td style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 35px 30px; text-align: center;">
-                                <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <div style="display: inline-block; background: #ffffff; border-radius: 12px; padding: 12px 25px; margin-bottom: 15px;">
-                                                <span style="font-size: 24px; font-weight: 800; color: #000000; letter-spacing: 1px;">GROUPE YAMA</span>
-                                                <span style="font-size: 28px; font-weight: 800; color: #ff6b00; margin-left: 2px;">+</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <p style="color: #888888; margin: 0; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">Votre boutique premium au Sénégal</p>
-                                        </td>
-                                    </tr>
-                                </table>
+                            <td style="background: #ffffff; padding: 30px; text-align: center; border-bottom: 1px solid #eee;">
+                                <img src="https://customer-assets.emergentagent.com/job_e6239d43-b0aa-4da9-acc9-7394bc51750f/artifacts/ejzc4vzk_0CA7A224-A371-430F-8856-6F8BE8C1FCDE.png" alt="GROUPE YAMA+" style="max-width: 200px; height: auto;">
                             </td>
                         </tr>
                         <!-- Content -->
