@@ -148,6 +148,8 @@ export default function AdminPage() {
       colors: [],
       sizes: [],
       specs: {},
+      is_on_order: false,
+      order_delivery_days: "",
     });
     setEditingProduct(null);
     setActiveFormTab("general");
