@@ -7,7 +7,21 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
+# Get BASE_URL from environment or use default
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '')
+if not BASE_URL:
+    # Try to read from frontend .env file
+    try:
+        with open('/app/frontend/.env', 'r') as f:
+            for line in f:
+                if line.startswith('REACT_APP_BACKEND_URL='):
+                    BASE_URL = line.split('=', 1)[1].strip()
+                    break
+    except:
+        pass
+if not BASE_URL:
+    BASE_URL = 'http://localhost:8001'
+BASE_URL = BASE_URL.rstrip('/')
 
 class TestHealthAndBasics:
     """Health check and basic API tests"""
