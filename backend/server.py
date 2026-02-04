@@ -2836,19 +2836,17 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
     """
 
 async def send_email_async(to: str, subject: str, html: str) -> dict:
-    """Send email using Resend API asynchronously"""
-    try:
-        params = {
-            "from": SENDER_EMAIL,
-            "to": [to],
-            "subject": subject,
-            "html": html
-        }
-        result = await asyncio.to_thread(resend.Emails.send, params)
-        return {"success": True, "email_id": result.get("id")}
-    except Exception as e:
-        logging.error(f"Failed to send email to {to}: {str(e)}")
-        return {"success": False, "error": str(e)}
+    """Send email using MailerSend API asynchronously"""
+    result = await send_email_mailersend(
+        to_email=to,
+        to_name="",
+        subject=subject,
+        html_content=html
+    )
+    if result.get("success"):
+        return {"success": True, "email_id": result.get("response")}
+    else:
+        return {"success": False, "error": result.get("error")}
 
 @api_router.post("/admin/email/send")
 async def send_single_email(data: SingleEmailRequest, user: User = Depends(require_admin)):
