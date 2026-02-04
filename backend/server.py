@@ -24,7 +24,7 @@ from datetime import datetime, timezone, timedelta
 import httpx
 import bcrypt
 import jwt
-import resend
+from mailersend import emails as mailersend_emails
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -41,11 +41,34 @@ from reportlab.lib.units import cm, mm
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Resend configuration
-resend.api_key = os.environ.get("RESEND_API_KEY")
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+# MailerSend configuration
+MAILERSEND_API_KEY = os.environ.get("MAILERSEND_API_KEY")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@groupeyamaplus.com")
 
-# MailerLite Configuration
+# Initialize MailerSend
+mailer = mailersend_emails.NewEmail(MAILERSEND_API_KEY)
+
+async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_content: str, text_content: str = None):
+    """Send email using MailerSend API"""
+    try:
+        mail_body = {}
+        
+        mailer.set_mail_from({"name": "YAMA+", "email": SENDER_EMAIL}, mail_body)
+        mailer.set_mail_to([{"name": to_name or to_email, "email": to_email}], mail_body)
+        mailer.set_subject(subject, mail_body)
+        mailer.set_html_content(html_content, mail_body)
+        if text_content:
+            mailer.set_plaintext_content(text_content, mail_body)
+        
+        # Send email in thread to keep async
+        response = await asyncio.to_thread(mailer.send, mail_body)
+        logger.info(f"Email sent to {to_email}: {response}")
+        return {"success": True, "response": response}
+    except Exception as e:
+        logger.error(f"Failed to send email to {to_email}: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+# MailerLite Configuration (for newsletter/marketing)
 MAILERLITE_API_KEY = os.environ.get("MAILERLITE_API_KEY")
 MAILERLITE_API_URL = "https://connect.mailerlite.com/api"
 ABANDONED_CART_TIMEOUT_HOURS = 1  # Send email after 1 hour of inactivity
