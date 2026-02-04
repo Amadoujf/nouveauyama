@@ -5640,9 +5640,9 @@ async def get_admin_blog_posts(user: User = Depends(require_admin)):
     ).sort("created_at", -1).to_list(100)
     return posts
 
-def get_sample_blog_posts():
-    """Return sample blog posts for demo/fallback"""
-    return [
+def get_sample_blog_posts(category: Optional[str] = None):
+    """Return sample blog posts for demo/fallback, optionally filtered by category"""
+    all_posts = [
         {
             "post_id": "sample_1",
             "slug": "guide-achat-smartphone-2025",
@@ -5710,6 +5710,20 @@ def get_sample_blog_posts():
             "author": "YAMA+"
         }
     ]
+    
+    # Filter by category if specified
+    if category and category != "all":
+        # Map frontend category names to sample post categories
+        category_map = {
+            "guides": "Guides d'achat",
+            "tendances": "Tendances", 
+            "conseils": "Conseils",
+            "nouveautes": "Nouveautés"
+        }
+        target_category = category_map.get(category, category)
+        return [p for p in all_posts if p["category"] == target_category]
+    
+    return all_posts
 
 def get_sample_blog_post(slug: str):
     """Return a sample blog post by slug"""
