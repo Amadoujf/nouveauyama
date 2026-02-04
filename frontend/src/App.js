@@ -42,6 +42,8 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TrackOrderPage from "./pages/TrackOrderPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 import "./App.css";
 
