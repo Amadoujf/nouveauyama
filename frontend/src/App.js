@@ -297,6 +297,24 @@ function AppRouter() {
         }
       />
 
+      {/* Blog */}
+      <Route
+        path="/blog"
+        element={
+          <PublicLayout>
+            <BlogPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/blog/:slug"
+        element={
+          <PublicLayout>
+            <BlogPostPage />
+          </PublicLayout>
+        }
+      />
+
       {/* 404 */}
       <Route
         path="*"
