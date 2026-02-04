@@ -5514,7 +5514,7 @@ async def get_blog_posts(
     
     # If no posts in DB, return sample posts
     if not posts:
-        return get_sample_blog_posts()
+        return get_sample_blog_posts(category)
     
     return posts
 
