@@ -1079,6 +1079,14 @@ async def get_products(
     # Enforce maximum limit to prevent memory issues
     limit = min(limit, 100)
     
+    # Build cache key for cacheable queries (no search, skip=0)
+    cache_key = None
+    if not search and skip == 0 and limit <= 50:
+        cache_key = f"products:{category}:{featured}:{is_new}:{is_promo}:{limit}"
+        cached = get_cached(cache_key)
+        if cached:
+            return cached
+    
     query = {}
     
     if category:
@@ -1129,6 +1137,10 @@ async def get_products(
         for field in ['created_at', 'updated_at']:
             if isinstance(product.get(field), str):
                 product[field] = datetime.fromisoformat(product[field])
+    
+    # Cache the result
+    if cache_key:
+        set_cached(cache_key, products, ttl=30)  # Cache for 30 seconds
     
     return products
 
