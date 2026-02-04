@@ -104,6 +104,11 @@ export default function ProductCard({ product, index = 0 }) {
               -{discount}%
             </span>
           )}
+          {product.is_on_order && (
+            <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">
+              Sur commande
+            </span>
+          )}
         </div>
 
         {/* Wishlist Button */}
