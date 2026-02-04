@@ -326,12 +326,12 @@ class UserLogin(BaseModel):
 class ProductBase(BaseModel):
     name: str
     description: str
-    short_description: str
+    short_description: Optional[str] = ""  # Made optional with default empty string
     price: int  # Price in FCFA
     original_price: Optional[int] = None
     category: str
     subcategory: Optional[str] = None
-    images: List[str]
+    images: List[str] = []  # Default empty list
     stock: int = 0
     featured: bool = False
     is_new: bool = False
