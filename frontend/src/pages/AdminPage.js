@@ -1150,9 +1150,8 @@ export default function AdminPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">Description complète *</label>
+                      <label className="block text-sm font-medium mb-2">Description complète</label>
                       <textarea
-                        required
                         rows={4}
                         value={productForm.description}
                         onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
