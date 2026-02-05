@@ -44,18 +44,22 @@ function SpinWheel({ onSpinComplete, isSpinning, setIsSpinning, prizeIndex }) {
 
   return (
     <div className="relative w-72 h-72 md:w-80 md:h-80">
+      {/* Outer glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-full blur-xl opacity-50 animate-pulse" />
+      
       {/* Pointer */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20">
-        <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-black dark:border-t-white" />
+        <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[30px] border-l-transparent border-r-transparent border-t-orange-500 drop-shadow-lg" />
       </div>
       
       {/* Wheel */}
       <motion.div
         ref={wheelRef}
-        className="w-full h-full rounded-full border-4 border-black dark:border-white overflow-hidden shadow-2xl"
+        className="relative w-full h-full rounded-full border-8 border-white dark:border-gray-800 overflow-hidden shadow-2xl"
         style={{
           rotate: rotation,
-          transition: isSpinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none"
+          transition: isSpinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
+          boxShadow: "0 0 0 4px rgba(0,0,0,0.1), 0 25px 50px -12px rgba(0,0,0,0.25)"
         }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full">
