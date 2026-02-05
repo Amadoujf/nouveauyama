@@ -272,7 +272,39 @@ export default function AccountPage() {
               ) : (
                 /* Profile */
                 <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl p-6">
-                  <h2 className="text-xl font-semibold mb-6">Mon profil</h2>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold">Mon profil</h2>
+                    {!isEditing ? (
+                      <button
+                        onClick={handleEditProfile}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-lg hover:opacity-90 transition-opacity"
+                        data-testid="edit-profile-btn"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Modifier
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleCancelEdit}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                          data-testid="cancel-edit-btn"
+                        >
+                          <X className="w-4 h-4" />
+                          Annuler
+                        </button>
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={saving}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                          data-testid="save-profile-btn"
+                        >
+                          <Save className="w-4 h-4" />
+                          {saving ? "Enregistrement..." : "Enregistrer"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -280,19 +312,47 @@ export default function AccountPage() {
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
                           Nom complet
                         </label>
-                        <p className="font-medium">{user?.name}</p>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            placeholder="Votre nom"
+                            data-testid="edit-name-input"
+                          />
+                        ) : (
+                          <p className="font-medium">{user?.name}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
                           Email
                         </label>
-                        <p className="font-medium">{user?.email}</p>
+                        <p className="font-medium text-muted-foreground">{user?.email}</p>
+                        {isEditing && (
+                          <p className="text-xs text-muted-foreground mt-1">L'email ne peut pas être modifié</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
-                          Téléphone
+                          <span className="flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            Téléphone
+                          </span>
                         </label>
-                        <p className="font-medium">{user?.phone || "Non renseigné"}</p>
+                        {isEditing ? (
+                          <input
+                            type="tel"
+                            value={editForm.phone}
+                            onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            placeholder="+221 77 123 45 67"
+                            data-testid="edit-phone-input"
+                          />
+                        ) : (
+                          <p className="font-medium">{user?.phone || <span className="text-muted-foreground italic">Non renseigné</span>}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
