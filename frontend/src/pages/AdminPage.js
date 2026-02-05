@@ -97,6 +97,8 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentStats, setAppointmentStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
