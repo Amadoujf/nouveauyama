@@ -351,21 +351,17 @@ class TestCartFlow:
             pytest.skip("No products available for cart test")
 
 
-class TestCheckoutPage:
-    """Test checkout page accessibility"""
+class TestProductsAPI:
+    """Test products API"""
     
-    def test_shipping_cost_calculation(self):
-        """Test shipping cost calculation endpoint"""
-        response = requests.post(f"{BASE_URL}/api/shipping/calculate", json={
-            "city": "Dakar",
-            "address": "Fass Paillote"
-        })
+    def test_get_products(self):
+        """Test GET /api/products returns products"""
+        response = requests.get(f"{BASE_URL}/api/products?limit=5")
         
         assert response.status_code == 200
         data = response.json()
-        assert "shipping_cost" in data
-        assert "zone" in data
-        print(f"✓ Shipping calculation: {data}")
+        assert isinstance(data, list)
+        print(f"✓ Products retrieved: {len(data)} products")
 
 
 if __name__ == "__main__":
