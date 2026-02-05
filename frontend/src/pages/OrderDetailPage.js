@@ -19,32 +19,40 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function OrderDetailPage() {
   const { orderId } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { state: { from: `/order/${orderId}` } });
-      return;
-    }
-
     const fetchOrder = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/orders/${orderId}`, {
-          withCredentials: true,
-        });
+        // Try to fetch order - works with or without auth for order tracking
+        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+        const response = await axios.get(`${API_URL}/api/orders/${orderId}`, config);
         setOrder(response.data);
       } catch (error) {
         console.error("Error fetching order:", error);
+        if (error.response?.status === 404) {
+          setError("Commande non trouvée");
+        } else if (error.response?.status === 401) {
+          // If unauthorized and not logged in, redirect to login
+          if (!isAuthenticated) {
+            navigate("/login", { state: { from: `/order/${orderId}` } });
+            return;
+          }
+          setError("Vous n'avez pas accès à cette commande");
+        } else {
+          setError("Erreur lors du chargement de la commande");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrder();
-  }, [orderId, isAuthenticated, navigate]);
+  }, [orderId, isAuthenticated, token, navigate]);
 
   if (loading) {
     return (
