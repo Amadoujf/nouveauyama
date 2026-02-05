@@ -296,9 +296,7 @@ export default function CheckoutPage() {
         promo_code: appliedPromo?.code || null,
       };
 
-      const response = await axios.post(`${API_URL}/api/orders`, orderData, {
-        withCredentials: true,
-      });
+      const response = await axios.post(`${API_URL}/api/orders`, orderData);
 
       const newOrderId = response.data.order_id;
 
