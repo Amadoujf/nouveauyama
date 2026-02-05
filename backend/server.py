@@ -1050,6 +1050,44 @@ async def get_me(user: User = Depends(require_auth)):
         "phone": user.phone
     }
 
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+
+@api_router.put("/auth/profile")
+async def update_profile(profile_data: ProfileUpdate, user: User = Depends(require_auth)):
+    """Update user profile (name, phone)"""
+    update_fields = {}
+    
+    if profile_data.name and profile_data.name.strip():
+        update_fields["name"] = profile_data.name.strip()
+    
+    if profile_data.phone is not None:
+        update_fields["phone"] = profile_data.phone.strip() if profile_data.phone else None
+    
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="Aucune donnée à mettre à jour")
+    
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": update_fields}
+    )
+    
+    # Return updated user info
+    updated_user = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password": 0})
+    
+    return {
+        "message": "Profil mis à jour avec succès",
+        "user": {
+            "user_id": updated_user["user_id"],
+            "email": updated_user["email"],
+            "name": updated_user["name"],
+            "phone": updated_user.get("phone"),
+            "role": updated_user.get("role", "customer"),
+            "picture": updated_user.get("picture")
+        }
+    }
+
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
     token = request.cookies.get("session_token")
