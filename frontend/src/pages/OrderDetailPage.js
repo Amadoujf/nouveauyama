@@ -84,12 +84,6 @@ export default function OrderDetailPage() {
       </main>
     );
   }
-            Voir mes commandes
-          </Link>
-        </div>
-      </main>
-    );
-  }
 
   const status = getOrderStatusDisplay(order.order_status);
 
