@@ -887,8 +887,9 @@ async def register(user_data: UserCreate, response: Response):
     
     await db.users.insert_one(user_doc)
     
-    # Send welcome email asynchronously
-    asyncio.create_task(send_welcome_email(user_doc))
+    # Send welcome email asynchronously (create a clean copy without _id)
+    user_for_email = {k: v for k, v in user_doc.items() if k != "_id"}
+    asyncio.create_task(send_welcome_email(user_for_email))
     
     token = create_token(user_id, user_data.email)
     response.set_cookie(
