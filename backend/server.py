@@ -3295,13 +3295,16 @@ async def reset_password(data: PasswordResetConfirm):
 # ============== AUTOMATED EMAIL TRIGGERS ==============
 
 async def send_order_confirmation_email(order: dict):
-    """Send order confirmation email"""
-    if not order.get("shipping_address", {}).get("email"):
+    """Send order confirmation email with invoice"""
+    # Get email from shipping object
+    email = order.get("shipping", {}).get("email")
+    if not email:
+        logger.warning(f"No email found for order {order.get('order_id')}")
         return
     
     html = get_order_confirmation_template(order)
     await send_email_async(
-        to=order["shipping_address"]["email"],
+        to=email,
         subject=f"✅ Commande {order['order_id']} confirmée - YAMA+",
         html=html
     )
@@ -3309,7 +3312,8 @@ async def send_order_confirmation_email(order: dict):
 
 async def send_shipping_update_email(order: dict, new_status: str):
     """Send shipping status update email"""
-    if not order.get("shipping_address", {}).get("email"):
+    email = order.get("shipping", {}).get("email")
+    if not email:
         return
     
     status_messages = {
@@ -3324,7 +3328,7 @@ async def send_shipping_update_email(order: dict, new_status: str):
     html = get_shipping_update_template(order, new_status, message)
     
     await send_email_async(
-        to=order["shipping_address"]["email"],
+        to=email,
         subject=f"📦 Mise à jour commande {order['order_id']} - YAMA+",
         html=html
     )
