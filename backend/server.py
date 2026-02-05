@@ -5301,14 +5301,20 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     elements.append(Paragraph("<b>ARTICLES COMMANDÉS:</b>", styles['Heading3']))
     elements.append(Spacer(1, 10))
     
-    # Products Table with Image column
+    # Products Table with Image column and description
     table_data = [['', 'Produit', 'Qté', 'Prix Unit.', 'Total']]
     
     for item in order.get('products', []):
-        name = item.get('name', 'Produit')[:35]
+        name = item.get('name', 'Produit')[:40]
+        description = item.get('description', '')[:60] or item.get('short_description', '')[:60]
         qty = item.get('quantity', 1)
         price = item.get('price', 0)
         total_price = price * qty
+        
+        # Product name with description
+        product_text = f"<b>{name}</b>"
+        if description:
+            product_text += f"<br/><font size='7' color='#666666'>{description}...</font>"
         
         # Try to get product image
         img_cell = ''
@@ -5325,7 +5331,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         
         table_data.append([
             img_cell,
-            name,
+            Paragraph(product_text, ParagraphStyle('ProductCell', parent=styles['Normal'], fontSize=8, leading=10)),
             str(qty),
             f"{price:,.0f} FCFA".replace(',', ' '),
             f"{total_price:,.0f} FCFA".replace(',', ' ')
