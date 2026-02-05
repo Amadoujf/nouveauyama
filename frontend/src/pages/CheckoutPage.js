@@ -575,11 +575,11 @@ export default function CheckoutPage() {
                       name="region"
                       value={formData.region}
                       onChange={handleChange}
-                      className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:border-black dark:focus:border-white outline-none transition-colors"
+                      className="w-full h-12 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] text-foreground focus:border-black dark:focus:border-white outline-none transition-colors"
                       data-testid="checkout-region"
                     >
                       {regions.map((region) => (
-                        <option key={region} value={region}>
+                        <option key={region} value={region} className="bg-white dark:bg-[#2C2C2E] text-foreground">
                           {region}
                         </option>
                       ))}
