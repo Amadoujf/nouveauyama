@@ -3464,6 +3464,20 @@ async def send_order_confirmation_email(order: dict):
         
         if result.get("success"):
             logger.info(f"Order confirmation email with invoice sent for {order['order_id']}")
+            
+            # Add to MailerLite post-purchase flow for review requests
+            if MAILERLITE_API_KEY:
+                try:
+                    await mailerlite_service.add_to_post_purchase_flow(
+                        email=email,
+                        name=order.get("shipping", {}).get("full_name", ""),
+                        order_id=order.get("order_id", "")
+                    )
+                    # Remove from abandoned cart group since they completed purchase
+                    await mailerlite_service.remove_from_abandoned_cart_group(email)
+                    logger.info(f"Added {email} to MailerLite post-purchase flow")
+                except Exception as ml_error:
+                    logger.error(f"MailerLite post-purchase error: {str(ml_error)}")
         else:
             logger.error(f"Failed to send order confirmation email: {result.get('error')}")
             
