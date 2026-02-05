@@ -3526,6 +3526,415 @@ async def send_email_async(to: str, subject: str, html: str) -> dict:
     else:
         return {"success": False, "error": result.get("error")}
 
+# ============== ADVANCED EMAIL MARKETING WORKFLOWS ==============
+
+async def process_post_purchase_reviews():
+    """Send review request emails 3 days after delivery"""
+    try:
+        # Find delivered orders from 3 days ago that haven't had review email sent
+        three_days_ago = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
+        four_days_ago = (datetime.now(timezone.utc) - timedelta(days=4)).isoformat()
+        
+        delivered_orders = await db.orders.find({
+            "order_status": "delivered",
+            "delivered_at": {"$gte": four_days_ago, "$lt": three_days_ago},
+            "review_email_sent": {"$ne": True}
+        }, {"_id": 0}).to_list(50)
+        
+        sent_count = 0
+        for order in delivered_orders:
+            email = order.get("shipping", {}).get("email") or order.get("email")
+            name = order.get("shipping", {}).get("full_name", "Client")
+            
+            if not email:
+                continue
+            
+            # Get first product for the email
+            first_item = order.get("items", [{}])[0]
+            product_name = first_item.get("name", "votre achat")
+            product_image = first_item.get("image", "")
+            
+            html = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">Votre avis compte ! ⭐</h1>
+                </div>
+                <div style="padding: 40px 30px; background: white;">
+                    <p style="font-size: 16px; color: #333;">Bonjour {name},</p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Nous espérons que vous êtes satisfait(e) de <strong>{product_name}</strong> !
+                    </p>
+                    {f'<img src="{product_image}" alt="{product_name}" style="width: 200px; height: 200px; object-fit: cover; border-radius: 12px; margin: 20px auto; display: block;" />' if product_image else ''}
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Votre avis aide les autres clients à faire leur choix et nous permet d'améliorer nos services.
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://groupeyamaplus.com/order/{order.get('order_id')}#review" 
+                           style="display: inline-block; padding: 15px 40px; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            Donner mon avis →
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666; text-align: center;">
+                        En remerciement, recevez <strong>50 points fidélité</strong> pour chaque avis !
+                    </p>
+                </div>
+                <div style="padding: 20px; background: #f8f8f8; text-align: center;">
+                    <p style="font-size: 12px; color: #999; margin: 0;">GROUPE YAMA+ - Votre partenaire au quotidien</p>
+                </div>
+            </div>
+            """
+            
+            result = await send_email_async(email, "⭐ Votre avis sur votre achat - YAMA+", html)
+            
+            if result.get("success"):
+                await db.orders.update_one(
+                    {"order_id": order["order_id"]},
+                    {"$set": {"review_email_sent": True, "review_email_sent_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                sent_count += 1
+        
+        logger.info(f"Post-purchase review emails: sent {sent_count}")
+    except Exception as e:
+        logger.error(f"Error in post-purchase review workflow: {e}")
+
+async def process_vip_customer_rewards():
+    """Send VIP rewards to top customers monthly"""
+    try:
+        # Find customers who spent more than 500,000 FCFA in the last 30 days
+        thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+        
+        pipeline = [
+            {"$match": {"created_at": {"$gte": thirty_days_ago}, "order_status": {"$nin": ["cancelled", "refunded"]}}},
+            {"$group": {"_id": "$user_id", "total_spent": {"$sum": "$total"}, "order_count": {"$sum": 1}}},
+            {"$match": {"total_spent": {"$gte": 500000}}},
+            {"$sort": {"total_spent": -1}},
+            {"$limit": 50}
+        ]
+        
+        vip_customers = await db.orders.aggregate(pipeline).to_list(50)
+        
+        sent_count = 0
+        for vip in vip_customers:
+            user_id = vip["_id"]
+            if not user_id:
+                continue
+            
+            user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+            if not user or not user.get("email"):
+                continue
+            
+            # Check if we sent VIP email this month
+            this_month = datetime.now(timezone.utc).strftime("%Y-%m")
+            existing = await db.vip_emails.find_one({"user_id": user_id, "month": this_month})
+            if existing:
+                continue
+            
+            # Generate exclusive VIP code
+            vip_code = f"VIP{secrets.token_hex(4).upper()}"
+            await db.promo_codes.insert_one({
+                "code": vip_code,
+                "discount_percent": 20,
+                "max_uses": 1,
+                "current_uses": 0,
+                "min_order": 50000,
+                "user_id": user_id,
+                "is_vip": True,
+                "expires_at": (datetime.now(timezone.utc) + timedelta(days=14)).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+            html = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+                    <h1 style="color: #1a1a1a; margin: 0; font-size: 32px;">👑 Vous êtes VIP !</h1>
+                </div>
+                <div style="padding: 40px 30px; background: white;">
+                    <p style="font-size: 18px; color: #333;">Cher(e) {user.get('name', 'Client')},</p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Merci pour votre fidélité ! Avec <strong>{vip['total_spent']:,} FCFA</strong> d'achats ce mois-ci,
+                        vous faites partie de nos clients les plus précieux.
+                    </p>
+                    <div style="background: #FFF8E1; padding: 30px; border-radius: 16px; margin: 30px 0; text-align: center;">
+                        <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Votre code exclusif VIP</p>
+                        <p style="margin: 0; font-size: 32px; font-weight: bold; color: #1a1a1a; letter-spacing: 3px;">{vip_code}</p>
+                        <p style="margin: 15px 0 0 0; font-size: 18px; color: #FF6B00;">-20% sur votre prochaine commande</p>
+                    </div>
+                    <p style="font-size: 14px; color: #666; text-align: center;">
+                        Valable 14 jours • Minimum d'achat: 50 000 FCFA
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://groupeyamaplus.com" 
+                           style="display: inline-block; padding: 15px 40px; background: #FFD700; color: #1a1a1a; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            Profiter de mon avantage VIP →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            """
+            
+            result = await send_email_async(user["email"], "👑 Récompense VIP exclusive - YAMA+", html)
+            
+            if result.get("success"):
+                await db.vip_emails.insert_one({
+                    "user_id": user_id,
+                    "month": this_month,
+                    "code": vip_code,
+                    "total_spent": vip["total_spent"],
+                    "sent_at": datetime.now(timezone.utc).isoformat()
+                })
+                sent_count += 1
+        
+        logger.info(f"VIP customer emails: sent {sent_count}")
+    except Exception as e:
+        logger.error(f"Error in VIP customer workflow: {e}")
+
+async def process_winback_campaign():
+    """Re-engage customers who haven't ordered in 60+ days"""
+    try:
+        sixty_days_ago = (datetime.now(timezone.utc) - timedelta(days=60)).isoformat()
+        ninety_days_ago = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        
+        # Find users who ordered 60-90 days ago but not since
+        pipeline = [
+            {"$match": {"created_at": {"$gte": ninety_days_ago, "$lt": sixty_days_ago}}},
+            {"$group": {"_id": "$user_id", "last_order": {"$max": "$created_at"}, "total_orders": {"$sum": 1}}},
+            {"$limit": 50}
+        ]
+        
+        inactive_users = await db.orders.aggregate(pipeline).to_list(50)
+        
+        sent_count = 0
+        for inactive in inactive_users:
+            user_id = inactive["_id"]
+            if not user_id:
+                continue
+            
+            # Check if they have ordered recently
+            recent_order = await db.orders.find_one({
+                "user_id": user_id,
+                "created_at": {"$gte": sixty_days_ago}
+            })
+            if recent_order:
+                continue
+            
+            user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+            if not user or not user.get("email"):
+                continue
+            
+            # Check if we sent winback email recently
+            recent_winback = await db.winback_emails.find_one({
+                "user_id": user_id,
+                "sent_at": {"$gte": (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()}
+            })
+            if recent_winback:
+                continue
+            
+            # Generate winback code
+            winback_code = f"RETOUR{secrets.token_hex(3).upper()}"
+            await db.promo_codes.insert_one({
+                "code": winback_code,
+                "discount_percent": 15,
+                "max_uses": 1,
+                "current_uses": 0,
+                "min_order": 30000,
+                "user_id": user_id,
+                "is_winback": True,
+                "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+            html = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #E0E0E0 0%, #9E9E9E 100%);">
+                    <h1 style="color: #1a1a1a; margin: 0; font-size: 28px;">Vous nous manquez ! 💔</h1>
+                </div>
+                <div style="padding: 40px 30px; background: white;">
+                    <p style="font-size: 18px; color: #333;">Bonjour {user.get('name', 'Client')},</p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Cela fait un moment que nous ne vous avons pas vu... Tout va bien ?
+                    </p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Pour fêter vos retrouvailles avec YAMA+, voici un cadeau spécial :
+                    </p>
+                    <div style="background: #FAFAFA; padding: 30px; border-radius: 16px; margin: 30px 0; text-align: center; border: 2px dashed #00A651;">
+                        <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Code de bienvenue</p>
+                        <p style="margin: 0; font-size: 28px; font-weight: bold; color: #00A651; letter-spacing: 3px;">{winback_code}</p>
+                        <p style="margin: 15px 0 0 0; font-size: 18px; color: #1a1a1a;">-15% sur votre commande</p>
+                    </div>
+                    <p style="font-size: 14px; color: #666; text-align: center;">
+                        ⏰ Offre valable 7 jours seulement !
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://groupeyamaplus.com" 
+                           style="display: inline-block; padding: 15px 40px; background: #00A651; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            Revenir sur YAMA+ →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            """
+            
+            result = await send_email_async(user["email"], "💔 Vous nous manquez - Cadeau inside !", html)
+            
+            if result.get("success"):
+                await db.winback_emails.insert_one({
+                    "user_id": user_id,
+                    "code": winback_code,
+                    "sent_at": datetime.now(timezone.utc).isoformat()
+                })
+                sent_count += 1
+        
+        logger.info(f"Winback campaign emails: sent {sent_count}")
+    except Exception as e:
+        logger.error(f"Error in winback campaign: {e}")
+
+async def process_wishlist_reminders():
+    """Remind users about products in their wishlist"""
+    try:
+        # Find wishlists not reminded in last 7 days with items
+        seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        
+        wishlists = await db.wishlists.find({
+            "items": {"$exists": True, "$ne": []},
+            "$or": [
+                {"reminder_sent_at": {"$exists": False}},
+                {"reminder_sent_at": {"$lt": seven_days_ago}}
+            ]
+        }, {"_id": 0}).to_list(50)
+        
+        sent_count = 0
+        for wishlist in wishlists:
+            user_id = wishlist.get("user_id")
+            if not user_id:
+                continue
+            
+            user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+            if not user or not user.get("email"):
+                continue
+            
+            # Get wishlist items details
+            items_html = ""
+            for item_id in wishlist.get("items", [])[:3]:  # Max 3 items
+                product = await db.products.find_one({"product_id": item_id}, {"_id": 0})
+                if product:
+                    items_html += f"""
+                    <div style="display: inline-block; width: 150px; margin: 10px; text-align: center; vertical-align: top;">
+                        <img src="{product.get('images', [''])[0]}" alt="{product.get('name')}" 
+                             style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
+                        <p style="margin: 10px 0 5px 0; font-size: 14px; font-weight: 600; color: #333;">{product.get('name', '')[:30]}</p>
+                        <p style="margin: 0; font-size: 16px; color: #00A651; font-weight: bold;">{product.get('price', 0):,} FCFA</p>
+                    </div>
+                    """
+            
+            if not items_html:
+                continue
+            
+            html = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">❤️ Vos favoris vous attendent !</h1>
+                </div>
+                <div style="padding: 40px 30px; background: white;">
+                    <p style="font-size: 16px; color: #333;">Bonjour {user.get('name', 'Client')},</p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Les produits que vous avez ajoutés à vos favoris sont toujours disponibles !
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        {items_html}
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://groupeyamaplus.com/wishlist" 
+                           style="display: inline-block; padding: 15px 40px; background: #FF6B6B; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            Voir mes favoris →
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666; text-align: center;">
+                        Ne tardez pas, les stocks sont limités !
+                    </p>
+                </div>
+            </div>
+            """
+            
+            result = await send_email_async(user["email"], "❤️ Vos favoris vous attendent - YAMA+", html)
+            
+            if result.get("success"):
+                await db.wishlists.update_one(
+                    {"user_id": user_id},
+                    {"$set": {"reminder_sent_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                sent_count += 1
+        
+        logger.info(f"Wishlist reminder emails: sent {sent_count}")
+    except Exception as e:
+        logger.error(f"Error in wishlist reminder workflow: {e}")
+
+async def process_order_tracking_updates():
+    """Send proactive tracking updates for shipped orders"""
+    try:
+        # Find orders shipped in the last 24 hours that haven't had tracking email
+        one_day_ago = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        
+        shipped_orders = await db.orders.find({
+            "order_status": "shipped",
+            "shipped_at": {"$gte": one_day_ago},
+            "tracking_email_sent": {"$ne": True}
+        }, {"_id": 0}).to_list(50)
+        
+        sent_count = 0
+        for order in shipped_orders:
+            email = order.get("shipping", {}).get("email") or order.get("email")
+            name = order.get("shipping", {}).get("full_name", "Client")
+            
+            if not email:
+                continue
+            
+            html = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">🚚 Votre colis est en route !</h1>
+                </div>
+                <div style="padding: 40px 30px; background: white;">
+                    <p style="font-size: 16px; color: #333;">Bonjour {name},</p>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Bonne nouvelle ! Votre commande <strong>#{order.get('order_id')}</strong> a été expédiée 
+                        et est en cours de livraison.
+                    </p>
+                    <div style="background: #E8F5E9; padding: 25px; border-radius: 12px; margin: 25px 0;">
+                        <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Adresse de livraison :</p>
+                        <p style="margin: 0; font-size: 16px; color: #333; font-weight: 500;">
+                            {order.get('shipping', {}).get('address', '')}<br/>
+                            {order.get('shipping', {}).get('city', '')}, {order.get('shipping', {}).get('region', '')}
+                        </p>
+                    </div>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        📅 Livraison prévue : <strong>Sous 24-48h</strong>
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://groupeyamaplus.com/order/{order.get('order_id')}" 
+                           style="display: inline-block; padding: 15px 40px; background: #4CAF50; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                            Suivre ma commande →
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666; text-align: center;">
+                        Questions ? Contactez-nous sur WhatsApp : +221 78 382 75 75
+                    </p>
+                </div>
+            </div>
+            """
+            
+            result = await send_email_async(email, f"🚚 Commande #{order.get('order_id')} en route !", html)
+            
+            if result.get("success"):
+                await db.orders.update_one(
+                    {"order_id": order["order_id"]},
+                    {"$set": {"tracking_email_sent": True, "tracking_email_sent_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                sent_count += 1
+        
+        logger.info(f"Order tracking emails: sent {sent_count}")
+    except Exception as e:
+        logger.error(f"Error in order tracking workflow: {e}")
+
 @api_router.post("/admin/email/send")
 async def send_single_email(data: SingleEmailRequest, user: User = Depends(require_admin)):
     """Send a single email"""
