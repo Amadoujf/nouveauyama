@@ -7176,6 +7176,143 @@ L'équipe YAMA+"""
         "whatsapp_link": whatsapp_link
     }
 
+# ============== PUSH NOTIFICATIONS ==============
+
+from pywebpush import webpush, WebPushException
+
+VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY")
+VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
+VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "contact@groupeyamaplus.com")
+
+class PushSubscription(BaseModel):
+    endpoint: str
+    keys: dict
+
+@api_router.get("/push/vapid-public-key")
+async def get_vapid_public_key():
+    """Get VAPID public key for push notification subscription"""
+    return {"publicKey": VAPID_PUBLIC_KEY}
+
+@api_router.post("/push/subscribe")
+async def subscribe_push(subscription: PushSubscription, request: Request):
+    """Subscribe to push notifications"""
+    user = await get_current_user(request)
+    
+    subscription_doc = {
+        "subscription_id": f"push_{secrets.token_hex(8)}",
+        "endpoint": subscription.endpoint,
+        "keys": subscription.keys,
+        "user_id": user.user_id if user else None,
+        "user_email": user.email if user else None,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "is_active": True
+    }
+    
+    # Upsert - update if endpoint exists, insert if not
+    await db.push_subscriptions.update_one(
+        {"endpoint": subscription.endpoint},
+        {"$set": subscription_doc},
+        upsert=True
+    )
+    
+    logger.info(f"Push subscription saved: {subscription.endpoint[:50]}...")
+    return {"message": "Inscription aux notifications réussie"}
+
+@api_router.post("/push/unsubscribe")
+async def unsubscribe_push(subscription: PushSubscription):
+    """Unsubscribe from push notifications"""
+    await db.push_subscriptions.update_one(
+        {"endpoint": subscription.endpoint},
+        {"$set": {"is_active": False}}
+    )
+    return {"message": "Désinscription réussie"}
+
+async def send_push_notification(subscription: dict, title: str, body: str, url: str = None, icon: str = None):
+    """Send a push notification to a single subscriber"""
+    if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
+        logger.warning("VAPID keys not configured")
+        return False
+    
+    try:
+        payload = {
+            "title": title,
+            "body": body,
+            "icon": icon or "https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png",
+            "badge": "https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png",
+            "url": url or SITE_URL,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+        webpush(
+            subscription_info={
+                "endpoint": subscription["endpoint"],
+                "keys": subscription["keys"]
+            },
+            data=json.dumps(payload),
+            vapid_private_key=VAPID_PRIVATE_KEY,
+            vapid_claims={"sub": f"mailto:{VAPID_CLAIMS_EMAIL}"}
+        )
+        
+        logger.info(f"Push notification sent: {title}")
+        return True
+        
+    except WebPushException as e:
+        logger.error(f"Push notification failed: {str(e)}")
+        # If subscription is expired/invalid, mark it inactive
+        if e.response and e.response.status_code in [404, 410]:
+            await db.push_subscriptions.update_one(
+                {"endpoint": subscription["endpoint"]},
+                {"$set": {"is_active": False}}
+            )
+        return False
+    except Exception as e:
+        logger.error(f"Push notification error: {str(e)}")
+        return False
+
+async def send_push_to_all(title: str, body: str, url: str = None):
+    """Send push notification to all active subscribers"""
+    subscriptions = await db.push_subscriptions.find({"is_active": True}).to_list(1000)
+    
+    success_count = 0
+    for sub in subscriptions:
+        if await send_push_notification(sub, title, body, url):
+            success_count += 1
+    
+    logger.info(f"Push notifications sent: {success_count}/{len(subscriptions)}")
+    return success_count
+
+async def send_push_to_user(user_id: str, title: str, body: str, url: str = None):
+    """Send push notification to a specific user"""
+    subscriptions = await db.push_subscriptions.find({
+        "user_id": user_id,
+        "is_active": True
+    }).to_list(10)
+    
+    for sub in subscriptions:
+        await send_push_notification(sub, title, body, url)
+
+@api_router.post("/admin/push/send")
+async def admin_send_push(
+    title: str,
+    body: str,
+    url: Optional[str] = None,
+    user: User = Depends(require_admin)
+):
+    """Admin: Send push notification to all subscribers"""
+    count = await send_push_to_all(title, body, url)
+    return {"message": f"Notification envoyée à {count} abonnés"}
+
+@api_router.get("/admin/push/stats")
+async def admin_push_stats(user: User = Depends(require_admin)):
+    """Admin: Get push notification stats"""
+    total = await db.push_subscriptions.count_documents({})
+    active = await db.push_subscriptions.count_documents({"is_active": True})
+    
+    return {
+        "total_subscriptions": total,
+        "active_subscriptions": active
+    }
+
 # ============== BLOG ROUTES ==============
 
 class BlogPostCreate(BaseModel):
