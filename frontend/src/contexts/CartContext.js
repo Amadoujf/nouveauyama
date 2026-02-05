@@ -6,6 +6,27 @@ const CartContext = createContext(null);
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Generate or get cart session ID from localStorage
+const getCartSessionId = () => {
+  let sessionId = localStorage.getItem("cart_session");
+  if (!sessionId) {
+    sessionId = `cart_${Math.random().toString(36).substr(2, 12)}`;
+    localStorage.setItem("cart_session", sessionId);
+  }
+  return sessionId;
+};
+
+// Create axios instance with cart session header
+const cartApi = axios.create({
+  baseURL: API_URL,
+});
+
+// Add cart session header to all requests
+cartApi.interceptors.request.use((config) => {
+  config.headers["X-Cart-Session"] = getCartSessionId();
+  return config;
+});
+
 export function CartProvider({ children }) {
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(false);
@@ -14,9 +35,7 @@ export function CartProvider({ children }) {
   // Fetch cart
   const fetchCart = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/cart`, {
-        withCredentials: true,
-      });
+      const response = await cartApi.get("/api/cart");
       setCart(response.data);
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -31,11 +50,7 @@ export function CartProvider({ children }) {
   const addToCart = async (productId, quantity = 1) => {
     setLoading(true);
     try {
-      await axios.post(
-        `${API_URL}/api/cart/add`,
-        { product_id: productId, quantity },
-        { withCredentials: true }
-      );
+      await cartApi.post("/api/cart/add", { product_id: productId, quantity });
       await fetchCart();
       toast.success("Produit ajouté au panier");
       setIsOpen(true);
@@ -51,11 +66,7 @@ export function CartProvider({ children }) {
   const updateQuantity = async (productId, quantity) => {
     setLoading(true);
     try {
-      await axios.put(
-        `${API_URL}/api/cart/update`,
-        { product_id: productId, quantity },
-        { withCredentials: true }
-      );
+      await cartApi.put("/api/cart/update", { product_id: productId, quantity });
       await fetchCart();
     } catch (error) {
       toast.error("Erreur lors de la mise à jour");
@@ -68,9 +79,7 @@ export function CartProvider({ children }) {
   const removeFromCart = async (productId) => {
     setLoading(true);
     try {
-      await axios.delete(`${API_URL}/api/cart/remove/${productId}`, {
-        withCredentials: true,
-      });
+      await cartApi.delete(`/api/cart/remove/${productId}`);
       await fetchCart();
       toast.success("Produit retiré du panier");
     } catch (error) {
@@ -84,9 +93,7 @@ export function CartProvider({ children }) {
   const clearCart = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${API_URL}/api/cart/clear`, {
-        withCredentials: true,
-      });
+      await cartApi.delete("/api/cart/clear");
       setCart({ items: [], total: 0 });
     } catch (error) {
       toast.error("Erreur lors du vidage du panier");
