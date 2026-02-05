@@ -2964,7 +2964,7 @@ def get_order_confirmation_template(order: dict) -> str:
     </div>
     
     <div style="text-align: center; margin-top: 30px;">
-        <a href="https://groupeyamaplus.com/order/{order.get('order_id', '')}" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="{SITE_URL}/order/{order.get('order_id', '')}" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Suivre ma commande
         </a>
     </div>
