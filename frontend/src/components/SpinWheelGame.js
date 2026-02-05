@@ -218,18 +218,18 @@ export default function SpinWheelGame({ isOpen, onClose }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
         onClick={handleClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="relative w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-3xl overflow-hidden shadow-2xl"
+          className="relative w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl my-auto max-h-[95vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600 text-white p-8 text-center overflow-hidden">
+          <div className="relative bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600 text-white p-4 sm:p-8 text-center overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-4 left-4 w-20 h-20 bg-white rounded-full blur-xl" />
@@ -239,22 +239,22 @@ export default function SpinWheelGame({ isOpen, onClose }) {
             
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors z-10"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors z-10"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             
             <div className="relative z-10">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <span className="text-4xl animate-bounce">🎁</span>
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <Gift className="w-8 h-8" />
+              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <span className="text-2xl sm:text-4xl animate-bounce">🎁</span>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center">
+                  <Gift className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
-                <span className="text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>✨</span>
+                <span className="text-2xl sm:text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>✨</span>
               </div>
-              <h2 className="text-3xl font-black tracking-tight">ROUE DE LA FORTUNE</h2>
-              <p className="text-white/90 text-base mt-2 font-medium">
-                Tentez votre chance et gagnez des réductions incroyables !
+              <h2 className="text-xl sm:text-3xl font-black tracking-tight">ROUE DE LA FORTUNE</h2>
+              <p className="text-white/90 text-sm sm:text-base mt-1 sm:mt-2 font-medium">
+                Tentez votre chance et gagnez des réductions !
               </p>
               
               {gameConfig && (
