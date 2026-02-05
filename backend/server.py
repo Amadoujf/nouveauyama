@@ -7362,8 +7362,54 @@ async def startup_event():
         name="Abandoned Cart Detection",
         replace_existing=True
     )
+    
+    # Start post-purchase review scheduler (daily at 10 AM)
+    scheduler.add_job(
+        process_post_purchase_reviews,
+        IntervalTrigger(hours=24),
+        id="post_purchase_reviews",
+        name="Post-Purchase Review Emails",
+        replace_existing=True
+    )
+    
+    # Start VIP rewards scheduler (weekly)
+    scheduler.add_job(
+        process_vip_customer_rewards,
+        IntervalTrigger(days=7),
+        id="vip_customer_rewards",
+        name="VIP Customer Rewards",
+        replace_existing=True
+    )
+    
+    # Start winback campaign scheduler (daily)
+    scheduler.add_job(
+        process_winback_campaign,
+        IntervalTrigger(hours=24),
+        id="winback_campaign",
+        name="Winback Campaign",
+        replace_existing=True
+    )
+    
+    # Start wishlist reminder scheduler (every 3 days)
+    scheduler.add_job(
+        process_wishlist_reminders,
+        IntervalTrigger(days=3),
+        id="wishlist_reminders",
+        name="Wishlist Reminders",
+        replace_existing=True
+    )
+    
+    # Start order tracking scheduler (every 2 hours)
+    scheduler.add_job(
+        process_order_tracking_updates,
+        IntervalTrigger(hours=2),
+        id="order_tracking_updates",
+        name="Order Tracking Updates",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Abandoned cart scheduler started successfully")
+    logger.info("All email marketing schedulers started successfully")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
