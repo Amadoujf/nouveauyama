@@ -362,57 +362,57 @@ export default function SpinWheelGame({ isOpen, onClose }) {
             )}
 
             {step === "spinning" && (
-              <div className="flex flex-col items-center py-4">
+              <div className="flex flex-col items-center py-2 sm:py-4">
                 <SpinWheel
                   isSpinning={isSpinning}
                   setIsSpinning={setIsSpinning}
                   prizeIndex={prizeIndex}
                   onSpinComplete={handleSpinComplete}
                 />
-                <p className="mt-4 text-muted-foreground animate-pulse">
+                <p className="mt-3 sm:mt-4 text-muted-foreground animate-pulse text-sm sm:text-base">
                   La roue tourne...
                 </p>
               </div>
             )}
 
             {step === "result" && result && (
-              <div className="text-center py-4">
+              <div className="text-center py-2 sm:py-4">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", duration: 0.5 }}
                 >
                   {result.prize_type === "discount_20" ? (
-                    <div className="w-24 h-24 mx-auto bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center mb-4">
-                      <Trophy className="w-12 h-12 text-amber-600" />
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                      <Trophy className="w-8 h-8 sm:w-12 sm:h-12 text-amber-600" />
                     </div>
                   ) : (
-                    <div className="w-24 h-24 mx-auto bg-violet-100 dark:bg-violet-900 rounded-full flex items-center justify-center mb-4">
-                      <PartyPopper className="w-12 h-12 text-violet-600" />
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto bg-violet-100 dark:bg-violet-900 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                      <PartyPopper className="w-8 h-8 sm:w-12 sm:h-12 text-violet-600" />
                     </div>
                   )}
                 </motion.div>
 
-                <h3 className="text-2xl font-bold mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2">
                   {result.prize_type === "discount_20" ? "🎉 JACKPOT !" : "Félicitations !"}
                 </h3>
                 
-                <p className="text-lg mb-4">{result.message}</p>
+                <p className="text-base sm:text-lg mb-3 sm:mb-4">{result.message}</p>
 
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-6">
-                  <p className="text-sm text-muted-foreground mb-1">Votre code promo</p>
-                  <p className="text-2xl font-mono font-bold tracking-wider">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Votre code promo</p>
+                  <p className="text-xl sm:text-2xl font-mono font-bold tracking-wider">
                     {result.prize_code}
                   </p>
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                   Utilisez ce code lors de votre prochaine commande
                 </p>
 
                 <button
                   onClick={handleClose}
-                  className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full py-2.5 sm:py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-semibold hover:opacity-90 transition-opacity text-sm sm:text-base"
                 >
                   Utiliser maintenant
                 </button>
