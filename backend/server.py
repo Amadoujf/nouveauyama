@@ -3777,8 +3777,8 @@ async def get_email_stats(user: User = Depends(require_admin)):
     }
 
 # Email templates for automatic emails
-async def send_welcome_email(email: str, name: str = ""):
-    """Send welcome email to new subscriber"""
+async def send_newsletter_welcome_email(email: str, name: str = ""):
+    """Send welcome email to new newsletter subscriber"""
     content = f"""
     <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Bienvenue chez YAMA+ ! 🎉</h2>
     <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
