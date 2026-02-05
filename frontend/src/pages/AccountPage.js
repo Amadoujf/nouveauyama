@@ -63,9 +63,60 @@ export default function AccountPage() {
     fetchOrders();
   }, [isAuthenticated, navigate, location]);
 
+  // Initialize edit form when user changes
+  useEffect(() => {
+    if (user) {
+      setEditForm({
+        name: user.name || "",
+        phone: user.phone || ""
+      });
+    }
+  }, [user]);
+
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const handleEditProfile = () => {
+    setEditForm({
+      name: user?.name || "",
+      phone: user?.phone || ""
+    });
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditForm({
+      name: user?.name || "",
+      phone: user?.phone || ""
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editForm.name.trim()) {
+      toast.error("Le nom est requis");
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      await axios.put(`${API_URL}/api/auth/profile`, {
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim() || null
+      });
+      
+      // Refresh user data
+      await checkAuth();
+      setIsEditing(false);
+      toast.success("Profil mis à jour avec succès");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Erreur lors de la mise à jour du profil");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!isAuthenticated) return null;
