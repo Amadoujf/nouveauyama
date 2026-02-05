@@ -59,7 +59,7 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
     try:
         email_builder = (
             EmailBuilder()
-            .from_email(SENDER_EMAIL, "YAMA+")
+            .from_email(MAILERSEND_FROM_EMAIL, MAILERSEND_FROM_NAME)
             .to(to_email, to_name or to_email)
             .subject(subject)
             .html(html_content)
