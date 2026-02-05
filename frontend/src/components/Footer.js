@@ -6,7 +6,7 @@ const footerLinks = {
     { name: "Électronique", href: "/category/electronique" },
     { name: "Électroménager", href: "/category/electromenager" },
     { name: "Décoration", href: "/category/decoration" },
-    { name: "Beauté", href: "/category/beaute" },
+    { name: "Accessoires mode et beauté", href: "/category/beaute" },
     { name: "Nouveautés", href: "/nouveautes" },
     { name: "Promotions", href: "/promotions" },
   ],
