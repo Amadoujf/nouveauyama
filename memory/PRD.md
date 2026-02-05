@@ -15,19 +15,23 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 4. Authentification JWT et Google OAuth
 5. Panel d'administration complet
 6. Programme de fidélité et engagement
+7. Système d'email marketing avec MailerSend
 
 ## Technical Stack
 - **Frontend**: React 18, TailwindCSS, Framer Motion, Shadcn/UI
 - **Backend**: FastAPI (Python), APScheduler
 - **Database**: MongoDB
 - **Authentication**: JWT + Emergent Google Auth
+- **Email Service**: MailerSend (remplace Resend)
 
-## Implemented Features (as of Feb 2025)
+---
+
+## Implemented Features
 
 ### Core E-Commerce
 - [x] Catalogue produits avec filtres et catégories
-- [x] Panier d'achat persistant
-- [x] Checkout complet
+- [x] Panier d'achat persistant (localStorage + X-Cart-Session header)
+- [x] Checkout complet avec calcul de livraison
 - [x] Gestion des commandes
 - [x] Factures PDF automatiques
 - [x] Wishlist et comparaison de produits
@@ -37,117 +41,151 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - [x] Google OAuth (Emergent-managed)
 - [x] Profil utilisateur
 - [x] Tableau de bord client (/account)
+- [x] Réinitialisation de mot de passe
 
 ### Admin Panel
-- [x] Gestion des produits (CRUD) avec options avancées (couleurs, tailles, marques)
+- [x] Gestion des produits (CRUD) avec options avancées
 - [x] Gestion des commandes
 - [x] Gestion des codes promo
 - [x] Gestion des paniers abandonnés
-- [x] Dashboard analytics refait avec design professionnel
+- [x] Dashboard analytics
 
 ### Engagement Features
-- [x] **Programme de fidélité** : Points et récompenses
-- [x] **Roue de la Fortune** : Jeu pour gagner des réductions (-5%, -10%, -15%, -20%, livraison gratuite)
-- [x] **Codes promo avancés** : Types percentage, fixed, free_shipping
-- [x] **Section témoignages** : Avis clients sur la homepage
-- [x] **Programme de parrainage** : Code référent et récompenses
-- [x] **Widget chat en direct** : Support client (MOCKED - réponses automatiques)
-- [x] **Bannière de notification** : Promotions site-wide
-- [x] **Notifications de stock** : "Prévenez-moi quand disponible" pour produits en rupture
+- [x] Programme de fidélité avec points et récompenses
+- [x] Roue de la Fortune (jeu promo)
+- [x] Codes promo avancés
+- [x] Section témoignages
+- [x] Programme de parrainage
+- [x] Widget chat en direct (MOCKED - auto-réponses)
+- [x] Bannière de notification
 
-### UI/UX
-- [x] Animations premium avec Framer Motion
-- [x] Carrousel de confiance
-- [x] Design minimaliste et moderne
-- [x] Mode sombre/clair
-- [x] Section Ventes Flash animée
-- [x] Cartes produits compactes avec carrousel d'images
+### Blog & SEO
+- [x] Section blog complète (/blog)
+- [x] Pages articles individuels (/blog/:slug)
+- [x] Google Analytics 4
+- [x] Facebook Pixel
+- [x] PWA Ready
 
-### Phase 1 Features (Completed Feb 2, 2025)
-- [x] **Filtres avancés** sur CategoryPage (prix, couleur, taille, marque, disponibilité, tri)
-- [x] **Page Suivi de commande** (/suivi-commande) avec timeline de statut
-- [x] **Avis clients** affichés sur les pages produits avec statistiques
-- [x] **Pages légales** : CGV, Confidentialité, Retours, Livraison
+### Système de Rendez-vous (NEW - Feb 2025)
+- [x] Modal AppointmentModal pour réserver une visite
+- [x] API /api/appointments pour créer des rendez-vous
+- [x] Notifications email admin et client
+- [x] Catégories supportées: automobile, mobilier, électroménager
 
-### Phase 2 Features (Completed Feb 2, 2025)
-- [x] **Tableau de bord client** (historique commandes, adresses, favoris)
-- [x] **Produits similaires** ("Vous aimerez aussi") sur pages produits
-- [x] **Notifications de disponibilité** : Bouton "Prévenez-moi quand disponible" + modal email
-- [x] **Alertes de prix** : Bouton "Alerte baisse de prix" avec modal pour définir un prix cible
+### Email Marketing (MailerSend)
+- [x] Email de bienvenue à l'inscription
+- [x] Email de confirmation de commande
+- [x] Email de panier abandonné (schedulé)
+- [x] Email de notification admin
 
-### Bug Fixes (Feb 2, 2025)
-- [x] **Dashboard Admin corrigé** : Les stats (chiffre d'affaires, commandes, produits, clients) s'affichent maintenant correctement
-- [x] **Navigation Admin corrigée** : Tous les liens du menu latéral fonctionnent (Commandes, Utilisateurs, etc.)
-- [x] **Noms clients corrigés** : Affichage correct des noms dans les commandes récentes (shipping.full_name)
+---
 
-### AI-Powered Features (Feb 2, 2025)
-- [x] **IA Auto-remplir produit** : Bouton magique dans le formulaire de création de produit qui analyse une image et remplit automatiquement le nom, description, catégorie, marque, couleurs et prix estimé
+## Bug Fixes (February 5, 2025)
 
-### Product Management Features (Feb 4, 2025)
-- [x] **Correction création produit** : Fixed authentication issues (withCredentials → Bearer token)
-- [x] **Produits sur commande** : Option "Sur commande" avec délai de livraison estimé en jours
-- [x] **Badge "Sur commande"** : Affiché sur les cartes produits et pages produits avec icône horloge et délai
+### Critical Bugs Fixed
+1. **Impossible d'ajouter un produit au panier** - CORRIGÉ
+   - Cause: CORS bloquait les requêtes avec `withCredentials: true` et `allow_origins=["*"]`
+   - Solution: Utiliser localStorage + header `X-Cart-Session` au lieu des cookies
 
-### Blog & SEO Features (Feb 4, 2025)
-- [x] **Blog YAMA+** : Section blog complète avec articles SEO
-  - Page liste des articles (/blog) avec hero, recherche, filtres par catégorie
-  - Page article individuel (/blog/:slug) avec contenu riche, partage social
-  - 6 articles de démonstration (guides d'achat, conseils, tendances, nouveautés)
-  - API backend complète (GET /api/blog/posts, GET /api/blog/posts/:slug)
-  - Administration des articles (création, modification, suppression)
-- [x] **Google Analytics 4** : Suivi des pages et événements
-- [x] **Facebook Pixel** : Tracking marketing pour les conversions
-- [x] **PWA Ready** : Application web progressive avec manifest.json
+2. **Email de bienvenue non envoyé** - CORRIGÉ
+   - Cause: Deux fonctions `send_welcome_email` avec signatures différentes (conflit de noms)
+   - Solution: Renommer la deuxième en `send_newsletter_welcome_email`
 
-## Pending Issues (Blocked on User Action)
+3. **Liens de catégories qui redirigent vers le footer** - VÉRIFIÉ FONCTIONNEL
+   - Les liens de navigation fonctionnent correctement
 
-### P1 - Resend Domain Verification
-- **Status**: BLOCKED
-- **Action requise**: Utilisateur doit vérifier le domaine `groupeyamaplus.com` sur Resend
+### UI Improvements
+- [x] Catégorie "Beauté" renommée en "Accessoires mode et beauté"
+- [x] Chat widget mobile: hauteur ajustée pour ne pas obscurcir la conversation
+- [x] Logo et slogan visibles sur la page de connexion
+- [x] Icônes TikTok et Snapchat ajoutées au footer
+
+---
+
+## Pending Issues
+
+### P1 - MailerSend Trial Limitation
+- **Status**: EXTERNE - Action utilisateur requise
+- **Problème**: Compte MailerSend en mode trial avec limite de destinataires atteinte
+- **Solution**: L'utilisateur doit upgrader son compte MailerSend ou activer le domaine `groupeyamaplus.com`
 
 ### P2 - PayTech Production Mode
-- **Status**: BLOCKED  
-- **Action requise**: Utilisateur doit contacter PayTech pour activer le compte en production
+- **Status**: EXTERNE - Action utilisateur requise
+- **Problème**: PayTech en mode test (montants incorrects)
+- **Solution**: Contacter PayTech pour activer le mode production
 
-### P2 - Custom Domain Configuration
-- **Status**: USER VERIFICATION PENDING
-- **Action requise**: Confirmer la configuration DNS sur Hostinger
+### P2 - URLs Réseaux Sociaux
+- **Status**: En attente d'info utilisateur
+- **Problème**: TikTok et Snapchat ont des icônes mais pas de liens réels
+- **Action**: Demander les URLs des profils à l'utilisateur
 
-## Project Health
-- **Broken**: Aucun
-- **Mocked**: 
-  - PayTech (mode test - montants incorrects de 100 FCFA)
-  - Live Chat Widget (réponses automatiques uniquement)
-- **Incomplete**: Phase 3 (cartes cadeaux, bundles, fidélité avancée)
+---
 
-## Upcoming Tasks (Phase 3 - P2)
-- [ ] Système de cartes cadeaux (achat & remboursement)
-- [ ] Bundles/Packs ("Achetez ensemble et économisez")
-- [ ] Points de fidélité avancés
-- [ ] Boutons de partage social sur produits
+## Upcoming Tasks (P0-P1)
+
+### P0 - Email Marketing Complet
+- [ ] Workflow Abandoned Cart automatique
+- [ ] Workflow Post-Purchase (follow-up)
+- [ ] Workflow VIP customers
+- [ ] Workflow Winback (clients inactifs)
+
+### P1 - Connexion iCloud (Apple Sign-In)
+- [ ] Intégrer Apple Sign-In pour l'authentification
+- [ ] Nécessite recherche sur l'API Apple
+
+### P1 - Mettre à jour Google OAuth
+- [ ] Appliquer les nouveaux Client ID et Secret fournis par l'utilisateur
+
+### P1 - Améliorer la Roue de la Fortune
+- [ ] Refonte UI selon les préférences utilisateur
+
+---
+
+## Future Tasks (P2)
+
+- [ ] Cartes cadeaux (achat et remboursement)
+- [ ] Bundles/Packs produits
 - [ ] Notifications WhatsApp Business
+- [ ] Avis clients avec photos
+- [ ] Web Push notifications
+- [ ] Exit-intent popup newsletter
+
+---
 
 ## Key API Endpoints
-- `GET /api/products` - Liste produits avec filtres (brand, colors, sizes)
-- `GET /api/orders/track?order_id=X&email=Y` - Suivi de commande public
-- `POST /api/products/{id}/notify-stock` - Inscription notification stock
-- `POST /api/products/{id}/price-alert` - Inscription alerte baisse de prix
-- `GET /api/products/{id}/reviews` - Avis produit avec statistiques
-- `GET /api/admin/stats` - Statistiques dashboard admin
-- `POST /api/admin/analyze-product-image` - Analyse IA d'image pour création produit
-- `GET /api/blog/posts` - Liste des articles de blog (filtrable par catégorie)
-- `GET /api/blog/posts/{slug}` - Article de blog individuel
-- `POST /api/admin/blog/posts` - Créer un article de blog (admin)
-- `PUT /api/admin/blog/posts/{post_id}` - Modifier un article de blog (admin)
-- `DELETE /api/admin/blog/posts/{post_id}` - Supprimer un article de blog (admin)
 
-## API Keys Required
-- `PAYTECH_API_KEY` & `PAYTECH_API_SECRET` - Paiements
-- `RESEND_API_KEY` - Emails transactionnels  
-- `MAILERLITE_API_KEY` - Marketing automation
+### Cart
+- `GET /api/cart` - Récupérer le panier (avec header X-Cart-Session)
+- `POST /api/cart/add` - Ajouter au panier
+- `PUT /api/cart/update` - Mettre à jour quantité
+- `DELETE /api/cart/remove/{product_id}` - Retirer du panier
+
+### Auth
+- `POST /api/auth/register` - Inscription
+- `POST /api/auth/login` - Connexion
+- `POST /api/auth/session` - Traiter callback Google OAuth
+- `GET /api/auth/me` - Utilisateur courant
+
+### Appointments (NEW)
+- `POST /api/appointments` - Créer un rendez-vous
+- `GET /api/admin/appointments` - Liste des rendez-vous (admin)
+
+### Blog
+- `GET /api/blog/posts` - Liste des articles
+- `GET /api/blog/posts/{slug}` - Article individuel
+
+---
 
 ## Test Credentials
 - **Admin**: admin@yama.sn / admin123
 
+## Project Health
+- **Broken**: Aucun (bugs critiques corrigés)
+- **Mocked**: 
+  - PayTech (mode test)
+  - Live Chat (auto-réponses)
+- **External Limitations**:
+  - MailerSend (trial mode, limite destinataires)
+
 ---
-*Last updated: February 4, 2025*
+*Last updated: February 5, 2025*
