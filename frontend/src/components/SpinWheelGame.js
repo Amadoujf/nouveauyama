@@ -43,19 +43,19 @@ function SpinWheel({ onSpinComplete, isSpinning, setIsSpinning, prizeIndex }) {
   }, [isSpinning, prizeIndex]);
 
   return (
-    <div className="relative w-72 h-72 md:w-80 md:h-80">
+    <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80">
       {/* Outer glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-full blur-xl opacity-50 animate-pulse" />
       
       {/* Pointer */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20">
-        <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[30px] border-l-transparent border-r-transparent border-t-orange-500 drop-shadow-lg" />
+        <div className="w-0 h-0 border-l-[12px] sm:border-l-[18px] border-r-[12px] sm:border-r-[18px] border-t-[20px] sm:border-t-[30px] border-l-transparent border-r-transparent border-t-orange-500 drop-shadow-lg" />
       </div>
       
       {/* Wheel */}
       <motion.div
         ref={wheelRef}
-        className="relative w-full h-full rounded-full border-8 border-white dark:border-gray-800 overflow-hidden shadow-2xl"
+        className="relative w-full h-full rounded-full border-4 sm:border-8 border-white dark:border-gray-800 overflow-hidden shadow-2xl"
         style={{
           rotate: rotation,
           transition: isSpinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
