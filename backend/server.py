@@ -143,7 +143,7 @@ STORE_ADDRESS = "Fass Paillote, Dakar, Sénégal"
 STORE_PHONE = "+221 78 382 75 75"
 STORE_WHATSAPP = "221783827575"  # Without + for WhatsApp links
 STORE_EMAIL = "contact@groupeyamaplus.com"
-ADMIN_NOTIFICATION_EMAIL = "contact@groupeyamaplus.com"  # Email to receive order notifications
+ADMIN_NOTIFICATION_EMAIL = "amadoubourydiouf@gmail.com"  # Email to receive order and appointment notifications
 SITE_URL = os.environ.get("SITE_URL", "https://groupeyamaplus.com")  # Production site URL
 
 # Delivery Zones Configuration
