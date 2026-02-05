@@ -50,11 +50,11 @@ const categoryItems = [
     description: "Design et confort"
   },
   { 
-    name: "Beauté", 
+    name: "Accessoires mode et beauté", 
     href: "/category/beaute", 
     icon: Sparkles,
     image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
-    description: "Soins et cosmétiques"
+    description: "Mode, soins et cosmétiques"
   },
   { 
     name: "Automobile", 
@@ -69,7 +69,7 @@ const navItems = [
   { name: "Électronique", href: "/category/electronique", icon: Smartphone },
   { name: "Électroménager", href: "/category/electromenager", icon: Home },
   { name: "Décoration", href: "/category/decoration", icon: Sofa },
-  { name: "Beauté", href: "/category/beaute", icon: Sparkles },
+  { name: "Mode & Beauté", href: "/category/beaute", icon: Sparkles },
   { name: "Automobile", href: "/category/automobile", icon: Car },
   { name: "Nouveautés", href: "/nouveautes", icon: Star },
   { name: "Promotions", href: "/promotions", icon: Percent },
