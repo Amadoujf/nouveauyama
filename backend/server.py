@@ -5407,6 +5407,15 @@ async def create_order(order_data: OrderCreate, request: Request):
     # Send notification to admin
     asyncio.create_task(send_admin_order_notification(order_doc))
     
+    # Send push notification to user if subscribed
+    if user:
+        asyncio.create_task(send_push_to_user(
+            user.user_id,
+            "🎉 Commande confirmée !",
+            f"Votre commande #{order_id} a été reçue. Nous la préparons !",
+            f"{SITE_URL}/order/{order_id}"
+        ))
+    
     order_doc["created_at"] = now
     return order_doc
 
