@@ -69,8 +69,14 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         # Add attachment if provided
         if attachment_content and attachment_filename:
             import base64
+            from mailersend import EmailAttachment
             encoded_content = base64.b64encode(attachment_content).decode('utf-8')
-            email_builder.attachment(encoded_content, attachment_filename, "attachment")
+            attachment = EmailAttachment(
+                content=encoded_content,
+                filename=attachment_filename,
+                disposition="attachment"
+            )
+            email_builder.attachments([attachment])
         
         # Build the email request
         email_request = email_builder.build()
