@@ -29,11 +29,17 @@ const menuItems = [
 ];
 
 export default function AccountPage() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, checkAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    phone: ""
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
