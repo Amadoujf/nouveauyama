@@ -1776,7 +1776,7 @@ async def subscribe_newsletter(data: NewsletterSubscribe):
     await db.newsletter.insert_one(subscriber_doc)
     
     # Send welcome email (async, don't wait)
-    asyncio.create_task(send_welcome_email(data.email, data.name or ""))
+    asyncio.create_task(send_newsletter_welcome_email(data.email, data.name or ""))
     
     return {
         "message": "Inscription réussie ! Voici votre code promo",
