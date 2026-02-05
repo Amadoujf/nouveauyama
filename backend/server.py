@@ -7049,13 +7049,17 @@ async def get_appointments(
 @api_router.put("/admin/appointments/{appointment_id}")
 async def update_appointment(
     appointment_id: str,
-    status: str,
-    confirmed_date: Optional[str] = None,
-    confirmed_time: Optional[str] = None,
-    location: Optional[str] = None,
+    request: Request,
     user: User = Depends(require_admin)
 ):
-    """Update appointment status"""
+    """Update appointment status with optional WhatsApp confirmation"""
+    body = await request.json()
+    status = body.get("status")
+    confirmed_date = body.get("confirmed_date")
+    confirmed_time = body.get("confirmed_time")
+    location = body.get("location")
+    send_whatsapp = body.get("send_whatsapp", False)
+    
     appointment = await db.appointments.find_one({"appointment_id": appointment_id})
     if not appointment:
         raise HTTPException(status_code=404, detail="Rendez-vous non trouvé")
@@ -7077,28 +7081,75 @@ async def update_appointment(
         {"$set": update_data}
     )
     
+    customer = appointment.get("customer", {})
+    customer_phone = customer.get('phone', '')
+    customer_email = customer.get('email', '')
+    customer_name = customer.get('name', '')
+    product_name = appointment.get('product_name', 'votre produit')
+    
+    # Build WhatsApp message link if requested
+    whatsapp_link = None
+    if send_whatsapp and customer_phone and status == "confirmed":
+        # Format phone for WhatsApp (remove spaces and special chars, add country code if needed)
+        phone_clean = customer_phone.replace(" ", "").replace("-", "").replace("+", "")
+        if not phone_clean.startswith("221"):
+            phone_clean = "221" + phone_clean.lstrip("0")
+        
+        message = f"""Bonjour {customer_name} ! 🎉
+
+Votre rendez-vous chez GROUPE YAMA+ est confirmé !
+
+📅 Date: {confirmed_date or 'À confirmer'}
+🕐 Heure: {confirmed_time or 'À confirmer'}
+📍 Adresse: {location or STORE_ADDRESS}
+
+Produit: {product_name}
+
+À très bientôt !
+L'équipe YAMA+"""
+        
+        whatsapp_link = f"https://wa.me/{phone_clean}?text={message.replace(chr(10), '%0A').replace(' ', '%20')}"
+    
     # If confirmed, send email to customer
     if status == "confirmed" and confirmed_date:
-        customer = appointment.get("customer", {})
         html = f"""
         <h2>✅ Rendez-vous confirmé !</h2>
-        <p>Bonjour {customer.get('name', '')},</p>
+        <p>Bonjour {customer_name},</p>
         <p>Votre rendez-vous a été confirmé !</p>
         <div style="background: #d4edda; padding: 20px; border-radius: 12px; margin: 20px 0;">
             <p style="margin: 0 0 10px 0;"><strong>📅 Date:</strong> {confirmed_date}</p>
             <p style="margin: 0 0 10px 0;"><strong>🕐 Heure:</strong> {confirmed_time}</p>
-            <p style="margin: 0;"><strong>📍 Adresse:</strong> {location or 'Sera communiquée par WhatsApp'}</p>
+            <p style="margin: 0;"><strong>📍 Adresse:</strong> {location or STORE_ADDRESS}</p>
         </div>
+        <p>Produit concerné: <strong>{product_name}</strong></p>
         <p>Nous avons hâte de vous accueillir !</p>
         """
         
         asyncio.create_task(send_email_async(
-            to=customer.get('email', ''),
+            to=customer_email,
             subject="✅ Rendez-vous confirmé - GROUPE YAMA+",
             html=get_email_template(html, "Rendez-vous confirmé")
         ))
     
-    return {"message": "Rendez-vous mis à jour"}
+    # If cancelled, notify customer
+    elif status == "cancelled":
+        html = f"""
+        <h2>Rendez-vous annulé</h2>
+        <p>Bonjour {customer_name},</p>
+        <p>Nous sommes désolés, votre rendez-vous a été annulé.</p>
+        <p>N'hésitez pas à en programmer un nouveau sur notre site.</p>
+        """
+        
+        asyncio.create_task(send_email_async(
+            to=customer_email,
+            subject="Rendez-vous annulé - GROUPE YAMA+",
+            html=get_email_template(html, "Rendez-vous annulé")
+        ))
+    
+    return {
+        "message": "Rendez-vous mis à jour",
+        "whatsapp_link": whatsapp_link
+    }
 
 # ============== BLOG ROUTES ==============
 
