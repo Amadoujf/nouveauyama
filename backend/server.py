@@ -7046,6 +7046,30 @@ async def get_appointments(
     appointments = await db.appointments.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
     return appointments
 
+@api_router.get("/admin/appointments/stats")
+async def get_appointments_stats(user: User = Depends(require_admin)):
+    """Get appointment statistics for dashboard"""
+    total = await db.appointments.count_documents({})
+    pending = await db.appointments.count_documents({"status": "pending"})
+    confirmed = await db.appointments.count_documents({"status": "confirmed"})
+    completed = await db.appointments.count_documents({"status": "completed"})
+    cancelled = await db.appointments.count_documents({"status": "cancelled"})
+    
+    # Get recent pending appointments
+    recent_pending = await db.appointments.find(
+        {"status": "pending"},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(5).to_list(5)
+    
+    return {
+        "total": total,
+        "pending": pending,
+        "confirmed": confirmed,
+        "completed": completed,
+        "cancelled": cancelled,
+        "recent_pending": recent_pending
+    }
+
 @api_router.put("/admin/appointments/{appointment_id}")
 async def update_appointment(
     appointment_id: str,
