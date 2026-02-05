@@ -144,7 +144,7 @@ STORE_PHONE = "+221 78 382 75 75"
 STORE_WHATSAPP = "221783827575"  # Without + for WhatsApp links
 STORE_EMAIL = "contact@groupeyamaplus.com"
 ADMIN_NOTIFICATION_EMAIL = "contact@groupeyamaplus.com"  # Email to receive order notifications
-SITE_URL = os.environ.get("SITE_URL", "https://groupeyamaplus.com")  # Production site URL
+SITE_URL = os.environ.get("SITE_URL", "{SITE_URL}")  # Production site URL
 
 # Delivery Zones Configuration
 DELIVERY_ZONES = {
@@ -827,7 +827,7 @@ async def detect_and_process_abandoned_carts():
                 continue
             
             # Send abandoned cart email via MailerSend
-            recovery_link = f"https://groupeyamaplus.com/panier?recover={cart.get('cart_id', '')}"
+            recovery_link = f"{SITE_URL}/panier?recover={cart.get('cart_id', '')}"
             html = get_abandoned_cart_template(name or "Client", cart_items_with_details, cart_total, recovery_link)
             
             result = await send_email_async(
@@ -2868,7 +2868,7 @@ def get_email_template(content: str, title: str = "GROUPE YAMA+") -> str:
                     </table>
                     <!-- Unsubscribe -->
                     <p style="color: #999; font-size: 11px; margin-top: 20px; text-align: center;">
-                        <a href="https://groupeyamaplus.com/unsubscribe" style="color: #999; text-decoration: underline;">Se désabonner</a>
+                        <a href="{SITE_URL}/unsubscribe" style="color: #999; text-decoration: underline;">Se désabonner</a>
                     </p>
                 </td>
             </tr>
@@ -3008,7 +3008,7 @@ def get_shipping_update_template(order: dict, status: str, message: str) -> str:
     </p>
     
     <div style="text-align: center; margin-top: 30px;">
-        <a href="https://groupeyamaplus.com/suivi-commande" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="{SITE_URL}/suivi-commande" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Suivre ma commande
         </a>
     </div>
@@ -3093,7 +3093,7 @@ def get_welcome_template(name: str, promo_code: str = None) -> str:
     </ul>
     
     <div style="text-align: center; margin-top: 30px;">
-        <a href="https://groupeyamaplus.com" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="{SITE_URL}" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Découvrir la boutique
         </a>
     </div>
@@ -3134,7 +3134,7 @@ def get_flash_sale_template(products: list, end_time: str) -> str:
     </div>
     
     <div style="text-align: center; margin-top: 25px;">
-        <a href="https://groupeyamaplus.com" style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: #fff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+        <a href="{SITE_URL}" style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: #fff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
             ⚡ Voir toutes les offres
         </a>
     </div>
@@ -3168,7 +3168,7 @@ def get_new_arrivals_template(products: list) -> str:
     </div>
     
     <div style="text-align: center; margin-top: 25px;">
-        <a href="https://groupeyamaplus.com/nouveautes" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="{SITE_URL}/nouveautes" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Voir toutes les nouveautés
         </a>
     </div>
@@ -3208,7 +3208,7 @@ def get_weekly_promo_template(promo_code: str, discount: int, products: list) ->
     </div>
     
     <div style="text-align: center; margin-top: 25px;">
-        <a href="https://groupeyamaplus.com" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="{SITE_URL}" style="background-color: #000; color: #fff; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Profiter de l'offre
         </a>
     </div>
@@ -3248,7 +3248,7 @@ async def forgot_password(data: PasswordResetRequest):
     })
     
     # Send reset email
-    reset_link = f"https://groupeyamaplus.com/reset-password?token={reset_token}"
+    reset_link = f"{SITE_URL}/reset-password?token={reset_token}"
     html = get_password_reset_template(user.get("name", "Client"), reset_link)
     
     await send_email_async(
@@ -3438,7 +3438,7 @@ async def process_abandoned_carts():
             continue
         
         # Send abandoned cart email
-        recovery_link = f"https://groupeyamaplus.com/panier?recover={cart.get('cart_id', '')}"
+        recovery_link = f"{SITE_URL}/panier?recover={cart.get('cart_id', '')}"
         html = get_abandoned_cart_template(name, items, total, recovery_link)
         
         result = await send_email_async(
@@ -3610,7 +3610,7 @@ async def process_post_purchase_reviews():
                         Votre avis aide les autres clients à faire leur choix et nous permet d'améliorer nos services.
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://groupeyamaplus.com/order/{order.get('order_id')}#review" 
+                        <a href="{SITE_URL}/order/{order.get('order_id')}#review" 
                            style="display: inline-block; padding: 15px 40px; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                             Donner mon avis →
                         </a>
@@ -3704,7 +3704,7 @@ async def process_vip_customer_rewards():
                         Valable 14 jours • Minimum d'achat: 50 000 FCFA
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://groupeyamaplus.com" 
+                        <a href="{SITE_URL}" 
                            style="display: inline-block; padding: 15px 40px; background: #FFD700; color: #1a1a1a; text-decoration: none; border-radius: 8px; font-weight: 600;">
                             Profiter de mon avantage VIP →
                         </a>
@@ -3806,7 +3806,7 @@ async def process_winback_campaign():
                         ⏰ Offre valable 7 jours seulement !
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://groupeyamaplus.com" 
+                        <a href="{SITE_URL}" 
                            style="display: inline-block; padding: 15px 40px; background: #00A651; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                             Revenir sur YAMA+ →
                         </a>
@@ -3884,7 +3884,7 @@ async def process_wishlist_reminders():
                         {items_html}
                     </div>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://groupeyamaplus.com/wishlist" 
+                        <a href="{SITE_URL}/wishlist" 
                            style="display: inline-block; padding: 15px 40px; background: #FF6B6B; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                             Voir mes favoris →
                         </a>
@@ -3951,7 +3951,7 @@ async def process_order_tracking_updates():
                         📅 Livraison prévue : <strong>Sous 24-48h</strong>
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://groupeyamaplus.com/order/{order.get('order_id')}" 
+                        <a href="{SITE_URL}/order/{order.get('order_id')}" 
                            style="display: inline-block; padding: 15px 40px; background: #4CAF50; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                             Suivre ma commande →
                         </a>
@@ -4359,7 +4359,7 @@ async def send_newsletter_welcome_email(email: str, name: str = ""):
     <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
         <tr>
             <td style="background-color: #1a1a1a; padding: 15px 30px; border-radius: 8px;">
-                <a href="https://groupeyamaplus.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                <a href="{SITE_URL}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
                     Découvrir nos produits →
                 </a>
             </td>
@@ -4382,7 +4382,7 @@ async def send_shipping_email(email: str, order_id: str, tracking_info: str = ""
     <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
         <tr>
             <td style="background-color: #00A651; padding: 15px 30px; border-radius: 8px;">
-                <a href="https://groupeyamaplus.com/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                <a href="{SITE_URL}/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
                     Suivre mon colis →
                 </a>
             </td>
@@ -4524,7 +4524,7 @@ async def send_order_status_update_email(email: str, order_id: str, new_status: 
     <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
         <tr>
             <td style="background-color: {status_info['color']}; padding: 15px 30px; border-radius: 8px;">
-                <a href="https://groupeyamaplus.com/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
+                <a href="{SITE_URL}/order/{order_id}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
                     Voir ma commande →
                 </a>
             </td>
@@ -6277,7 +6277,7 @@ async def get_categories():
 @api_router.get("/sitemap.xml")
 async def get_sitemap():
     """Generate dynamic sitemap.xml"""
-    base_url = "https://groupeyamaplus.com"
+    base_url = "{SITE_URL}"
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     
     # Static pages
