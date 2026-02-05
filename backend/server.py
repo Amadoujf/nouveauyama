@@ -3343,6 +3343,8 @@ async def send_order_confirmation_email(order: dict):
                 html=html
             )
             logger.info(f"Order confirmation email sent (without invoice) for {order['order_id']}")
+        except Exception as e2:
+            logger.error(f"Fallback email also failed: {str(e2)}")
 
 async def send_shipping_update_email(order: dict, new_status: str):
     """Send shipping status update email"""
