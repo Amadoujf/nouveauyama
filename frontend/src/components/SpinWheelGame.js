@@ -315,18 +315,18 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                   onClick={handleSpin}
                   disabled={loading || (eligibility && !eligibility.can_spin && eligibility.is_subscribed)}
                   className={cn(
-                    "w-full py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2",
+                    "w-full py-4 rounded-2xl font-bold text-white text-lg transition-all flex items-center justify-center gap-3 shadow-lg",
                     loading || (eligibility && !eligibility.can_spin && eligibility.is_subscribed)
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
+                      : "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                   )}
                 >
                   {loading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
                     <>
-                      <Gift className="w-5 h-5" />
-                      Tourner la roue !
+                      <Gift className="w-6 h-6" />
+                      TOURNER LA ROUE !
                     </>
                   )}
                 </button>
