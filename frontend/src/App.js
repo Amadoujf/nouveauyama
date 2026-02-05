@@ -13,6 +13,7 @@ import NewsletterPopup from "./components/NewsletterPopup";
 import GameFloatingButton from "./components/GameFloatingButton";
 import WhatsAppButton from "./components/WhatsAppButton";
 import LiveChatWidget from "./components/LiveChatWidget";
+import PushNotificationPrompt from "./components/PushNotificationPrompt";
 import { CompareFloatingBar } from "./components/ProductComparison";
 
 import HomePage from "./pages/HomePage";
