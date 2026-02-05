@@ -418,10 +418,12 @@ class OrderItem(BaseModel):
 
 class ShippingAddress(BaseModel):
     full_name: str
+    email: EmailStr
     phone: str
     address: str
     city: str
     region: str
+    neighborhood: Optional[str] = None
     notes: Optional[str] = None
 
 class OrderCreate(BaseModel):
