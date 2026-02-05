@@ -280,10 +280,12 @@ export default function CheckoutPage() {
         })),
         shipping: {
           full_name: formData.full_name,
+          email: formData.email,
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
           region: formData.region,
+          neighborhood: formData.neighborhood || null,
           notes: formData.notes,
         },
         payment_method: formData.payment_method,
