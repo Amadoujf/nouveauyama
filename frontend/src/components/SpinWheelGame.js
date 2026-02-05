@@ -333,15 +333,25 @@ export default function SpinWheelGame({ isOpen, onClose }) {
 
                 {/* Prizes preview */}
                 <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10">
-                  <p className="text-sm text-center text-muted-foreground mb-3">Prix à gagner</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">-5%</span>
-                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">-10%</span>
-                    <span className="px-3 py-1 bg-violet-100 dark:bg-violet-800 rounded-full text-xs text-violet-700 dark:text-violet-200">-15%</span>
-                    <span className="px-3 py-1 bg-amber-100 dark:bg-amber-800 rounded-full text-xs text-amber-700 dark:text-amber-200">-20%</span>
-                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs flex items-center gap-1">
-                      <Truck className="w-3 h-3" /> Livraison gratuite
-                    </span>
+                  <p className="text-sm text-center font-semibold text-foreground mb-4">🎁 Prix à gagner</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30 rounded-xl p-3 text-center">
+                      <span className="text-lg font-bold text-teal-600 dark:text-teal-400">-5%</span>
+                    </div>
+                    <div className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 rounded-xl p-3 text-center">
+                      <span className="text-lg font-bold text-violet-600 dark:text-violet-400">-10%</span>
+                    </div>
+                    <div className="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/30 dark:to-rose-900/30 rounded-xl p-3 text-center">
+                      <span className="text-lg font-bold text-pink-600 dark:text-pink-400">-15%</span>
+                    </div>
+                    <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 rounded-xl p-3 text-center col-span-1">
+                      <span className="text-lg font-bold text-orange-600 dark:text-orange-400">-20%</span>
+                      <p className="text-[10px] text-orange-500">JACKPOT</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl p-3 text-center col-span-2 flex items-center justify-center gap-2">
+                      <Truck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">Livraison gratuite</span>
+                    </div>
                   </div>
                 </div>
               </div>
