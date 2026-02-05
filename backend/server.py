@@ -44,7 +44,8 @@ load_dotenv(ROOT_DIR / '.env')
 
 # MailerSend configuration
 MAILERSEND_API_KEY = os.environ.get("MAILERSEND_API_KEY")
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@groupeyamaplus.com")
+MAILERSEND_FROM_EMAIL = os.environ.get("MAILERSEND_FROM_EMAIL", "noreply@groupeyamaplus.com")
+MAILERSEND_FROM_NAME = os.environ.get("MAILERSEND_FROM_NAME", "GROUPE YAMA+")
 
 # Initialize MailerSend client
 mailersend_client = MailerSendClient(api_key=MAILERSEND_API_KEY) if MAILERSEND_API_KEY else None
