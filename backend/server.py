@@ -6226,6 +6226,160 @@ async def seed_database():
     
     return {"message": "Base de données initialisée", "products": total_products, "flash_sales": len(flash_sale_updates)}
 
+# ============== APPOINTMENT BOOKING SYSTEM ==============
+
+class AppointmentRequest(BaseModel):
+    product_id: Optional[str] = None
+    product_name: Optional[str] = None
+    category: Optional[str] = None
+    name: str
+    email: EmailStr
+    phone: str
+    preferred_date: str  # ISO date string
+    preferred_time: str  # HH:MM format
+    message: Optional[str] = None
+    contact_method: str = "whatsapp"  # whatsapp or email
+
+@api_router.post("/appointments")
+async def create_appointment(data: AppointmentRequest):
+    """Create a visit appointment request"""
+    appointment_id = f"rdv_{uuid.uuid4().hex[:10]}"
+    now = datetime.now(timezone.utc)
+    
+    appointment_doc = {
+        "appointment_id": appointment_id,
+        "product_id": data.product_id,
+        "product_name": data.product_name,
+        "category": data.category,
+        "customer": {
+            "name": data.name,
+            "email": data.email,
+            "phone": data.phone
+        },
+        "preferred_date": data.preferred_date,
+        "preferred_time": data.preferred_time,
+        "message": data.message,
+        "contact_method": data.contact_method,
+        "status": "pending",  # pending, confirmed, completed, cancelled
+        "confirmed_date": None,
+        "confirmed_time": None,
+        "location": None,
+        "created_at": now.isoformat(),
+        "updated_at": now.isoformat()
+    }
+    
+    await db.appointments.insert_one(appointment_doc)
+    
+    # Send notification email to admin
+    admin_html = f"""
+    <h2>🗓️ Nouvelle demande de rendez-vous</h2>
+    <p><strong>Client:</strong> {data.name}</p>
+    <p><strong>Téléphone:</strong> {data.phone}</p>
+    <p><strong>Email:</strong> {data.email}</p>
+    <p><strong>Date souhaitée:</strong> {data.preferred_date} à {data.preferred_time}</p>
+    <p><strong>Produit:</strong> {data.product_name or 'Non spécifié'}</p>
+    <p><strong>Catégorie:</strong> {data.category or 'Non spécifiée'}</p>
+    <p><strong>Contact préféré:</strong> {data.contact_method}</p>
+    <p><strong>Message:</strong> {data.message or 'Aucun'}</p>
+    <hr/>
+    <p>Connectez-vous à l'admin pour confirmer ce rendez-vous.</p>
+    """
+    
+    # Send to admin
+    asyncio.create_task(send_email_async(
+        to=ADMIN_NOTIFICATION_EMAIL,
+        subject=f"🗓️ Nouveau RDV - {data.name} - {data.preferred_date}",
+        html=get_email_template(admin_html, "Nouvelle demande de rendez-vous")
+    ))
+    
+    # Send confirmation to customer
+    customer_html = f"""
+    <h2>Demande de rendez-vous reçue !</h2>
+    <p>Bonjour {data.name},</p>
+    <p>Nous avons bien reçu votre demande de visite pour le <strong>{data.preferred_date}</strong> à <strong>{data.preferred_time}</strong>.</p>
+    <p>Notre équipe vous contactera très bientôt par {'WhatsApp' if data.contact_method == 'whatsapp' else 'email'} pour confirmer le rendez-vous et vous communiquer l'adresse.</p>
+    <div style="background: #f8f8f8; padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <p style="margin: 0;"><strong>Numéro de demande:</strong> {appointment_id}</p>
+    </div>
+    <p>À très bientôt !</p>
+    """
+    
+    asyncio.create_task(send_email_async(
+        to=data.email,
+        subject="📅 Demande de rendez-vous reçue - GROUPE YAMA+",
+        html=get_email_template(customer_html, "Confirmation de demande")
+    ))
+    
+    return {"message": "Demande de rendez-vous envoyée", "appointment_id": appointment_id}
+
+@api_router.get("/admin/appointments")
+async def get_appointments(
+    status: Optional[str] = None,
+    limit: int = 50,
+    user: User = Depends(require_admin)
+):
+    """Get all appointments for admin"""
+    query = {}
+    if status:
+        query["status"] = status
+    
+    appointments = await db.appointments.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    return appointments
+
+@api_router.put("/admin/appointments/{appointment_id}")
+async def update_appointment(
+    appointment_id: str,
+    status: str,
+    confirmed_date: Optional[str] = None,
+    confirmed_time: Optional[str] = None,
+    location: Optional[str] = None,
+    user: User = Depends(require_admin)
+):
+    """Update appointment status"""
+    appointment = await db.appointments.find_one({"appointment_id": appointment_id})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Rendez-vous non trouvé")
+    
+    update_data = {
+        "status": status,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    if confirmed_date:
+        update_data["confirmed_date"] = confirmed_date
+    if confirmed_time:
+        update_data["confirmed_time"] = confirmed_time
+    if location:
+        update_data["location"] = location
+    
+    await db.appointments.update_one(
+        {"appointment_id": appointment_id},
+        {"$set": update_data}
+    )
+    
+    # If confirmed, send email to customer
+    if status == "confirmed" and confirmed_date:
+        customer = appointment.get("customer", {})
+        html = f"""
+        <h2>✅ Rendez-vous confirmé !</h2>
+        <p>Bonjour {customer.get('name', '')},</p>
+        <p>Votre rendez-vous a été confirmé !</p>
+        <div style="background: #d4edda; padding: 20px; border-radius: 12px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0;"><strong>📅 Date:</strong> {confirmed_date}</p>
+            <p style="margin: 0 0 10px 0;"><strong>🕐 Heure:</strong> {confirmed_time}</p>
+            <p style="margin: 0;"><strong>📍 Adresse:</strong> {location or 'Sera communiquée par WhatsApp'}</p>
+        </div>
+        <p>Nous avons hâte de vous accueillir !</p>
+        """
+        
+        asyncio.create_task(send_email_async(
+            to=customer.get('email', ''),
+            subject="✅ Rendez-vous confirmé - GROUPE YAMA+",
+            html=get_email_template(html, "Rendez-vous confirmé")
+        ))
+    
+    return {"message": "Rendez-vous mis à jour"}
+
 # ============== BLOG ROUTES ==============
 
 class BlogPostCreate(BaseModel):
