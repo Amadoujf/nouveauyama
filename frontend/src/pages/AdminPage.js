@@ -380,6 +380,13 @@ export default function AdminPage() {
       if (currentPage === "admin" || currentPage === "") {
         const response = await axios.get(`${API_URL}/api/admin/stats`, { headers });
         setStats(response.data);
+        // Fetch appointment stats for dashboard
+        try {
+          const appointmentStatsRes = await axios.get(`${API_URL}/api/admin/appointments/stats`, { headers });
+          setAppointmentStats(appointmentStatsRes.data);
+        } catch (e) {
+          console.log("Appointments stats not available");
+        }
       }
 
       if (currentPage === "products" || currentPage === "admin") {
@@ -399,6 +406,13 @@ export default function AdminPage() {
         // Handle both array and object response formats
         const usersData = Array.isArray(response.data) ? response.data : (response.data.users || []);
         setUsers(usersData);
+      }
+
+      if (currentPage === "appointments") {
+        const response = await axios.get(`${API_URL}/api/admin/appointments`, { headers });
+        setAppointments(Array.isArray(response.data) ? response.data : []);
+        const statsRes = await axios.get(`${API_URL}/api/admin/appointments/stats`, { headers });
+        setAppointmentStats(statsRes.data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
