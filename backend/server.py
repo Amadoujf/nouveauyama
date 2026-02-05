@@ -49,8 +49,8 @@ SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "noreply@groupeyamaplus.com")
 # Initialize MailerSend client
 mailersend_client = MailerSendClient(api_key=MAILERSEND_API_KEY) if MAILERSEND_API_KEY else None
 
-async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_content: str, text_content: str = None):
-    """Send email using MailerSend API"""
+async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_content: str, text_content: str = None, attachment_content: bytes = None, attachment_filename: str = None):
+    """Send email using MailerSend API with optional attachment"""
     if not mailersend_client:
         logger.warning("MailerSend not configured - skipping email")
         return {"success": False, "error": "MailerSend not configured"}
@@ -65,6 +65,12 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         )
         if text_content:
             email_builder.text(text_content)
+        
+        # Add attachment if provided
+        if attachment_content and attachment_filename:
+            import base64
+            encoded_content = base64.b64encode(attachment_content).decode('utf-8')
+            email_builder.attachment(encoded_content, attachment_filename, "attachment")
         
         # Build the email request
         email_request = email_builder.build()
