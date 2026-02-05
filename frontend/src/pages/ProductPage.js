@@ -708,6 +708,13 @@ export default function ProductPage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Appointment Modal */}
+      <AppointmentModal
+        isOpen={showAppointmentModal}
+        onClose={() => setShowAppointmentModal(false)}
+        product={product}
+      />
     </main>
   );
 }
