@@ -58,6 +58,7 @@ const menuItems = [
   { id: "products", label: "Produits", icon: Package, href: "/admin/products" },
   { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
+  { id: "appointments", label: "Rendez-vous", icon: Clock, href: "/admin/appointments" },
   { id: "users", label: "Utilisateurs", icon: Users, href: "/admin/users" },
   { id: "promo-codes", label: "Codes Promo", icon: Tag, href: "/admin/promo-codes" },
   { id: "abandoned-carts", label: "Paniers abandonnés", icon: ShoppingBag, href: "/admin/abandoned-carts" },
@@ -496,13 +497,14 @@ export default function AdminPage() {
       const headers = { Authorization: `Bearer ${token}` };
       await axios.put(
         `${API_URL}/api/admin/orders/${orderId}/status`,
-        { status: newStatus },
+        { order_status: newStatus },
         { headers }
       );
-      toast.success("Statut mis à jour");
+      toast.success("Statut mis à jour avec succès");
       fetchData();
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour");
+      console.error("Error updating order status:", error);
+      toast.error("Erreur lors de la mise à jour du statut");
     }
   };
 
