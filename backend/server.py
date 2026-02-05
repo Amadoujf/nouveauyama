@@ -3506,7 +3506,7 @@ async def send_shipping_update_email(order: dict, new_status: str):
     logger.info(f"Shipping update email sent for {order['order_id']} - Status: {new_status}")
 
 async def send_welcome_email(user: dict):
-    """Send welcome email to new user"""
+    """Send welcome email to new user and add to MailerLite"""
     promo_code = f"BIENVENUE{secrets.token_hex(3).upper()}"
     
     # Save promo code
@@ -3521,6 +3521,7 @@ async def send_welcome_email(user: dict):
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
+    # Send transactional welcome email via MailerSend
     html = get_welcome_template(user.get("name", "Client"), promo_code)
     await send_email_async(
         to=user["email"],
@@ -3528,6 +3529,17 @@ async def send_welcome_email(user: dict):
         html=html
     )
     logger.info(f"Welcome email sent to {user['email']}")
+    
+    # Add to MailerLite welcome flow for marketing automation
+    if MAILERLITE_API_KEY:
+        try:
+            await mailerlite_service.add_to_welcome_flow(
+                email=user["email"],
+                name=user.get("name", "")
+            )
+            logger.info(f"Added {user['email']} to MailerLite welcome flow")
+        except Exception as e:
+            logger.error(f"Failed to add user to MailerLite: {str(e)}")
 
 async def process_abandoned_carts():
     """Process and send abandoned cart emails"""
