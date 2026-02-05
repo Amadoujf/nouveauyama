@@ -13,55 +13,42 @@ Créer une plateforme e-commerce premium et minimaliste nommée "YAMA+" pour le 
 - **Backend**: FastAPI (Python), APScheduler
 - **Database**: MongoDB
 - **Authentication**: JWT + Emergent Google Auth
-- **Email Service**: MailerSend
+- **Email Service**: MailerSend (transactionnel) + MailerLite (marketing)
 
 ---
 
-## Session: February 5, 2025 - Completed Work
+## Session: February 5, 2026 - Completed Work
 
-### ✅ Critical Bugs Fixed
+### ✅ Bug Fixes Implemented
 
-1. **Bug: Impossible d'ajouter un produit au panier** - CORRIGÉ
-   - Cause: CORS bloquait les requêtes avec `withCredentials: true` et `allow_origins=["*"]`
-   - Solution: CartContext utilise maintenant `localStorage` + header `X-Cart-Session` au lieu des cookies
-   - Files: `/app/frontend/src/contexts/CartContext.js`, `/app/frontend/src/contexts/AuthContext.js`
+1. **Password Reset Flow - FIXED**
+   - Added `SITE_URL` to backend/.env pointing to preview URL
+   - Reset emails now contain correct links
+   - Token expires in 1 hour as expected
 
-2. **Bug: Email de bienvenue non fonctionnel** - CORRIGÉ
-   - Cause: Deux fonctions `send_welcome_email` avec signatures différentes (conflit de noms)
-   - Solution: Renommée la fonction newsletter en `send_newsletter_welcome_email`
-   - File: `/app/backend/server.py`
+2. **Profile Update - NEW FEATURE**
+   - Added `PUT /api/auth/profile` endpoint
+   - Users can update their name and phone
+   - Frontend AccountPage.js now has edit/save buttons
 
-3. **Bug: Navigation catégories** - VÉRIFIÉ FONCTIONNEL
+3. **Phone Field in Auth APIs - FIXED**
+   - `POST /api/auth/login` now returns phone
+   - `POST /api/auth/register` now returns phone
+   - `GET /api/auth/me` now returns phone
 
-### ✅ Email Marketing Workflows Implemented (6 workflows)
+4. **MailerLite Integration - ENHANCED**
+   - Service upgraded with multiple workflow groups support
+   - Groups: abandoned_cart, welcome, post_purchase, vip, winback, wishlist, etc.
+   - Auto-add to welcome flow on registration
+   - Auto-add to post-purchase flow on order completion
+   - Admin endpoint: `GET /api/admin/mailerlite/groups`
 
-1. **Panier Abandonné** - Email automatique 1h après abandon
-2. **Demande d'Avis Post-Achat** - Email 3 jours après livraison
-3. **Récompenses VIP** - Code -20% pour clients ayant dépensé +500k FCFA/mois
-4. **Reconquête Client (Winback)** - Code -15% pour clients inactifs 60+ jours
-5. **Rappel Favoris (Wishlist)** - Rappel tous les 3 jours
-6. **Suivi de Commande** - Notification d'expédition automatique
-
-API Endpoints:
-- `GET /api/admin/email/workflows` - Liste des workflows
-- `POST /api/admin/email/workflows/{id}/run` - Déclencher un workflow manuellement
-- `GET /api/admin/email/stats` - Statistiques email marketing
-
-### ✅ UI Improvements
-
-1. **Roue de la Fortune** - Nouvelle UI avec couleurs vibrantes
-   - Dégradé orange/rose/violet dans le header
-   - Badge "100% Gagnant !"
-   - Nouvelles couleurs pour les segments: teal, violet, pink, amber, orange, blue, emerald
-   - Grille de prix améliorée
-   - File: `/app/frontend/src/components/SpinWheelGame.js`
-
-2. **Page de Connexion** - Bouton Apple Sign-In ajouté (placeholder)
-   - Bouton désactivé avec tooltip "Bientôt disponible"
-   - File: `/app/frontend/src/pages/LoginPage.js`
-
-3. **Catégorie renommée**: "Beauté" → "Accessoires mode et beauté"
-   - Files: `/app/frontend/src/components/Navbar.js`, `/app/frontend/src/components/Footer.js`
+### ✅ Previous Session Fixes (Still Working)
+- Cart uses localStorage + X-Cart-Session header (no more CORS issues)
+- Welcome email function name conflict resolved
+- Order confirmation with PDF invoice attachment
+- Fortune Wheel responsive design
+- Login page with logo and slogan
 
 ---
 
@@ -76,53 +63,62 @@ API Endpoints:
 2. **PayTech** - Mode test uniquement
    - Action: Contacter PayTech pour activer le mode production
 
-3. **Apple Sign-In** - Configuration Apple Developer requise
-   - Action: L'utilisateur doit créer un App ID, Service ID, et Private Key
-   - Prérequis: Compte Apple Developer ($99/an)
+3. **URLs Réseaux Sociaux** - En attente
+   - TikTok et Snapchat: Icônes présentes dans Footer.js, URLs placeholder
+   - Action: L'utilisateur doit fournir les URLs de ses profils
 
-4. **URLs Réseaux Sociaux** - En attente
-   - TikTok et Snapchat: Icônes présentes, URLs à fournir
-
-5. **Google OAuth** - Nouveaux identifiants à appliquer
-   - Action: Fournir le nouveau Client ID et Secret
+4. **Google OAuth - Test en webview**
+   - Le `disallowed_useragent` error survient quand on teste depuis l'app Emergent
+   - Action: Tester dans un navigateur standard (Chrome/Safari) pas en webview
 
 ---
 
 ## Upcoming Tasks
 
-### P0 - Immediate
-- [ ] Configurer URLs TikTok/Snapchat dans le footer
-- [ ] Mettre à jour Google OAuth avec nouveaux identifiants
-
 ### P1 - High Priority
-- [ ] Apple Sign-In - Implémenter quand l'utilisateur fournit les identifiants Apple Developer
-- [ ] Web Push Notifications
+- [ ] Finaliser le système de rendez-vous (appointment booking)
+- [ ] Configurer les URLs TikTok/Snapchat dans le footer
+- [ ] Tester le flux complet de réinitialisation de mot de passe côté utilisateur
 
 ### P2 - Medium Priority
-- [ ] Cartes cadeaux
-- [ ] Bundles produits
+- [ ] Web Push Notifications
 - [ ] WhatsApp Business notifications
 - [ ] Avis clients avec photos
+
+### P3 - Future
+- [ ] Cartes cadeaux
+- [ ] Bundles produits
+- [ ] Exit-intent popup newsletter
 
 ---
 
 ## Key API Endpoints
 
-### Cart (Updated)
+### Authentication
+- `POST /api/auth/register` - Inscription (retourne phone)
+- `POST /api/auth/login` - Connexion (retourne phone)
+- `GET /api/auth/me` - Profil utilisateur (retourne phone)
+- `PUT /api/auth/profile` - **NEW** Mise à jour profil (name, phone)
+- `POST /api/auth/forgot-password` - Demande réinitialisation
+- `POST /api/auth/reset-password` - Réinitialisation avec token
+
+### Cart (localStorage-based)
 - Header: `X-Cart-Session` (stocké dans localStorage)
 - `GET /api/cart`
 - `POST /api/cart/add`
 - `PUT /api/cart/update`
 - `DELETE /api/cart/remove/{product_id}`
 
-### Email Marketing (New)
-- `GET /api/admin/email/workflows`
-- `POST /api/admin/email/workflows/{workflow_id}/run`
-- `GET /api/admin/email/stats`
+### Email Marketing
+- `GET /api/admin/email/workflows` - Liste des workflows
+- `POST /api/admin/email/workflows/{workflow_id}/run` - Déclencher workflow
+- `GET /api/admin/email/stats` - Statistiques
+- `GET /api/admin/mailerlite/groups` - **NEW** Groupes MailerLite
 
-### Appointments
-- `POST /api/appointments`
-- `GET /api/admin/appointments`
+### Orders
+- `POST /api/orders` - Créer commande (envoie email + facture PDF)
+- `GET /api/orders/{order_id}` - Détails commande (public)
+- `GET /api/orders/{order_id}/invoice` - Télécharger facture PDF
 
 ---
 
@@ -130,14 +126,21 @@ API Endpoints:
 - **Admin**: admin@yama.sn / admin123
 
 ## Test Reports
-- `/app/test_reports/iteration_14.json` - All tests passed
+- `/app/test_reports/iteration_15.json` - All tests passed (100%)
 
 ---
 
 ## Project Health
-- **Working**: E-commerce complet, panier, checkout, authentification, blog, rendez-vous
+- **Working**: E-commerce complet, panier, checkout, authentification, blog, profil
 - **Mocked**: PayTech (mode test), Live Chat (auto-réponses)
-- **External Limitations**: MailerSend (trial mode)
+- **External Limitations**: MailerSend (trial mode), Google OAuth (webview blocked)
 
 ---
-*Last updated: February 5, 2025*
+
+## Architecture Notes
+- `server.py` est volumineux (~7600 lignes) - Refactoring recommandé
+- MailerLite service supporte multiples groupes d'automation
+- Frontend utilise Sonner pour les toasts
+
+---
+*Last updated: February 5, 2026*
