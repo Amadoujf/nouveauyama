@@ -3301,20 +3301,48 @@ async def reset_password(data: PasswordResetConfirm):
 # ============== AUTOMATED EMAIL TRIGGERS ==============
 
 async def send_order_confirmation_email(order: dict):
-    """Send order confirmation email with invoice"""
+    """Send order confirmation email with invoice PDF attached"""
     # Get email from shipping object
     email = order.get("shipping", {}).get("email")
     if not email:
         logger.warning(f"No email found for order {order.get('order_id')}")
         return
     
-    html = get_order_confirmation_template(order)
-    await send_email_async(
-        to=email,
-        subject=f"✅ Commande {order['order_id']} confirmée - YAMA+",
-        html=html
-    )
-    logger.info(f"Order confirmation email sent for {order['order_id']}")
+    try:
+        # Generate invoice PDF
+        pdf_buffer = generate_invoice_pdf(order)
+        pdf_content = pdf_buffer.getvalue()
+        pdf_filename = f"facture_{order.get('order_id', 'commande')}.pdf"
+        
+        # Build email content
+        html = get_order_confirmation_template(order)
+        
+        # Send email with PDF attachment
+        result = await send_email_mailersend(
+            to_email=email,
+            to_name=order.get("shipping", {}).get("full_name", ""),
+            subject=f"✅ Commande {order['order_id']} confirmée - Facture jointe - YAMA+",
+            html_content=html,
+            attachment_content=pdf_content,
+            attachment_filename=pdf_filename
+        )
+        
+        if result.get("success"):
+            logger.info(f"Order confirmation email with invoice sent for {order['order_id']}")
+        else:
+            logger.error(f"Failed to send order confirmation email: {result.get('error')}")
+            
+    except Exception as e:
+        logger.error(f"Error sending order confirmation email for {order.get('order_id')}: {str(e)}")
+        # Try sending without attachment as fallback
+        try:
+            html = get_order_confirmation_template(order)
+            await send_email_async(
+                to=email,
+                subject=f"✅ Commande {order['order_id']} confirmée - YAMA+",
+                html=html
+            )
+            logger.info(f"Order confirmation email sent (without invoice) for {order['order_id']}")
 
 async def send_shipping_update_email(order: dict, new_status: str):
     """Send shipping status update email"""
