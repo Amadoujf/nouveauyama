@@ -524,6 +524,28 @@ export default function AdminPage() {
     }
   };
 
+  const handleAppointmentUpdate = async (appointmentId, status, extraData = {}) => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.put(
+        `${API_URL}/api/admin/appointments/${appointmentId}`,
+        { status, ...extraData },
+        { headers }
+      );
+      toast.success("Rendez-vous mis à jour");
+      
+      // If WhatsApp link is returned, open it
+      if (response.data.whatsapp_link) {
+        window.open(response.data.whatsapp_link, '_blank');
+      }
+      
+      fetchData();
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
   // Filter products by search
   const filteredProducts = products.filter(
     (p) =>
