@@ -167,7 +167,7 @@ export default function LiveChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 left-6 z-[80] w-[360px] h-[500px] max-h-[80vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
+            className="fixed bottom-4 left-4 right-4 sm:right-auto sm:w-[360px] z-[80] h-[450px] max-h-[70vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 flex items-center justify-between">
