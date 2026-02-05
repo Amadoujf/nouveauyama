@@ -418,6 +418,18 @@ export default function ProductPage() {
                   <Heart className={cn("w-5 h-5", inWishlist && "fill-current")} />
                   {inWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
                 </button>
+
+                {/* Appointment Button for large items */}
+                {APPOINTMENT_CATEGORIES.includes(product.category?.toLowerCase()) && (
+                  <button
+                    onClick={() => setShowAppointmentModal(true)}
+                    className="btn-secondary w-full justify-center py-4 text-base bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
+                    data-testid="appointment-btn"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Prendre rendez-vous pour une visite
+                  </button>
+                )}
               </div>
 
               {/* Trust Badges */}
