@@ -4252,6 +4252,19 @@ async def get_email_marketing_stats(user: User = Depends(require_admin)):
     
     return stats
 
+@api_router.get("/admin/mailerlite/groups")
+async def get_mailerlite_groups(user: User = Depends(require_admin)):
+    """Get all MailerLite groups and their subscriber counts"""
+    if not MAILERLITE_API_KEY:
+        return {"error": "MailerLite not configured", "groups": []}
+    
+    try:
+        groups = await mailerlite_service.get_all_groups()
+        return {"groups": groups}
+    except Exception as e:
+        logger.error(f"Error fetching MailerLite groups: {str(e)}")
+        return {"error": str(e), "groups": []}
+
 @api_router.post("/admin/email/send")
 async def send_single_email(data: SingleEmailRequest, user: User = Depends(require_admin)):
     """Send a single email"""
