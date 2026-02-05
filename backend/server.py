@@ -5928,6 +5928,24 @@ async def update_order_status(
             if shipping_email:
                 asyncio.create_task(send_order_status_update_email(shipping_email, order_id, order_status, note))
     
+    # Send push notification to customer about status update
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if order and order.get("user_id"):
+        status_messages = {
+            "processing": ("📦 Commande en préparation", f"Votre commande #{order_id} est en cours de préparation."),
+            "shipped": ("🚚 Commande expédiée", f"Votre commande #{order_id} est en route !"),
+            "delivered": ("✅ Commande livrée", f"Votre commande #{order_id} a été livrée. Merci !"),
+            "cancelled": ("❌ Commande annulée", f"Votre commande #{order_id} a été annulée.")
+        }
+        if order_status in status_messages:
+            title, body = status_messages[order_status]
+            asyncio.create_task(send_push_to_user(
+                order.get("user_id"),
+                title,
+                body,
+                f"{SITE_URL}/order/{order_id}"
+            ))
+    
     return {"message": "Statut mis à jour"}
 
 # ============== INVOICE GENERATION ==============
