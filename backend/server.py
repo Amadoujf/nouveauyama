@@ -4332,63 +4332,6 @@ async def send_newsletter_welcome_email(email: str, name: str = ""):
     html = get_email_template(content)
     await send_email_async(email, "Bienvenue chez GROUPE YAMA+ ! 🎉", html)
 
-async def send_order_confirmation_email(email: str, order: dict):
-    """Send order confirmation email"""
-    items_html = ""
-    for item in order.get("items", []):
-        items_html += f"""
-        <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                {item.get('name', 'Produit')} × {item.get('quantity', 1)}
-            </td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">
-                {item.get('price', 0):,} FCFA
-            </td>
-        </tr>
-        """
-    
-    content = f"""
-    <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">Commande confirmée ! ✅</h2>
-    <p style="color: #333; line-height: 1.6; margin: 0 0 15px 0;">
-        Merci pour votre commande <strong>#{order.get('order_id', '')}</strong>
-    </p>
-    <p style="color: #666; margin: 0 0 25px 0;">
-        Nous préparons votre colis avec soin. Vous recevrez un email quand il sera expédié.
-    </p>
-    
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px;">
-        <thead>
-            <tr>
-                <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #1a1a1a;">Article</th>
-                <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #1a1a1a;">Prix</th>
-            </tr>
-        </thead>
-        <tbody>
-            {items_html}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td style="padding: 15px 0; font-weight: bold;">Total</td>
-                <td style="padding: 15px 0; text-align: right; font-weight: bold; font-size: 18px;">
-                    {order.get('total', 0):,} FCFA
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    
-    <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-        <tr>
-            <td style="background-color: #1a1a1a; padding: 15px 30px; border-radius: 8px;">
-                <a href="https://groupeyamaplus.com/order/{order.get('order_id', '')}" style="color: #ffffff; text-decoration: none; font-weight: 600;">
-                    Suivre ma commande →
-                </a>
-            </td>
-        </tr>
-    </table>
-    """
-    html = get_email_template(content)
-    await send_email_async(email, f"Commande #{order.get('order_id', '')} confirmée ✅", html)
-
 async def send_shipping_email(email: str, order_id: str, tracking_info: str = ""):
     """Send shipping notification email"""
     content = f"""
