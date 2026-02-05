@@ -1219,6 +1219,8 @@ export default function AdminPage() {
         return renderOrders();
       case "users":
         return renderUsers();
+      case "appointments":
+        return renderAppointments();
       case "analytics":
         return <AnalyticsDashboard />;
       case "flash-sales":
