@@ -225,31 +225,42 @@ export default function SpinWheelGame({ isOpen, onClose }) {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-6 text-center">
+          <div className="relative bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600 text-white p-8 text-center overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-4 left-4 w-20 h-20 bg-white rounded-full blur-xl" />
+              <div className="absolute bottom-4 right-4 w-32 h-32 bg-yellow-300 rounded-full blur-2xl" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-pink-300 rounded-full blur-3xl" />
+            </div>
+            
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors z-10"
             >
               <X className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-3xl">🎁</span>
-              <Gift className="w-8 h-8" />
-              <span className="text-3xl">✨</span>
-            </div>
-            <h2 className="text-2xl font-bold">Roue de la Fortune</h2>
-            <p className="text-white/80 text-sm mt-1">
-              Tentez votre chance et gagnez des réductions !
-            </p>
-            
-            {gameConfig && (
-              <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  🎯 Jouez maintenant
-                </span>
+            <div className="relative z-10">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <span className="text-4xl animate-bounce">🎁</span>
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <Gift className="w-8 h-8" />
+                </div>
+                <span className="text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>✨</span>
               </div>
-            )}
+              <h2 className="text-3xl font-black tracking-tight">ROUE DE LA FORTUNE</h2>
+              <p className="text-white/90 text-base mt-2 font-medium">
+                Tentez votre chance et gagnez des réductions incroyables !
+              </p>
+              
+              {gameConfig && (
+                <div className="mt-4 flex items-center justify-center gap-3">
+                  <span className="bg-white/25 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold animate-pulse">
+                    🎯 100% Gagnant !
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Content */}
