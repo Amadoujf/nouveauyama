@@ -2949,15 +2949,15 @@ def get_order_confirmation_template(order: dict) -> str:
     <div style="background-color: #f0f7ff; border-radius: 12px; padding: 20px; margin-top: 25px;">
         <h4 style="margin: 0 0 10px 0; color: #333;">📦 Adresse de livraison</h4>
         <p style="margin: 0; color: #666; line-height: 1.6;">
-            {order.get('shipping_address', {}).get('full_name', '')}<br>
-            {order.get('shipping_address', {}).get('address', '')}<br>
-            {order.get('shipping_address', {}).get('city', '')} - {order.get('shipping_address', {}).get('zone', '')}<br>
-            📞 {order.get('shipping_address', {}).get('phone', '')}
+            {order.get('shipping', {}).get('full_name', '')}<br>
+            {order.get('shipping', {}).get('address', '')}<br>
+            {order.get('shipping', {}).get('city', '')} - {order.get('shipping', {}).get('region', '')}<br>
+            📞 {order.get('shipping', {}).get('phone', '')}
         </p>
     </div>
     
     <div style="text-align: center; margin-top: 30px;">
-        <a href="https://groupeyamaplus.com/suivi-commande" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+        <a href="https://groupeyamaplus.com/order/{order.get('order_id', '')}" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
             Suivre ma commande
         </a>
     </div>
