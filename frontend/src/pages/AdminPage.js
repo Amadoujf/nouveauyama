@@ -651,7 +651,7 @@ export default function AdminPage() {
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatsCard
           icon={DollarSign}
           title="Chiffre d'affaires"
@@ -682,7 +682,40 @@ export default function AdminPage() {
           trend="up"
           color="bg-orange-500"
         />
+        <StatsCard
+          icon={Clock}
+          title="RDV en attente"
+          value={appointmentStats?.pending || 0}
+          color="bg-yellow-500"
+        />
       </div>
+
+      {/* Pending Appointments Alert */}
+      {appointmentStats?.pending > 0 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
+                <Clock className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-yellow-800 dark:text-yellow-200">
+                  {appointmentStats.pending} demande(s) de rendez-vous en attente
+                </p>
+                <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                  Cliquez pour les traiter
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/admin/appointments"
+              className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium text-sm"
+            >
+              Voir les RDV
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Recent Orders & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -745,18 +778,18 @@ export default function AdminPage() {
               <span className="font-medium">Gérer les commandes</span>
             </Link>
             <Link
+              to="/admin/appointments"
+              className="w-full flex items-center gap-3 p-4 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              <Clock className="w-5 h-5" />
+              <span className="font-medium">Rendez-vous</span>
+            </Link>
+            <Link
               to="/admin/flash-sales"
               className="w-full flex items-center gap-3 p-4 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               <Zap className="w-5 h-5" />
               <span className="font-medium">Ventes Flash</span>
-            </Link>
-            <Link
-              to="/admin/promo-codes"
-              className="w-full flex items-center gap-3 p-4 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-            >
-              <Tag className="w-5 h-5" />
-              <span className="font-medium">Codes Promo</span>
             </Link>
           </div>
         </div>
