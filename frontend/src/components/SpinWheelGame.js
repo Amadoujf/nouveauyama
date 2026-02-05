@@ -7,16 +7,16 @@ import confetti from 'canvas-confetti';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Wheel segments configuration - Updated without CAN
+// Wheel segments configuration - Vibrant colors
 const WHEEL_SEGMENTS = [
-  { type: "discount_5", label: "-5%", color: "#F5F5F7", textColor: "#000" },
-  { type: "discount_10", label: "-10%", color: "#8B5CF6", textColor: "#fff" },
-  { type: "free_shipping", label: "Livraison\nGratuite", color: "#F5F5F7", textColor: "#000" },
-  { type: "discount_5", label: "-5%", color: "#1C1C1E", textColor: "#fff" },
-  { type: "discount_20", label: "-20%", color: "#D4AF37", textColor: "#000" },
-  { type: "discount_5", label: "-5%", color: "#1C1C1E", textColor: "#fff" },
-  { type: "discount_15", label: "-15%", color: "#EC4899", textColor: "#fff" },
-  { type: "discount_10", label: "-10%", color: "#F5F5F7", textColor: "#000" },
+  { type: "discount_5", label: "-5%", color: "#2DD4BF", textColor: "#000", gradient: "from-teal-400 to-emerald-400" },
+  { type: "discount_10", label: "-10%", color: "#8B5CF6", textColor: "#fff", gradient: "from-violet-500 to-purple-500" },
+  { type: "free_shipping", label: "Livraison\nGratuite", color: "#F472B6", textColor: "#000", gradient: "from-pink-400 to-rose-400" },
+  { type: "discount_5", label: "-5%", color: "#FBBF24", textColor: "#000", gradient: "from-amber-400 to-yellow-400" },
+  { type: "discount_20", label: "-20%", color: "#F97316", textColor: "#fff", gradient: "from-orange-500 to-red-500" },
+  { type: "discount_5", label: "-5%", color: "#60A5FA", textColor: "#000", gradient: "from-blue-400 to-cyan-400" },
+  { type: "discount_15", label: "-15%", color: "#EC4899", textColor: "#fff", gradient: "from-pink-500 to-fuchsia-500" },
+  { type: "discount_10", label: "-10%", color: "#34D399", textColor: "#000", gradient: "from-emerald-400 to-green-400" },
 ];
 
 const SEGMENT_ANGLE = 360 / WHEEL_SEGMENTS.length;
