@@ -3935,6 +3935,122 @@ async def process_order_tracking_updates():
     except Exception as e:
         logger.error(f"Error in order tracking workflow: {e}")
 
+# ============== EMAIL MARKETING ADMIN ENDPOINTS ==============
+
+@api_router.get("/admin/email/workflows")
+async def get_email_workflows(user: User = Depends(require_admin)):
+    """Get status of all email marketing workflows"""
+    workflows = [
+        {
+            "id": "abandoned_cart",
+            "name": "Panier Abandonné",
+            "description": "Email automatique 1h après abandon du panier",
+            "frequency": "Toutes les heures",
+            "active": True
+        },
+        {
+            "id": "post_purchase_review",
+            "name": "Demande d'Avis Post-Achat",
+            "description": "Email 3 jours après livraison pour demander un avis",
+            "frequency": "Quotidien",
+            "active": True
+        },
+        {
+            "id": "vip_rewards",
+            "name": "Récompenses VIP",
+            "description": "Code -20% pour clients ayant dépensé +500k FCFA/mois",
+            "frequency": "Hebdomadaire",
+            "active": True
+        },
+        {
+            "id": "winback",
+            "name": "Reconquête Client",
+            "description": "Code -15% pour clients inactifs depuis 60+ jours",
+            "frequency": "Quotidien",
+            "active": True
+        },
+        {
+            "id": "wishlist_reminder",
+            "name": "Rappel Favoris",
+            "description": "Rappel des produits en liste de souhaits",
+            "frequency": "Tous les 3 jours",
+            "active": True
+        },
+        {
+            "id": "order_tracking",
+            "name": "Suivi de Commande",
+            "description": "Notification automatique d'expédition",
+            "frequency": "Toutes les 2 heures",
+            "active": True
+        }
+    ]
+    
+    # Get stats for each workflow
+    stats = {
+        "abandoned_cart": await db.abandoned_cart_emails.count_documents({}),
+        "vip_rewards": await db.vip_emails.count_documents({}),
+        "winback": await db.winback_emails.count_documents({})
+    }
+    
+    for w in workflows:
+        w["emails_sent"] = stats.get(w["id"], 0)
+    
+    return workflows
+
+@api_router.post("/admin/email/workflows/{workflow_id}/run")
+async def trigger_email_workflow(workflow_id: str, user: User = Depends(require_admin)):
+    """Manually trigger an email marketing workflow"""
+    workflow_map = {
+        "abandoned_cart": detect_and_process_abandoned_carts,
+        "post_purchase_review": process_post_purchase_reviews,
+        "vip_rewards": process_vip_customer_rewards,
+        "winback": process_winback_campaign,
+        "wishlist_reminder": process_wishlist_reminders,
+        "order_tracking": process_order_tracking_updates
+    }
+    
+    if workflow_id not in workflow_map:
+        raise HTTPException(status_code=404, detail="Workflow non trouvé")
+    
+    # Run the workflow
+    asyncio.create_task(workflow_map[workflow_id]())
+    
+    return {"message": f"Workflow '{workflow_id}' lancé en arrière-plan"}
+
+@api_router.get("/admin/email/stats")
+async def get_email_marketing_stats(user: User = Depends(require_admin)):
+    """Get comprehensive email marketing statistics"""
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = (now - timedelta(days=30)).isoformat()
+    seven_days_ago = (now - timedelta(days=7)).isoformat()
+    
+    stats = {
+        "total_subscribers": await db.newsletter.count_documents({"subscribed": True}),
+        "new_subscribers_7d": await db.newsletter.count_documents({
+            "subscribed": True,
+            "subscribed_at": {"$gte": seven_days_ago}
+        }),
+        "abandoned_cart_emails_30d": await db.abandoned_cart_emails.count_documents({
+            "sent_at": {"$gte": thirty_days_ago}
+        }),
+        "vip_emails_30d": await db.vip_emails.count_documents({
+            "sent_at": {"$gte": thirty_days_ago}
+        }),
+        "winback_emails_30d": await db.winback_emails.count_documents({
+            "sent_at": {"$gte": thirty_days_ago}
+        }),
+        "review_emails_pending": await db.orders.count_documents({
+            "order_status": "delivered",
+            "review_email_sent": {"$ne": True}
+        }),
+        "active_promo_codes": await db.promo_codes.count_documents({
+            "expires_at": {"$gte": now.isoformat()},
+            "current_uses": {"$lt": 1}  # Assuming max_uses is 1 for personalized codes
+        })
+    }
+    
+    return stats
+
 @api_router.post("/admin/email/send")
 async def send_single_email(data: SingleEmailRequest, user: User = Depends(require_admin)):
     """Send a single email"""
