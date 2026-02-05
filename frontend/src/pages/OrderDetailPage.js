@@ -76,8 +76,14 @@ export default function OrderDetailPage() {
       <main className="min-h-screen pt-20 flex items-center justify-center">
         <div className="text-center">
           <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-semibold mb-4">Commande non trouvée</h1>
-          <Link to="/account/orders" className="btn-primary">
+          <h1 className="text-2xl font-semibold mb-4">{error || "Commande non trouvée"}</h1>
+          <Link to="/" className="btn-primary">
+            Retour à l'accueil
+          </Link>
+        </div>
+      </main>
+    );
+  }
             Voir mes commandes
           </Link>
         </div>
