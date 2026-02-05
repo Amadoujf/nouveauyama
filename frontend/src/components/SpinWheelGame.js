@@ -268,17 +268,17 @@ export default function SpinWheelGame({ isOpen, onClose }) {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {step === "form" && (
-              <div className="space-y-4">
-                <div className="text-center mb-6">
-                  <p className="text-muted-foreground">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="text-center mb-4 sm:mb-6">
+                  <p className="text-muted-foreground text-sm sm:text-base">
                     Inscrivez-vous pour tourner la roue gratuitement !
                   </p>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email *</label>
+                  <label className="block text-sm font-medium mb-1 sm:mb-2">Email *</label>
                   <input
                     type="email"
                     value={email}
@@ -288,18 +288,18 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                     }}
                     onBlur={checkEligibility}
                     placeholder="votre@email.com"
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm sm:text-base"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Nom (optionnel)</label>
+                  <label className="block text-sm font-medium mb-1 sm:mb-2">Nom (optionnel)</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Votre nom"
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm sm:text-base"
                   />
                 </div>
 
@@ -308,7 +308,7 @@ export default function SpinWheelGame({ isOpen, onClose }) {
                 )}
 
                 {eligibility && !eligibility.can_spin && eligibility.is_subscribed && (
-                  <div className="bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 p-4 rounded-xl text-sm text-center">
+                  <div className="bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 p-3 sm:p-4 rounded-xl text-xs sm:text-sm text-center">
                     Vous avez déjà utilisé votre tour gratuit. 
                     <br />
                     <strong>Achetez pour +25 000 FCFA</strong> pour un nouveau tour !
