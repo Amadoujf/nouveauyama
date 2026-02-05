@@ -1017,12 +1017,16 @@ async def process_session(request: Request, response: Response):
     
     user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     
+    # Create JWT token for the user
+    jwt_token = create_token(user_id, user_doc["email"])
+    
     return {
         "user_id": user_id,
         "email": user_doc["email"],
         "name": user_doc["name"],
         "role": user_doc.get("role", "customer"),
-        "picture": user_doc.get("picture")
+        "picture": user_doc.get("picture"),
+        "token": jwt_token
     }
 
 @api_router.get("/auth/me")
