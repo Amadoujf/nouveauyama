@@ -39,8 +39,8 @@ const categories = [
   },
   {
     id: "beaute",
-    name: "Beauté & Bien-être",
-    description: "Soins et cosmétiques",
+    name: "Accessoires mode et beauté",
+    description: "Mode, soins et cosmétiques",
     icon: Sparkles,
     image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
     featured: true,
