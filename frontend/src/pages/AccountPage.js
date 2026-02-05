@@ -3,6 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from "sonner";
 import {
   User,
   Package,
@@ -11,6 +12,10 @@ import {
   LogOut,
   ChevronRight,
   FileText,
+  Edit3,
+  Save,
+  X,
+  Phone,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay } from "../lib/utils";
 import { cn } from "../lib/utils";
