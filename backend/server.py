@@ -913,6 +913,7 @@ async def register(user_data: UserCreate, response: Response):
         "user_id": user_id,
         "email": user_data.email,
         "name": user_data.name,
+        "phone": user_data.phone,
         "role": "customer",
         "token": token
     }
@@ -944,6 +945,7 @@ async def login(credentials: UserLogin, response: Response):
         "user_id": user_doc["user_id"],
         "email": user_doc["email"],
         "name": user_doc["name"],
+        "phone": user_doc.get("phone"),
         "role": user_doc.get("role", "customer"),
         "picture": user_doc.get("picture"),
         "token": token
