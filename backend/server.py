@@ -5907,7 +5907,8 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     elements.append(Spacer(1, 20))
     
     # Totals
-    subtotal = order.get('subtotal', sum(p.get('price', 0) * p.get('quantity', 1) for p in order.get('products', [])))
+    items = order.get('items', []) or order.get('products', [])
+    subtotal = order.get('subtotal', sum(p.get('price', 0) * p.get('quantity', 1) for p in items))
     shipping_cost = order.get('shipping_cost', 2500)
     discount = order.get('discount', 0)
     total = order.get('total', subtotal + shipping_cost - discount)
