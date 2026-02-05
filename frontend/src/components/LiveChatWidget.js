@@ -167,16 +167,17 @@ export default function LiveChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-4 left-4 right-4 sm:right-auto sm:left-4 sm:w-[360px] z-[80] h-[60vh] sm:h-[450px] max-h-[calc(100vh-120px)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 sm:bottom-4 sm:left-4 sm:right-auto sm:w-[360px] z-[80] h-[70vh] sm:h-[450px] bg-white dark:bg-gray-900 sm:rounded-2xl shadow-2xl border flex flex-col"
+            style={{ maxHeight: 'calc(100vh - 60px)' }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 sm:p-4 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">Support YAMA+</h3>
+                  <h3 className="font-semibold text-white text-sm sm:text-base">Support YAMA+</h3>
                   <p className="text-xs text-white/80">
                     {loading ? "Connexion..." : "En ligne"}
                   </p>
@@ -203,7 +204,7 @@ export default function LiveChatWidget() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-800 min-h-0">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -220,7 +221,7 @@ export default function LiveChatWidget() {
                       }`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        className={`max-w-[85%] rounded-2xl px-3 sm:px-4 py-2 ${
                           msg.sender_type === "customer"
                             ? "bg-primary text-white rounded-br-md"
                             : "bg-white dark:bg-gray-700 shadow-sm rounded-bl-md"
@@ -244,8 +245,8 @@ export default function LiveChatWidget() {
               )}
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t bg-white dark:bg-gray-900">
+            {/* Input - Fixed at bottom */}
+            <div className="p-3 sm:p-4 border-t bg-white dark:bg-gray-900 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -253,7 +254,7 @@ export default function LiveChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Tapez votre message..."
-                  className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                  className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
                   disabled={loading || sending}
                 />
                 <button
