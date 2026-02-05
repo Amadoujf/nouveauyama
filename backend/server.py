@@ -5248,18 +5248,38 @@ async def get_user_orders(user: User = Depends(require_auth)):
 
 @api_router.get("/orders/{order_id}")
 async def get_order(order_id: str, request: Request):
+    """Get order details - public for basic tracking, full details for owner/admin"""
     user = await get_current_user(request)
     
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     
-    # Check access
-    if user and user.role != "admin" and order.get("user_id") != user.user_id:
-        raise HTTPException(status_code=403, detail="Accès non autorisé")
-    
+    # Convert datetime if needed
     if isinstance(order.get('created_at'), str):
         order['created_at'] = datetime.fromisoformat(order['created_at'])
+    
+    # Check if user is owner or admin
+    is_owner = user and (user.role == "admin" or order.get("user_id") == user.user_id)
+    
+    # For public access (no user or not owner), return limited info
+    if not is_owner:
+        # Return public-safe order info for tracking
+        return {
+            "order_id": order.get("order_id"),
+            "order_status": order.get("order_status"),
+            "payment_status": order.get("payment_status"),
+            "payment_method": order.get("payment_method"),
+            "total": order.get("total"),
+            "shipping_cost": order.get("shipping_cost"),
+            "created_at": order.get("created_at"),
+            "status_history": order.get("status_history", []),
+            "items": [{"name": item.get("name"), "quantity": item.get("quantity"), "image": item.get("image")} for item in order.get("items", [])],
+            "shipping": {
+                "city": order.get("shipping", {}).get("city"),
+                "region": order.get("shipping", {}).get("region"),
+            }
+        }
     
     return order
 
