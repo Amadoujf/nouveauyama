@@ -63,20 +63,21 @@ export default function LoginPage() {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-block mb-6">
+            <Link to="/" className="inline-block mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+                src="https://customer-assets.emergentagent.com/job_e6239d43-b0aa-4da9-acc9-7394bc51750f/artifacts/ejzc4vzk_0CA7A224-A371-430F-8856-6F8BE8C1FCDE.png" 
                 alt="Groupe YAMA+" 
-                className="h-14 w-auto mx-auto"
+                className="h-20 w-auto mx-auto"
               />
             </Link>
+            <p className="text-sm text-muted-foreground mb-4">Votre partenaire au quotidien</p>
             <h1 className="text-3xl font-semibold tracking-tight mb-2">
               {isLogin ? "Bon retour" : "Créer un compte"}
             </h1>
             <p className="text-muted-foreground">
               {isLogin
                 ? "Connectez-vous pour accéder à votre compte"
-                : "Rejoignez Lumina pour une expérience shopping unique"}
+                : "Rejoignez GROUPE YAMA+ pour une expérience shopping unique"}
             </p>
           </div>
 
