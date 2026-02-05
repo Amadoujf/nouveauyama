@@ -5799,7 +5799,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
         elements.append(Paragraph("GROUPE YAMA+", title_style))
         elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
     
-    elements.append(Paragraph("Email: contact@yama.sn | WhatsApp: +221 78 382 75 75", header_style))
+    elements.append(Paragraph("Email: contact@groupeyamaplus.com | WhatsApp: +221 78 382 75 75", header_style))
     elements.append(Spacer(1, 15))
     
     # Divider line
@@ -5844,9 +5844,15 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     # Products Table with Image column and description
     table_data = [['', 'Produit', 'Qté', 'Prix Unit.', 'Total']]
     
-    for item in order.get('products', []):
+    # Use 'items' key (the correct key used when storing orders)
+    items = order.get('items', []) or order.get('products', [])
+    
+    for item in items:
         name = item.get('name', 'Produit')[:40]
-        description = item.get('description', '')[:60] or item.get('short_description', '')[:60]
+        # Get description from product database if not in order
+        description = item.get('description', '') or item.get('short_description', '')
+        if description:
+            description = description[:60]
         qty = item.get('quantity', 1)
         price = item.get('price', 0)
         total_price = price * qty
