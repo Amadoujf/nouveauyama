@@ -22,9 +22,7 @@ export function AuthProvider({ children }) {
   // Check auth status on mount
   const checkAuth = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/auth/me`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(`${API_URL}/api/auth/me`);
       setUser(response.data);
     } catch (error) {
       setUser(null);
@@ -80,9 +78,14 @@ export function AuthProvider({ children }) {
   const processGoogleCallback = async (sessionId) => {
     const response = await axios.post(
       `${API_URL}/api/auth/session`,
-      { session_id: sessionId },
-      { withCredentials: true }
+      { session_id: sessionId }
     );
+    
+    // Save the token if returned
+    if (response.data.token) {
+      setToken(response.data.token);
+      localStorage.setItem("auth_token", response.data.token);
+    }
     
     setUser(response.data);
     return response.data;
@@ -91,7 +94,7 @@ export function AuthProvider({ children }) {
   // Logout
   const logout = async () => {
     try {
-      await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${API_URL}/api/auth/logout`);
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
