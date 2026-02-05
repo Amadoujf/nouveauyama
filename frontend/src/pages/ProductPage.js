@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Bell,
   TrendingDown,
+  Calendar,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
@@ -36,10 +37,14 @@ import ProductReviews from "../components/ProductReviews";
 import SimilarProducts from "../components/SimilarProducts";
 import FrequentlyBoughtTogether from "../components/FrequentlyBoughtTogether";
 import SEO from "../components/SEO";
+import AppointmentModal from "../components/AppointmentModal";
 import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const WHATSAPP_NUMBER = "+221783827575";
+
+// Categories that allow visit appointments
+const APPOINTMENT_CATEGORIES = ["automobile", "mobilier", "electromenager", "automobiles", "meubles"];
 
 export default function ProductPage() {
   const { productId } = useParams();
@@ -48,6 +53,7 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifyLoading, setNotifyLoading] = useState(false);
   
