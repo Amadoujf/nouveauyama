@@ -614,7 +614,21 @@ async def require_admin(request: Request) -> User:
 # ============== MAILERLITE SERVICE ==============
 
 class MailerLiteService:
-    """Service for interacting with MailerLite API for abandoned cart automation"""
+    """Service for interacting with MailerLite API for email marketing automation"""
+    
+    # Group names for different workflows
+    GROUP_NAMES = {
+        "abandoned_cart": "Panier Abandonné",
+        "welcome": "Bienvenue",
+        "post_purchase": "Post-Achat",
+        "vip": "Clients VIP",
+        "winback": "Reconquête",
+        "wishlist": "Favoris",
+        "browse_abandon": "Navigation Abandonnée",
+        "review_request": "Demande Avis",
+        "newsletter": "Newsletter",
+        "promotions": "Promotions"
+    }
     
     def __init__(self):
         self.api_key = MAILERLITE_API_KEY
@@ -624,7 +638,7 @@ class MailerLiteService:
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
-        self.abandoned_cart_group_id = None  # Will be set when group is created/found
+        self.group_ids = {}  # Cache for group IDs
     
     async def _make_request(self, method: str, endpoint: str, data: dict = None) -> dict:
         """Make an async request to MailerLite API"""
@@ -641,7 +655,7 @@ class MailerLiteService:
                 ) as response:
                     response_text = await response.text()
                     
-                    if response.status in [200, 201]:
+                    if response.status in [200, 201, 204]:
                         return {"success": True, "data": json.loads(response_text) if response_text else {}}
                     elif response.status == 429:
                         logger.warning("MailerLite rate limit reached")
@@ -656,30 +670,67 @@ class MailerLiteService:
             logger.error(f"MailerLite API exception: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def get_or_create_abandoned_cart_group(self) -> str:
-        """Get or create the abandoned cart group in MailerLite"""
-        if self.abandoned_cart_group_id:
-            return self.abandoned_cart_group_id
+    async def get_or_create_group(self, group_key: str) -> str:
+        """Get or create a group in MailerLite by key"""
+        if group_key in self.group_ids:
+            return self.group_ids[group_key]
+        
+        group_name = self.GROUP_NAMES.get(group_key, group_key)
+        encoded_name = group_name.replace(" ", "%20")
         
         # List existing groups
-        result = await self._make_request("GET", "groups?filter[name]=Panier%20Abandonne")
+        result = await self._make_request("GET", f"groups?filter[name]={encoded_name}")
         
         if result["success"] and result.get("data", {}).get("data"):
             groups = result["data"]["data"]
             if groups:
-                self.abandoned_cart_group_id = groups[0]["id"]
-                return self.abandoned_cart_group_id
+                self.group_ids[group_key] = groups[0]["id"]
+                return self.group_ids[group_key]
         
         # Create new group if not found
         create_result = await self._make_request("POST", "groups", {
-            "name": "Panier Abandonne"
+            "name": group_name
         })
         
         if create_result["success"]:
-            self.abandoned_cart_group_id = create_result["data"]["data"]["id"]
-            return self.abandoned_cart_group_id
+            self.group_ids[group_key] = create_result["data"]["data"]["id"]
+            return self.group_ids[group_key]
         
-        raise Exception("Failed to get or create MailerLite group for abandoned carts")
+        raise Exception(f"Failed to get or create MailerLite group: {group_name}")
+    
+    async def get_or_create_abandoned_cart_group(self) -> str:
+        """Get or create the abandoned cart group in MailerLite"""
+        return await self.get_or_create_group("abandoned_cart")
+    
+    async def add_subscriber(
+        self,
+        email: str,
+        name: str = "",
+        group_key: str = "newsletter",
+        custom_fields: dict = None
+    ) -> dict:
+        """Add or update a subscriber and assign to a group"""
+        group_id = await self.get_or_create_group(group_key)
+        
+        fields = {"name": name or ""}
+        if custom_fields:
+            fields.update(custom_fields)
+        
+        subscriber_data = {
+            "email": email,
+            "fields": fields,
+            "groups": [group_id],
+            "status": "active"
+        }
+        
+        result = await self._make_request("POST", "subscribers", subscriber_data)
+        
+        if result["success"]:
+            subscriber_id = result["data"]["data"]["id"]
+            logger.info(f"Added {email} to MailerLite group: {group_key}")
+            return {"success": True, "subscriber_id": subscriber_id}
+        
+        return result
     
     async def add_subscriber_to_abandoned_cart(
         self,
@@ -733,10 +784,29 @@ class MailerLiteService:
         
         return result
     
+    async def add_to_welcome_flow(self, email: str, name: str = "") -> dict:
+        """Add new customer to welcome email flow"""
+        return await self.add_subscriber(email, name, "welcome")
+    
+    async def add_to_post_purchase_flow(self, email: str, name: str = "", order_id: str = "") -> dict:
+        """Add customer to post-purchase flow (for review requests, etc.)"""
+        return await self.add_subscriber(email, name, "post_purchase", {"company": order_id})
+    
+    async def add_to_vip_flow(self, email: str, name: str = "", total_spent: int = 0) -> dict:
+        """Add high-value customer to VIP flow"""
+        return await self.add_subscriber(email, name, "vip")
+    
+    async def add_to_winback_flow(self, email: str, name: str = "") -> dict:
+        """Add inactive customer to winback flow"""
+        return await self.add_subscriber(email, name, "winback")
+    
+    async def add_to_wishlist_flow(self, email: str, name: str = "") -> dict:
+        """Add customer with wishlist items to reminder flow"""
+        return await self.add_subscriber(email, name, "wishlist")
+    
     async def remove_from_abandoned_cart_group(self, email: str) -> dict:
         """Remove subscriber from abandoned cart group (when they complete purchase)"""
-        if not self.abandoned_cart_group_id:
-            await self.get_or_create_abandoned_cart_group()
+        abandoned_cart_group_id = await self.get_or_create_abandoned_cart_group()
         
         # Get subscriber by email
         result = await self._make_request("GET", f"subscribers/{email}")
@@ -746,11 +816,35 @@ class MailerLiteService:
             # Remove from group
             remove_result = await self._make_request(
                 "DELETE",
-                f"subscribers/{subscriber_id}/groups/{self.abandoned_cart_group_id}"
+                f"subscribers/{subscriber_id}/groups/{abandoned_cart_group_id}"
             )
             return remove_result
         
         return {"success": False, "error": "Subscriber not found"}
+    
+    async def remove_from_group(self, email: str, group_key: str) -> dict:
+        """Remove subscriber from a specific group"""
+        group_id = await self.get_or_create_group(group_key)
+        
+        # Get subscriber by email
+        result = await self._make_request("GET", f"subscribers/{email}")
+        
+        if result["success"]:
+            subscriber_id = result["data"]["data"]["id"]
+            remove_result = await self._make_request(
+                "DELETE",
+                f"subscribers/{subscriber_id}/groups/{group_id}"
+            )
+            return remove_result
+        
+        return {"success": False, "error": "Subscriber not found"}
+    
+    async def get_all_groups(self) -> list:
+        """Get all groups from MailerLite"""
+        result = await self._make_request("GET", "groups?limit=100")
+        if result["success"]:
+            return result["data"].get("data", [])
+        return []
 
 # Initialize MailerLite service
 mailerlite_service = MailerLiteService()
