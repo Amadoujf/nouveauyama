@@ -4415,12 +4415,18 @@ async def send_admin_order_notification(order: dict):
     }
     payment_method = payment_labels.get(order.get("payment_method", ""), order.get("payment_method", "N/A"))
     
+    # Format date
+    created_at = order.get('created_at', '')
+    if hasattr(created_at, 'isoformat'):
+        created_at = created_at.isoformat()
+    formatted_date = str(created_at)[:19].replace('T', ' ') if created_at else 'N/A'
+    
     content = f"""
     <h2 style="color: #1a1a1a; margin: 0 0 20px 0;">🛒 Nouvelle Commande !</h2>
     
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
         <h3 style="color: #333; margin: 0 0 15px 0;">Commande #{order.get('order_id', '')}</h3>
-        <p style="margin: 5px 0;"><strong>Date:</strong> {order.get('created_at', '')[:19].replace('T', ' ')}</p>
+        <p style="margin: 5px 0;"><strong>Date:</strong> {formatted_date}</p>
         <p style="margin: 5px 0;"><strong>Paiement:</strong> {payment_method}</p>
         <p style="margin: 5px 0; font-size: 20px;"><strong>Total:</strong> <span style="color: #00A651;">{order.get('total', 0):,} FCFA</span></p>
     </div>
