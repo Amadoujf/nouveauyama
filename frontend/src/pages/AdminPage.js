@@ -356,6 +356,8 @@ export default function AdminPage() {
       specs: product.specs || {},
       is_on_order: product.is_on_order || false,
       order_delivery_days: product.order_delivery_days?.toString() || "",
+      meta_title: product.meta_title || "",
+      meta_description: product.meta_description || "",
     });
     setShowProductForm(true);
     setActiveFormTab("general");
