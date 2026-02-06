@@ -241,6 +241,17 @@ export default function Navbar() {
 
               {/* Other nav items */}
               <Link
+                to="/services"
+                className={cn(
+                  "nav-link flex items-center gap-1.5",
+                  isActive("/services") && "nav-link-active"
+                )}
+                data-testid="nav-services-link"
+              >
+                <Wrench className="w-4 h-4" />
+                Services
+              </Link>
+              <Link
                 to="/nouveautes"
                 className={cn("nav-link", isActive("/nouveautes") && "nav-link-active")}
               >
