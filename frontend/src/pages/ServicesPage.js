@@ -330,24 +330,19 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4">
           <motion.h2 
             initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
             className="text-xl font-semibold mb-6"
           >
             Catégories de services
           </motion.h2>
-          <motion.div 
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3">
             {categories.map((cat, index) => (
               <motion.button
                 key={cat.category_id}
-                variants={fadeInUp}
-                custom={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.4 }}
                 whileHover={{ 
                   scale: 1.05, 
                   y: -5,
@@ -376,7 +371,7 @@ export default function ServicesPage() {
                 <span className="text-xs font-medium text-center leading-tight">{cat.name_fr}</span>
               </motion.button>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
