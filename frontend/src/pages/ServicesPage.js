@@ -24,18 +24,18 @@ import { cn } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Category icons mapping
+// Category icons mapping (matching API category_id values)
 const categoryIcons = {
   construction: "🏗️",
   electricity_plumbing: "⚡",
-  auto_mechanics: "🚗",
-  beauty_wellness: "💅",
-  tech_repair: "💻",
-  cleaning_home: "🧹",
-  transport_delivery: "🚚",
-  events_entertainment: "🎉",
-  education_training: "📚",
-  other_services: "🔧",
+  auto: "🚗",
+  beauty: "💅",
+  tech: "💻",
+  cleaning: "🧹",
+  transport: "🚚",
+  events: "🎉",
+  education: "📚",
+  other: "🔧",
 };
 
 // Animation variants
