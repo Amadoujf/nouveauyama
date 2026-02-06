@@ -8032,7 +8032,7 @@ async def register_provider(provider_data: ProviderCreate):
     provider_id = f"PRV-{secrets.token_hex(4).upper()}"
     
     # Hash password
-    hashed_password = pwd_context.hash(provider_data.password)
+    hashed_password = hash_password(provider_data.password)
     
     provider = {
         "provider_id": provider_id,
