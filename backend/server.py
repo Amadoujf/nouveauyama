@@ -7798,6 +7798,451 @@ def get_sample_blog_post(slug: str):
     
     return posts.get(slug)
 
+# ============== SERVICES MARKETPLACE ==============
+
+from services_marketplace import (
+    SERVICE_CATEGORIES, SENEGAL_CITIES, DAKAR_ZONES,
+    ProviderCreate, ServiceRequestCreate
+)
+
+@api_router.get("/services/categories")
+async def get_service_categories():
+    """Get all service categories"""
+    return SERVICE_CATEGORIES
+
+@api_router.get("/services/locations")
+async def get_service_locations():
+    """Get cities and zones for services"""
+    return {
+        "cities": SENEGAL_CITIES,
+        "dakar_zones": DAKAR_ZONES
+    }
+
+@api_router.get("/services/providers")
+async def get_service_providers(
+    category: Optional[str] = None,
+    profession: Optional[str] = None,
+    city: Optional[str] = None,
+    zone: Optional[str] = None,
+    verified_only: bool = False,
+    min_rating: Optional[float] = None,
+    availability: Optional[str] = None,
+    search: Optional[str] = None,
+    sort_by: str = "rating",  # rating, price, reviews
+    limit: int = 20,
+    skip: int = 0
+):
+    """Get service providers with filters"""
+    query = {"is_active": True}
+    
+    if category:
+        query["category"] = category
+    if profession:
+        query["profession"] = {"$regex": profession, "$options": "i"}
+    if city:
+        query["city"] = city
+    if zone:
+        query["zone"] = zone
+    if verified_only:
+        query["is_verified"] = True
+    if min_rating:
+        query["rating"] = {"$gte": min_rating}
+    if availability:
+        query["availability"] = availability
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"profession": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]
+    
+    # Sort options
+    sort_options = {
+        "rating": [("is_premium", -1), ("rating", -1)],
+        "price": [("is_premium", -1), ("price_from", 1)],
+        "reviews": [("is_premium", -1), ("review_count", -1)],
+        "newest": [("created_at", -1)]
+    }
+    sort = sort_options.get(sort_by, sort_options["rating"])
+    
+    providers = await db.service_providers.find(query, {"_id": 0}).sort(sort).skip(skip).limit(limit).to_list(limit)
+    total = await db.service_providers.count_documents(query)
+    
+    return {
+        "providers": providers,
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
+
+@api_router.get("/services/providers/{provider_id}")
+async def get_service_provider(provider_id: str):
+    """Get a single provider profile"""
+    provider = await db.service_providers.find_one(
+        {"provider_id": provider_id, "is_active": True},
+        {"_id": 0}
+    )
+    
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Get reviews
+    reviews = await db.provider_reviews.find(
+        {"provider_id": provider_id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(10).to_list(10)
+    
+    provider["reviews"] = reviews
+    
+    return provider
+
+@api_router.get("/services/providers/{provider_id}/reviews")
+async def get_provider_reviews(
+    provider_id: str,
+    limit: int = 20,
+    skip: int = 0
+):
+    """Get reviews for a provider"""
+    reviews = await db.provider_reviews.find(
+        {"provider_id": provider_id},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    total = await db.provider_reviews.count_documents({"provider_id": provider_id})
+    
+    return {
+        "reviews": reviews,
+        "total": total
+    }
+
+@api_router.post("/services/providers/{provider_id}/reviews")
+async def add_provider_review(
+    provider_id: str,
+    rating: int,
+    comment: str,
+    client_name: str,
+    client_phone: Optional[str] = None
+):
+    """Add a review for a provider"""
+    if rating < 1 or rating > 5:
+        raise HTTPException(status_code=400, detail="La note doit être entre 1 et 5")
+    
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    review = {
+        "review_id": f"rev_{secrets.token_hex(8)}",
+        "provider_id": provider_id,
+        "client_name": client_name,
+        "client_phone": client_phone,
+        "rating": rating,
+        "comment": comment,
+        "photos": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "is_verified": False
+    }
+    
+    await db.provider_reviews.insert_one(review)
+    
+    # Update provider rating
+    all_reviews = await db.provider_reviews.find({"provider_id": provider_id}).to_list(1000)
+    avg_rating = sum(r["rating"] for r in all_reviews) / len(all_reviews) if all_reviews else 0
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {"rating": round(avg_rating, 1), "review_count": len(all_reviews)}}
+    )
+    
+    return {"message": "Avis ajouté avec succès", "review_id": review["review_id"]}
+
+# Service Requests (Client requests)
+@api_router.post("/services/requests")
+async def create_service_request(request_data: ServiceRequestCreate):
+    """Create a service request from a client"""
+    request_id = f"SR-{secrets.token_hex(4).upper()}"
+    
+    service_request = {
+        "request_id": request_id,
+        **request_data.dict(),
+        "status": "new",
+        "assigned_provider_id": None,
+        "assigned_provider_name": None,
+        "admin_notes": None,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": None
+    }
+    
+    await db.service_requests.insert_one(service_request)
+    
+    # Send notification to admin
+    asyncio.create_task(send_email_async(
+        to=ADMIN_NOTIFICATION_EMAIL,
+        subject=f"🔔 Nouvelle demande de service #{request_id}",
+        html=get_email_template(f"""
+            <h2>Nouvelle demande de service</h2>
+            <p><strong>ID:</strong> {request_id}</p>
+            <p><strong>Catégorie:</strong> {request_data.category}</p>
+            <p><strong>Métier:</strong> {request_data.profession}</p>
+            <p><strong>Ville:</strong> {request_data.city} {request_data.zone or ''}</p>
+            <p><strong>Client:</strong> {request_data.client_name}</p>
+            <p><strong>Téléphone:</strong> {request_data.client_phone}</p>
+            <p><strong>Description:</strong> {request_data.description}</p>
+            <p><strong>Date souhaitée:</strong> {request_data.preferred_date or 'Non précisée'}</p>
+            <a href="{SITE_URL}/admin/service-requests" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Voir la demande</a>
+        """, "Nouvelle demande de service")
+    ))
+    
+    logger.info(f"Service request created: {request_id}")
+    
+    return {
+        "success": True,
+        "message": "Votre demande a été envoyée avec succès. Nous vous contacterons très bientôt.",
+        "request_id": request_id
+    }
+
+@api_router.get("/services/requests/{request_id}")
+async def get_service_request(request_id: str):
+    """Get a service request by ID (for client tracking)"""
+    request = await db.service_requests.find_one(
+        {"request_id": request_id},
+        {"_id": 0}
+    )
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Demande non trouvée")
+    
+    return request
+
+# Provider Registration (Private - requires invitation code)
+PROVIDER_INVITATION_CODES = ["YAMAPLUS2025", "PRESTATAIRE", "SERVICEPRO"]  # Admin can add more
+
+@api_router.post("/provider/register")
+async def register_provider(provider_data: ProviderCreate):
+    """Register as a service provider (requires invitation code)"""
+    # Verify invitation code
+    if provider_data.invitation_code not in PROVIDER_INVITATION_CODES:
+        raise HTTPException(status_code=403, detail="Code d'invitation invalide")
+    
+    # Check if phone already exists
+    existing = await db.service_providers.find_one({"phone": provider_data.phone})
+    if existing:
+        raise HTTPException(status_code=400, detail="Ce numéro de téléphone est déjà enregistré")
+    
+    provider_id = f"PRV-{secrets.token_hex(4).upper()}"
+    
+    # Hash password
+    hashed_password = pwd_context.hash(provider_data.password)
+    
+    provider = {
+        "provider_id": provider_id,
+        "name": provider_data.name,
+        "profession": provider_data.profession,
+        "category": provider_data.category,
+        "subcategory": provider_data.subcategory,
+        "description": provider_data.description,
+        "city": provider_data.city,
+        "zone": provider_data.zone,
+        "phone": provider_data.phone,
+        "whatsapp": provider_data.whatsapp or provider_data.phone,
+        "email": provider_data.email,
+        "password": hashed_password,
+        "price_from": provider_data.price_from,
+        "price_description": provider_data.price_description,
+        "availability": "available",
+        "experience_years": provider_data.experience_years,
+        "photos": [],
+        "is_verified": False,
+        "is_premium": False,
+        "is_active": False,  # Requires admin approval
+        "rating": 0.0,
+        "review_count": 0,
+        "completed_jobs": 0,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": None
+    }
+    
+    await db.service_providers.insert_one(provider)
+    
+    # Notify admin
+    asyncio.create_task(send_email_async(
+        to=ADMIN_NOTIFICATION_EMAIL,
+        subject=f"🆕 Nouveau prestataire inscrit: {provider_data.name}",
+        html=get_email_template(f"""
+            <h2>Nouveau prestataire en attente d'approbation</h2>
+            <p><strong>Nom:</strong> {provider_data.name}</p>
+            <p><strong>Métier:</strong> {provider_data.profession}</p>
+            <p><strong>Ville:</strong> {provider_data.city}</p>
+            <p><strong>Téléphone:</strong> {provider_data.phone}</p>
+            <a href="{SITE_URL}/admin/providers" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Approuver le prestataire</a>
+        """, "Nouveau prestataire")
+    ))
+    
+    logger.info(f"Provider registered: {provider_id}")
+    
+    return {
+        "success": True,
+        "message": "Inscription réussie ! Votre profil est en attente de validation par notre équipe.",
+        "provider_id": provider_id
+    }
+
+@api_router.post("/provider/login")
+async def login_provider(phone: str, password: str):
+    """Login as a provider"""
+    provider = await db.service_providers.find_one({"phone": phone})
+    
+    if not provider or not pwd_context.verify(password, provider.get("password", "")):
+        raise HTTPException(status_code=401, detail="Numéro ou mot de passe incorrect")
+    
+    if not provider.get("is_active"):
+        raise HTTPException(status_code=403, detail="Votre compte est en attente d'approbation")
+    
+    # Create JWT token
+    token_data = {
+        "sub": provider["provider_id"],
+        "type": "provider",
+        "exp": datetime.now(timezone.utc) + timedelta(days=30)
+    }
+    token = jwt.encode(token_data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    return {
+        "success": True,
+        "token": token,
+        "provider": {
+            "provider_id": provider["provider_id"],
+            "name": provider["name"],
+            "profession": provider["profession"],
+            "is_verified": provider.get("is_verified", False),
+            "is_premium": provider.get("is_premium", False)
+        }
+    }
+
+# Admin endpoints for providers
+@api_router.get("/admin/service-providers")
+async def admin_get_providers(
+    status: Optional[str] = None,  # pending, active, inactive
+    limit: int = 50,
+    user: User = Depends(require_admin)
+):
+    """Admin: Get all providers"""
+    query = {}
+    if status == "pending":
+        query["is_active"] = False
+    elif status == "active":
+        query["is_active"] = True
+    
+    providers = await db.service_providers.find(query, {"_id": 0, "password": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    stats = {
+        "total": await db.service_providers.count_documents({}),
+        "pending": await db.service_providers.count_documents({"is_active": False}),
+        "active": await db.service_providers.count_documents({"is_active": True}),
+        "verified": await db.service_providers.count_documents({"is_verified": True})
+    }
+    
+    return {"providers": providers, "stats": stats}
+
+@api_router.put("/admin/service-providers/{provider_id}")
+async def admin_update_provider(
+    provider_id: str,
+    request: Request,
+    user: User = Depends(require_admin)
+):
+    """Admin: Update provider (approve, verify, etc.)"""
+    body = await request.json()
+    
+    update_fields = {}
+    if "is_active" in body:
+        update_fields["is_active"] = body["is_active"]
+    if "is_verified" in body:
+        update_fields["is_verified"] = body["is_verified"]
+    if "is_premium" in body:
+        update_fields["is_premium"] = body["is_premium"]
+    
+    if update_fields:
+        update_fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.service_providers.update_one(
+            {"provider_id": provider_id},
+            {"$set": update_fields}
+        )
+    
+    # If activated, send notification to provider
+    if body.get("is_active"):
+        provider = await db.service_providers.find_one({"provider_id": provider_id})
+        if provider and provider.get("email"):
+            asyncio.create_task(send_email_async(
+                to=provider["email"],
+                subject="✅ Votre profil YAMA+ Services est approuvé !",
+                html=get_email_template(f"""
+                    <h2>Félicitations {provider['name']} !</h2>
+                    <p>Votre profil prestataire a été approuvé. Vous êtes maintenant visible sur YAMA+ Services.</p>
+                    <p>Les clients peuvent désormais vous contacter pour vos services de <strong>{provider['profession']}</strong>.</p>
+                    <a href="{SITE_URL}/provider/{provider_id}" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Voir mon profil</a>
+                """, "Profil approuvé")
+            ))
+    
+    return {"message": "Prestataire mis à jour"}
+
+@api_router.delete("/admin/service-providers/{provider_id}")
+async def admin_delete_provider(provider_id: str, user: User = Depends(require_admin)):
+    """Admin: Delete a provider"""
+    await db.service_providers.delete_one({"provider_id": provider_id})
+    await db.provider_reviews.delete_many({"provider_id": provider_id})
+    return {"message": "Prestataire supprimé"}
+
+# Admin service requests management
+@api_router.get("/admin/service-requests")
+async def admin_get_service_requests(
+    status: Optional[str] = None,
+    limit: int = 50,
+    user: User = Depends(require_admin)
+):
+    """Admin: Get all service requests"""
+    query = {}
+    if status:
+        query["status"] = status
+    
+    requests = await db.service_requests.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    stats = {
+        "total": await db.service_requests.count_documents({}),
+        "new": await db.service_requests.count_documents({"status": "new"}),
+        "in_progress": await db.service_requests.count_documents({"status": "in_progress"}),
+        "completed": await db.service_requests.count_documents({"status": "completed"})
+    }
+    
+    return {"requests": requests, "stats": stats}
+
+@api_router.put("/admin/service-requests/{request_id}")
+async def admin_update_service_request(
+    request_id: str,
+    request: Request,
+    user: User = Depends(require_admin)
+):
+    """Admin: Update service request (assign, change status, etc.)"""
+    body = await request.json()
+    
+    update_fields = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    
+    if "status" in body:
+        update_fields["status"] = body["status"]
+    if "assigned_provider_id" in body:
+        update_fields["assigned_provider_id"] = body["assigned_provider_id"]
+        # Get provider name
+        if body["assigned_provider_id"]:
+            provider = await db.service_providers.find_one({"provider_id": body["assigned_provider_id"]})
+            if provider:
+                update_fields["assigned_provider_name"] = provider["name"]
+    if "admin_notes" in body:
+        update_fields["admin_notes"] = body["admin_notes"]
+    
+    await db.service_requests.update_one(
+        {"request_id": request_id},
+        {"$set": update_fields}
+    )
+    
+    return {"message": "Demande mise à jour"}
+
 # ============== ROOT ==============
 
 @api_router.get("/")
