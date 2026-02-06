@@ -8353,6 +8353,11 @@ async def health_check():
 # Include router
 app.include_router(api_router)
 
+# Commercial routes
+from routes.commercial_routes import get_commercial_routes
+commercial_router = get_commercial_routes(db, require_admin)
+app.include_router(commercial_router)
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
