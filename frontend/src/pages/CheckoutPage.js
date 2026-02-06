@@ -300,13 +300,13 @@ export default function CheckoutPage() {
 
       const newOrderId = response.data.order_id;
 
-      // For Wave, Orange Money, or Card payments - redirect to PayTech
-      if (['wave', 'orange_money', 'card'].includes(formData.payment_method)) {
+      // For Mobile Money (Wave, Orange Money) or Card payments - redirect to PayTech
+      if (['mobile_money', 'card'].includes(formData.payment_method)) {
         try {
           const currentUrl = window.location.origin;
           const paytechResponse = await axios.post(`${API_URL}/api/payments/paytech/initiate`, {
             order_id: newOrderId,
-            success_url: `${currentUrl}/checkout?order_id=${newOrderId}&payment=success`,
+            success_url: `${currentUrl}/order/${newOrderId}?payment=success`,
             cancel_url: `${currentUrl}/checkout?order_id=${newOrderId}&payment=cancel`,
           });
 
@@ -314,6 +314,8 @@ export default function CheckoutPage() {
             // Redirect to PayTech payment page
             window.location.href = paytechResponse.data.checkout_url;
             return;
+          } else {
+            toast.error("Erreur lors de l'initialisation du paiement");
           }
         } catch (paytechError) {
           console.error("PayTech error:", paytechError);
