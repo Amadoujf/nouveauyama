@@ -8091,7 +8091,7 @@ async def login_provider(phone: str, password: str):
     """Login as a provider"""
     provider = await db.service_providers.find_one({"phone": phone})
     
-    if not provider or not pwd_context.verify(password, provider.get("password", "")):
+    if not provider or not verify_password(password, provider.get("password", "")):
         raise HTTPException(status_code=401, detail="Numéro ou mot de passe incorrect")
     
     if not provider.get("is_active"):
