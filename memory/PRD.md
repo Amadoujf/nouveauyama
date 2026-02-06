@@ -76,7 +76,7 @@ Plateforme e-commerce premium pour le marché sénégalais avec boutique en lign
 
 ## Credentials Test
 - **Admin**: admin@yama.sn / admin123
-- **Preview URL**: https://yamaplusfix.preview.emergentagent.com
+- **Preview URL**: https://pro-connect-42.preview.emergentagent.com
 
 ---
 *Last updated: February 5, 2026*
