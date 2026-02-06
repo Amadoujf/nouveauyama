@@ -1253,6 +1253,8 @@ export default function AdminPage() {
       case "admin":
       case "dashboard":
         return renderDashboard();
+      case "commercial":
+        return <CommercialDashboard token={token} />;
       case "products":
         return renderProducts();
       case "orders":
