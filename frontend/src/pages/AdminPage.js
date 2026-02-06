@@ -51,6 +51,7 @@ import FlashSalesAdminPage from "./FlashSalesAdminPage";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import PromoCodesAdminPage from "./PromoCodesAdminPage";
 import AbandonedCartsAdminPage from "./AbandonedCartsAdminPage";
+import { ServiceProvidersAdmin, ServiceRequestsAdmin } from "./ServiceAdminComponents";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
