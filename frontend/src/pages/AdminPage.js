@@ -136,6 +136,8 @@ export default function AdminPage() {
     specs: {},
     is_on_order: false,
     order_delivery_days: "",
+    meta_title: "",
+    meta_description: "",
   });
 
   // Stable form field update function to prevent re-renders
