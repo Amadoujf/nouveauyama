@@ -1,154 +1,175 @@
 {
-  "design_system": {
-    "identity": {
-      "name": "Lumina Senegal",
-      "tone": "Ultra-Premium, Minimalist, Trustworthy, 'Quiet Luxury'",
-      "inspiration": "Apple.com (Strict), Aesop, Teenage Engineering",
-      "target_audience": "Affluent Senegalese consumers seeking quality and reliability"
+  "project_name": "YAMA+ Services Marketplace",
+  "design_philosophy": {
+    "persona": "E1 - The Anti-AI Designer",
+    "core_concept": "Modern Yellow Pages meets Luxury Concierge",
+    "vibe": "Premium, Trusted, Efficient, Senegalese Elegance",
+    "archetype": "Jewel & Luxury (Modified for Utility)",
+    "theme_strategy": "Hybrid - Light Mode Base (Trust) with Dark Mode 'VIP' Toggle"
+  },
+  "typography": {
+    "font_imports": [
+      "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+    ],
+    "headings": {
+      "family": "'Playfair Display', serif",
+      "weights": {
+        "h1": "700",
+        "h2": "600",
+        "h3": "600"
+      },
+      "sizes": {
+        "h1": "text-5xl md:text-7xl tracking-tight leading-[1.1]",
+        "h2": "text-4xl md:text-5xl tracking-tight",
+        "h3": "text-2xl md:text-3xl tracking-normal"
+      },
+      "usage": "Use for all major section headers to convey premium status. Do NOT use for UI labels."
     },
-    "typography": {
-      "font_family": {
-        "heading": "Plus Jakarta Sans, sans-serif",
-        "body": "Inter, sans-serif",
-        "mono": "JetBrains Mono, monospace"
+    "body": {
+      "family": "'Manrope', sans-serif",
+      "weights": {
+        "regular": "400",
+        "medium": "500",
+        "bold": "700"
       },
-      "scale": {
-        "h1": "text-5xl md:text-7xl font-semibold tracking-tight leading-[1.1]",
-        "h2": "text-4xl md:text-5xl font-medium tracking-tight",
-        "h3": "text-2xl md:text-3xl font-medium tracking-normal",
-        "body_lg": "text-lg md:text-xl leading-relaxed text-muted-foreground",
-        "body_base": "text-base leading-relaxed text-muted-foreground",
-        "caption": "text-sm font-medium tracking-wide uppercase text-muted-foreground/70"
+      "usage": "Use for all UI text, descriptions, and functional elements."
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "name": "YAMA+ Gold",
+        "hex": "#D4AF37",
+        "tailwind": "bg-[#D4AF37] text-white"
       },
-      "rules": [
-        "Never use pure black text on white; use #1D1D1F (Apple Grey)",
-        "Headings must be tight (tracking-tight)",
-        "Captions must be uppercase and wide (tracking-widest)",
-        "Use font-weight 500 (Medium) for body text in dark mode for legibility"
-      ]
-    },
-    "colors": {
-      "palette": {
-        "primary": {
-          "light": "#000000",
-          "dark": "#FFFFFF",
-          "name": "Absolute Monochrome"
-        },
-        "background": {
-          "light": "#F5F5F7",
-          "dark": "#000000",
-          "paper_light": "#FFFFFF",
-          "paper_dark": "#1C1C1E"
-        },
-        "accent": {
-          "main": "#0071E3",
-          "secondary": "#2997FF",
-          "name": "Electric Blue (Apple Style)"
-        },
-        "luxury_accent": {
-          "gold": "#D4AF37",
-          "name": "Champagne (For Premium Badges)"
-        },
-        "functional": {
-          "success": "#34C759",
-          "warning": "#FF9F0A",
-          "error": "#FF3B30"
-        }
+      "secondary": {
+        "name": "Deep Obsidian",
+        "hex": "#0F172A",
+        "tailwind": "bg-[#0F172A] text-white"
       },
-      "gradients": {
-        "hero_glow": "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0) 50%)",
-        "subtle_mesh": "linear-gradient(180deg, #F5F5F7 0%, #FFFFFF 100%)"
+      "background": {
+        "light": "#F9F9F7",
+        "dark": "#020617"
+      },
+      "surface": {
+        "light": "#FFFFFF",
+        "dark": "#0F172A"
+      },
+      "text": {
+        "primary_light": "#0F172A",
+        "secondary_light": "#475569",
+        "primary_dark": "#F8FAFC",
+        "secondary_dark": "#94A3B8"
       }
     },
+    "gradients": {
+      "gold_rush": "bg-gradient-to-r from-[#D4AF37] via-[#F59E0B] to-[#D4AF37]",
+      "obsidian_sheen": "bg-gradient-to-b from-[#1E293B] to-[#0F172A]"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": {
+      "light": "bg-white/70 backdrop-blur-xl border border-white/20 shadow-lg",
+      "dark": "bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl"
+    },
+    "borders": "border-black/5 dark:border-white/10",
+    "shadows": {
+      "card": "shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
+      "floating": "shadow-[0_20px_50px_rgb(0,0,0,0.1)]"
+    },
+    "textures": "Add a subtle noise texture overlay (opacity 0.03) to the entire body to remove digital flatness."
+  },
+  "layout_strategies": {
+    "container": "max-w-[1400px] mx-auto px-6 md:px-12",
     "spacing": {
-      "container": "max-w-[1400px] mx-auto px-6 md:px-12",
-      "section_padding": "py-24 md:py-32",
-      "grid_gap": "gap-8 md:gap-12",
-      "component_padding": "p-6 md:p-8"
+      "section": "py-24 md:py-32",
+      "element": "gap-6 md:gap-8"
     },
-    "visual_enhancers": {
-      "radius": {
-        "card": "rounded-3xl",
-        "button": "rounded-full",
-        "input": "rounded-xl"
-      },
-      "shadows": {
-        "floating": "0 20px 40px -10px rgba(0,0,0,0.1)",
-        "subtle": "0 4px 12px rgba(0,0,0,0.05)",
-        "glow": "0 0 20px rgba(0,113,227,0.3)"
-      },
-      "glassmorphism": {
-        "nav": "bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-black/5 dark:border-white/10",
-        "card": "bg-white/50 dark:bg-white/5 backdrop-blur-lg border border-white/20"
-      }
-    },
-    "animation": {
-      "transitions": "transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)",
-      "hover_lift": "hover:-translate-y-1 hover:shadow-xl",
-      "scroll_reveal": "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-8 duration-700"
+    "grids": {
+      "bento_categories": "grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px]",
+      "provider_list": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
     }
   },
   "components": {
     "buttons": {
-      "primary": "bg-black text-white dark:bg-white dark:text-black rounded-full px-8 py-4 text-sm font-medium hover:scale-105 transition-transform",
-      "secondary": "bg-transparent border border-black/10 dark:border-white/10 text-black dark:text-white rounded-full px-8 py-4 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10",
-      "ghost": "text-accent hover:text-accent/80 font-medium flex items-center gap-2 group"
+      "primary": "rounded-full px-8 py-4 bg-[#0F172A] text-white hover:bg-[#1E293B] transition-all duration-300 hover:scale-105 active:scale-95 font-medium tracking-wide",
+      "accent": "rounded-full px-8 py-4 bg-[#D4AF37] text-white hover:bg-[#B5952F] transition-all duration-300 hover:shadow-lg hover:shadow-[#D4AF37]/20",
+      "ghost": "text-[#0F172A] hover:text-[#D4AF37] font-medium transition-colors"
     },
     "cards": {
-      "product": "group relative overflow-hidden rounded-3xl bg-white dark:bg-[#1C1C1E] aspect-[4/5] transition-all duration-500 hover:shadow-2xl",
-      "feature": "bg-[#F5F5F7] dark:bg-[#111111] rounded-3xl p-12 flex flex-col justify-between h-full"
+      "provider": "group relative overflow-hidden rounded-3xl bg-white dark:bg-[#1E293B] border border-black/5 transition-all duration-500 hover:shadow-xl hover:-translate-y-1",
+      "category": "relative overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 transition-all duration-300 hover:scale-[1.02]"
     },
     "inputs": {
-      "default": "h-12 bg-transparent border-b border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white outline-none transition-colors placeholder:text-muted-foreground/50"
+      "search": "h-14 pl-12 pr-4 rounded-full bg-white/80 backdrop-blur-md border border-black/10 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all outline-none w-full text-lg"
     }
   },
-  "layout_strategies": {
-    "landing_page": {
-      "hero": "Full-screen cinematic video/image. Text overlay: Bottom-Left or Center. 'Le shopping, autrement.'",
-      "bento_grid": "Use 'Tetris' grid for categories. Mix 2x2 squares with 1x2 tall rectangles.",
-      "marquee": "Slow scrolling list of premium brands (Apple, Samsung, Dyson, etc.) in monochrome."
+  "pages": {
+    "services_marketplace": {
+      "path": "/services",
+      "sections": [
+        {
+          "name": "Hero",
+          "type": "Immersive Search",
+          "description": "Large typography 'Trouvez l'Expert Idéal' (Find the Ideal Expert). Background: Abstract Gold Waves (Darkened). Centered Search Bar with 'City' and 'Profession' inputs.",
+          "image_bg": "https://images.unsplash.com/photo-1761437855598-011cf89b2ad4?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "name": "Categories",
+          "type": "Bento Grid",
+          "description": "Asymmetrical grid of 10 categories. Use icons + subtle background patterns. Highlight 'Popular' categories with larger cells.",
+          "categories": ["Plomberie", "Électricité", "Mécanique", "Coiffure", "Ménage", "Jardinage", "Cuisine", "Informatique", "Transport", "Événementiel"]
+        },
+        {
+          "name": "Featured Providers",
+          "type": "Horizontal Scroll / Carousel",
+          "description": "Premium cards showing top-rated providers. Photo on top, details below. Gold star rating."
+        }
+      ]
     },
-    "product_page": {
-      "layout": "Two-column sticky. Left: Vertical scroll of huge images. Right: Sticky details panel.",
-      "gallery": "Images must be full-width within their container. No thumbnails. Scroll to see more.",
-      "buy_section": "Floating bottom bar on mobile. Sticky right sidebar on desktop."
+    "provider_profile": {
+      "path": "/provider/:id",
+      "layout": "Split Layout (Left: Visuals, Right: Info)",
+      "sections": [
+        {
+          "name": "Visual Header",
+          "description": "Full height on mobile, 60% width on desktop. High-quality portrait of the provider.",
+          "image_placeholder": "https://images.unsplash.com/photo-1687422809069-0fa3546b8471?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "name": "Info Panel",
+          "description": "Sticky scrollable panel. Name (Playfair Display), Verified Badge (Gold), Rating, Bio, Services List with Prices, Reviews (Masonry layout).",
+          "cta": "Floating Action Button (Mobile) / Fixed Card (Desktop) 'Réserver Maintenant'"
+        }
+      ]
     },
-    "cart_checkout": {
-      "style": "Single page. Left: Form (Minimal). Right: Order Summary (Grey background).",
-      "trust_signals": "Display Wave & Orange Money logos clearly near the 'Pay' button."
+    "request_form": {
+      "path": "/services/request",
+      "layout": "Centered Wizard",
+      "description": "Clean, distraction-free. Progress bar at top (Gold). Step-by-step form: 1. Service Type, 2. Details, 3. Location/Time, 4. Contact. Use large selectable cards for options instead of dropdowns where possible."
     }
   },
-  "assets": {
-    "images": {
-      "hero_main": "https://images.unsplash.com/photo-1695822877321-15ef5412b82e?q=85&w=2000&auto=format&fit=crop",
-      "categories": {
-        "electronics": "https://images.unsplash.com/photo-1695822958645-b2b058159215?q=85&w=1000",
-        "home": "https://images.unsplash.com/photo-1759722665935-0967b4e0da93?q=85&w=1000",
-        "beauty": "https://images.pexels.com/photos/3762882/pexels-photo-3762882.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        "appliances": "https://images.pexels.com/photos/2724748/pexels-photo-2724748.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-      },
-      "payment_icons": {
-        "wave": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Wave_logo.svg/1200px-Wave_logo.svg.png",
-        "orange_money": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/2048px-Orange_logo.svg.png"
-      }
-    },
-    "icons": "Use Lucide-React. Stroke width: 1.5px (Thin/Elegant)."
+  "image_assets": {
+    "hero_bg": "https://images.unsplash.com/photo-1761437855598-011cf89b2ad4?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "gold_texture": "https://images.unsplash.com/photo-1761437856311-3ba13025f161?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "provider_tailor": "https://images.unsplash.com/photo-1687422809069-0fa3546b8471?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "provider_barber": "https://images.unsplash.com/photo-1646457417210-ec6afe2fa124?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "provider_mechanic": "https://images.unsplash.com/flagged/photo-1573137707067-95ae9d7bc599?crop=entropy&cs=srgb&fm=jpg&q=85"
   },
   "instructions_to_main_agent": [
-    "1. INSTALLATION: Run 'npm install lucide-react framer-motion clsx tailwind-merge' immediately.",
-    "2. CLEANUP: Delete App.css and index.css default styles. Replace with the Design System values.",
-    "3. COMPONENTS: Do not use default Shadcn styles. Override them with the 'visual_enhancers' rules (rounded-3xl, etc.).",
-    "4. IMAGES: Use the provided URLs. Do not use placeholders.",
-    "5. DARK MODE: Implement 'class' based dark mode. Default to Light Mode for that 'Apple Store' feel, but allow toggle.",
-    "6. SCROLL: Use 'lenis' for smooth scrolling if possible, or at least 'scroll-behavior: smooth'.",
-    "7. LANGUAGE: All text must be in French (as per 'Le shopping, autrement').",
-    "8. CURRENCY: Display all prices in 'FCFA' (e.g., '850.000 FCFA')."
+    "1. INSTALL FONTS: Add the Google Fonts import to the top of /app/frontend/src/index.css immediately.",
+    "2. UPDATE TAILWIND: Ensure the colors (gold, obsidian) are added to tailwind.config.js if not present.",
+    "3. CREATE COMPONENTS: Build the 'ProviderCard', 'BentoGrid', and 'ServiceWizard' components in /app/frontend/src/components/ui/.",
+    "4. PAGE IMPLEMENTATION: Create the pages in /app/frontend/src/pages/ (or equivalent router directory).",
+    "5. MOCK DATA: Use the provided image URLs for mock data. Do not use placeholders.",
+    "6. ANIMATIONS: Use 'framer-motion' for page transitions and hover effects if available, otherwise use Tailwind transitions defined in index.css.",
+    "7. CRITICAL: Ensure 'data-testid' attributes are added to all interactive elements (buttons, inputs, cards)."
   ],
   "universal_guidelines": [
-    "Avoid gradients on text.",
-    "Never center text blocks longer than 3 lines.",
-    "Use 2x more whitespace than you think is necessary.",
-    "Images are the heroes. UI is the frame.",
-    "Interactive elements must have a 'hover' state that lifts or glows."
+    "Do NOT use generic gradients. Use the specified 'Gold Rush' or 'Obsidian Sheen' only.",
+    "Ensure all text has sufficient contrast (APCA standards).",
+    "Use 2x padding compared to standard designs.",
+    "Never use 'Inter' for Headings. Use 'Playfair Display'.",
+    "Mobile-first: Ensure touch targets are at least 44px."
   ]
 }
