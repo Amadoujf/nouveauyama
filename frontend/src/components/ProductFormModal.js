@@ -614,6 +614,76 @@ const ProductFormModal = memo(({
                 </p>
               </div>
             )}
+
+            {/* SEO Tab */}
+            {activeTab === "seo" && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                  <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-1">Optimisation SEO</h4>
+                  <p className="text-sm text-blue-600 dark:text-blue-300">
+                    Améliorez la visibilité de votre produit dans les moteurs de recherche.
+                  </p>
+                </div>
+
+                {/* Meta Title */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Meta Title
+                    <span className="text-muted-foreground font-normal ml-2">
+                      ({form.meta_title?.length || 0}/60 caractères)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.meta_title}
+                    onChange={(e) => updateField("meta_title", e.target.value)}
+                    placeholder={form.name || "Titre optimisé pour les moteurs de recherche"}
+                    maxLength={60}
+                    className="w-full p-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Idéalement entre 50-60 caractères. Si vide, le nom du produit sera utilisé.
+                  </p>
+                </div>
+
+                {/* Meta Description */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Meta Description
+                    <span className="text-muted-foreground font-normal ml-2">
+                      ({form.meta_description?.length || 0}/160 caractères)
+                    </span>
+                  </label>
+                  <textarea
+                    value={form.meta_description}
+                    onChange={(e) => updateField("meta_description", e.target.value)}
+                    placeholder="Description courte et attrayante pour les résultats de recherche..."
+                    maxLength={160}
+                    rows={3}
+                    className="w-full p-3 rounded-xl border border-black/10 dark:border-white/10 bg-transparent focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Idéalement entre 120-160 caractères. Si vide, la description courte sera utilisée.
+                  </p>
+                </div>
+
+                {/* Preview */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Aperçu Google</label>
+                  <div className="bg-white dark:bg-gray-900 border rounded-xl p-4">
+                    <p className="text-blue-600 dark:text-blue-400 text-lg font-medium truncate">
+                      {form.meta_title || form.name || "Titre du produit"}
+                    </p>
+                    <p className="text-green-700 dark:text-green-500 text-sm">
+                      www.groupeyamaplus.com › produit › {form.name?.toLowerCase().replace(/\s+/g, '-') || 'slug'}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 line-clamp-2">
+                      {form.meta_description || form.short_description || form.description?.substring(0, 160) || "Description du produit..."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
