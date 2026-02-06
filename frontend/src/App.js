@@ -45,6 +45,11 @@ import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ServicesPage from "./pages/ServicesPage";
+import ProviderProfilePage from "./pages/ProviderProfilePage";
+import ServiceRequestPage from "./pages/ServiceRequestPage";
+import ProviderRegisterPage from "./pages/ProviderRegisterPage";
+import ProviderDashboardPage from "./pages/ProviderDashboardPage";
 
 import "./App.css";
 
@@ -303,6 +308,48 @@ function AppRouter() {
         element={
           <PublicLayout>
             <TrackOrderPage />
+          </PublicLayout>
+        }
+      />
+
+      {/* Services Marketplace */}
+      <Route
+        path="/services"
+        element={
+          <PublicLayout>
+            <ServicesPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/provider/:providerId"
+        element={
+          <PublicLayout>
+            <ProviderProfilePage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/services/request"
+        element={
+          <PublicLayout>
+            <ServiceRequestPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/provider/register/:inviteCode"
+        element={
+          <PublicLayout>
+            <ProviderRegisterPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/provider/dashboard"
+        element={
+          <PublicLayout>
+            <ProviderDashboardPage />
           </PublicLayout>
         }
       />
