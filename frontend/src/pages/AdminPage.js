@@ -40,6 +40,8 @@ import {
   ChevronDown,
   GripVertical,
   Sparkles,
+  Briefcase,
+  ClipboardList,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
@@ -59,6 +61,8 @@ const menuItems = [
   { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
   { id: "appointments", label: "Rendez-vous", icon: Clock, href: "/admin/appointments" },
+  { id: "service-providers", label: "Prestataires", icon: Briefcase, href: "/admin/service-providers" },
+  { id: "service-requests", label: "Demandes Services", icon: ClipboardList, href: "/admin/service-requests" },
   { id: "users", label: "Utilisateurs", icon: Users, href: "/admin/users" },
   { id: "promo-codes", label: "Codes Promo", icon: Tag, href: "/admin/promo-codes" },
   { id: "abandoned-carts", label: "Paniers abandonnés", icon: ShoppingBag, href: "/admin/abandoned-carts" },
