@@ -1258,6 +1258,10 @@ export default function AdminPage() {
         return renderUsers();
       case "appointments":
         return renderAppointments();
+      case "service-providers":
+        return <ServiceProvidersAdmin token={token} />;
+      case "service-requests":
+        return <ServiceRequestsAdmin token={token} />;
       case "analytics":
         return <AnalyticsDashboard />;
       case "flash-sales":
