@@ -7865,7 +7865,7 @@ async def get_service_providers(
     }
     sort = sort_options.get(sort_by, sort_options["rating"])
     
-    providers = await db.service_providers.find(query, {"_id": 0}).sort(sort).skip(skip).limit(limit).to_list(limit)
+    providers = await db.service_providers.find(query, {"_id": 0, "password": 0}).sort(sort).skip(skip).limit(limit).to_list(limit)
     total = await db.service_providers.count_documents(query)
     
     return {
