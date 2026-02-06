@@ -9,7 +9,12 @@ import aiohttp
 import json
 from datetime import datetime, timezone, timedelta
 from typing import Optional
-from mailersend import emails as mailersend_emails
+
+try:
+    from mailersend import emails as mailersend_emails
+except ImportError:
+    # Fallback for newer mailersend versions
+    mailersend_emails = None
 
 # Logger
 logger = logging.getLogger(__name__)
