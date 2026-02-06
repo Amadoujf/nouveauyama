@@ -60,6 +60,8 @@ const ProductFormModal = memo(({
     specs: editingProduct?.specs || {},
     is_on_order: editingProduct?.is_on_order || false,
     order_delivery_days: editingProduct?.order_delivery_days?.toString() || "",
+    meta_title: editingProduct?.meta_title || "",
+    meta_description: editingProduct?.meta_description || "",
   });
 
   const updateField = useCallback((field, value) => {
