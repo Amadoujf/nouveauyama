@@ -7880,7 +7880,7 @@ async def get_service_provider(provider_id: str):
     """Get a single provider profile"""
     provider = await db.service_providers.find_one(
         {"provider_id": provider_id, "is_active": True},
-        {"_id": 0}
+        {"_id": 0, "password": 0}
     )
     
     if not provider:
