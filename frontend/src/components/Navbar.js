@@ -22,6 +22,7 @@ import {
   HelpCircle,
   ChevronRight,
   Car,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
@@ -71,6 +72,7 @@ const navItems = [
   { name: "Décoration", href: "/category/decoration", icon: Sofa },
   { name: "Mode & Beauté", href: "/category/beaute", icon: Sparkles },
   { name: "Automobile", href: "/category/automobile", icon: Car },
+  { name: "Services", href: "/services", icon: Wrench, highlight: true },
   { name: "Nouveautés", href: "/nouveautes", icon: Star },
   { name: "Promotions", href: "/promotions", icon: Percent },
 ];
