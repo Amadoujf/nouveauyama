@@ -12,7 +12,7 @@ from datetime import datetime
 from urllib.parse import urljoin
 
 class Phase2SEOSecurityTester:
-    def __init__(self, base_url="https://pro-connect-42.preview.emergentagent.com"):
+    def __init__(self, base_url="https://service-hub-design.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_base = f"{base_url}/api"
         self.tests_run = 0

@@ -20,7 +20,7 @@ if not BASE_URL:
     except:
         pass
 if not BASE_URL:
-    BASE_URL = 'https://pro-connect-42.preview.emergentagent.com'
+    BASE_URL = 'https://service-hub-design.preview.emergentagent.com'
 BASE_URL = BASE_URL.rstrip('/')
 
 # Test credentials

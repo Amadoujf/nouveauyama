@@ -158,7 +158,7 @@ TVA non applicable
 
 ## Test Credentials
 - **Admin**: admin@yama.sn / admin123
-- **Preview URL**: https://pro-connect-42.preview.emergentagent.com
+- **Preview URL**: https://service-hub-design.preview.emergentagent.com
 
 ## Test Data Created
 - **Provider**: PRV-FAB5D4AD (Mamadou Ndiaye - Plombier)
