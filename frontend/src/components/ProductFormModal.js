@@ -267,6 +267,7 @@ const ProductFormModal = memo(({
     { id: "media", label: "Images", icon: ImageIcon },
     { id: "variants", label: "Options", icon: Palette },
     { id: "specs", label: "Spécifications", icon: Ruler },
+    { id: "seo", label: "SEO", icon: Search },
   ];
 
   return (
