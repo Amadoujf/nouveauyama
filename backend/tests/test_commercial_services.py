@@ -116,18 +116,14 @@ class TestServicesMarketplace:
         """POST /api/services/requests - Should create service request"""
         request_data = {
             "category": "electricity_plumbing",
-            "title": "Test Service Request",
+            "profession": "Plombier",
             "description": "Need a plumber for testing",
             "city": "Dakar",
             "zone": "Parcelles Assainies",
-            "budget_min": 5000,
-            "budget_max": 20000,
-            "urgency": "normal",
-            "customer": {
-                "name": "Test Customer",
-                "phone": "+221771234567",
-                "email": "test@example.com"
-            }
+            "client_name": "Test Customer",
+            "client_phone": "+221771234567",
+            "client_email": "test@example.com",
+            "budget": "5000-20000 FCFA"
         }
         
         response = requests.post(
