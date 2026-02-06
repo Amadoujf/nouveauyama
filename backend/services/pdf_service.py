@@ -111,7 +111,7 @@ def get_styles():
     ))
     
     styles.add(ParagraphStyle(
-        name='BodyText',
+        name='YamaBody',
         fontSize=10,
         textColor=YAMA_DARK,
         fontName='Helvetica',
@@ -285,10 +285,10 @@ def create_items_table(items: List[Dict], styles):
     # Table header
     table_data = [
         [
-            Paragraph("<b>Description</b>", styles['BodyText']),
-            Paragraph("<b>Qté</b>", styles['BodyText']),
-            Paragraph("<b>Prix unitaire</b>", styles['BodyText']),
-            Paragraph("<b>Total</b>", styles['BodyText'])
+            Paragraph("<b>Description</b>", styles['YamaBody']),
+            Paragraph("<b>Qté</b>", styles['YamaBody']),
+            Paragraph("<b>Prix unitaire</b>", styles['YamaBody']),
+            Paragraph("<b>Total</b>", styles['YamaBody'])
         ]
     ]
     
@@ -311,10 +311,10 @@ def create_items_table(items: List[Dict], styles):
         unit = item.get('unit', 'unité')
         
         table_data.append([
-            Paragraph(desc, styles['BodyText']),
-            Paragraph(f"{qty} {unit}", styles['BodyText']),
-            Paragraph(format_price(unit_price), styles['BodyText']),
-            Paragraph(format_price(line_total), styles['BodyText'])
+            Paragraph(desc, styles['YamaBody']),
+            Paragraph(f"{qty} {unit}", styles['YamaBody']),
+            Paragraph(format_price(unit_price), styles['YamaBody']),
+            Paragraph(format_price(line_total), styles['YamaBody'])
         ])
     
     # Table styling
@@ -371,14 +371,14 @@ def create_totals_section(subtotal: float, styles, discount: float = 0):
     totals_data.append([
         "",
         Paragraph("Sous-total:", styles['TotalLabel']),
-        Paragraph(format_price(subtotal), styles['BodyText'])
+        Paragraph(format_price(subtotal), styles['YamaBody'])
     ])
     
     if discount > 0:
         totals_data.append([
             "",
             Paragraph("Remise:", styles['TotalLabel']),
-            Paragraph(f"- {format_price(discount)}", styles['BodyText'])
+            Paragraph(f"- {format_price(discount)}", styles['YamaBody'])
         ])
     
     totals_data.append([
@@ -460,8 +460,8 @@ def generate_quote_pdf(
     
     # Date
     doc_date = date or datetime.now().strftime("%d/%m/%Y")
-    elements.append(Paragraph(f"Date: {doc_date}", styles['BodyText']))
-    elements.append(Paragraph(f"Validité: {validity_days} jours", styles['BodyText']))
+    elements.append(Paragraph(f"Date: {doc_date}", styles['YamaBody']))
+    elements.append(Paragraph(f"Validité: {validity_days} jours", styles['YamaBody']))
     elements.append(Spacer(1, 10*mm))
     
     # Partner section
@@ -470,7 +470,7 @@ def generate_quote_pdf(
     # Object/Title
     if title:
         elements.append(Paragraph("OBJET", styles['SectionTitle']))
-        elements.append(Paragraph(title, styles['BodyText']))
+        elements.append(Paragraph(title, styles['YamaBody']))
         if description:
             elements.append(Paragraph(description, styles['Notes']))
         elements.append(Spacer(1, 8*mm))
@@ -486,7 +486,7 @@ def generate_quote_pdf(
     if payment_terms:
         elements.append(Spacer(1, 10*mm))
         elements.append(Paragraph("CONDITIONS DE PAIEMENT", styles['SectionTitle']))
-        elements.append(Paragraph(payment_terms, styles['BodyText']))
+        elements.append(Paragraph(payment_terms, styles['YamaBody']))
     
     # Notes
     if notes:
@@ -557,9 +557,9 @@ def generate_invoice_pdf(
     
     # Date
     doc_date = date or datetime.now().strftime("%d/%m/%Y")
-    elements.append(Paragraph(f"Date: {doc_date}", styles['BodyText']))
+    elements.append(Paragraph(f"Date: {doc_date}", styles['YamaBody']))
     if due_date:
-        elements.append(Paragraph(f"Échéance: {due_date}", styles['BodyText']))
+        elements.append(Paragraph(f"Échéance: {due_date}", styles['YamaBody']))
     elements.append(Spacer(1, 10*mm))
     
     # Partner section
@@ -568,7 +568,7 @@ def generate_invoice_pdf(
     # Object/Title
     if title:
         elements.append(Paragraph("OBJET", styles['SectionTitle']))
-        elements.append(Paragraph(title, styles['BodyText']))
+        elements.append(Paragraph(title, styles['YamaBody']))
         if description:
             elements.append(Paragraph(description, styles['Notes']))
         elements.append(Spacer(1, 8*mm))
@@ -584,7 +584,7 @@ def generate_invoice_pdf(
     if payment_terms:
         elements.append(Spacer(1, 10*mm))
         elements.append(Paragraph("CONDITIONS DE PAIEMENT", styles['SectionTitle']))
-        elements.append(Paragraph(payment_terms, styles['BodyText']))
+        elements.append(Paragraph(payment_terms, styles['YamaBody']))
     
     # Notes
     if notes:
@@ -636,11 +636,11 @@ def generate_contract_pdf(
     # Document title
     elements.append(Paragraph("CONTRAT", styles['DocTitle']))
     elements.append(Paragraph(title.upper(), styles['DocNumber']))
-    elements.append(Paragraph(f"Réf: {contract_number}", styles['BodyText']))
+    elements.append(Paragraph(f"Réf: {contract_number}", styles['YamaBody']))
     
     # Date
     doc_date = date or datetime.now().strftime("%d/%m/%Y")
-    elements.append(Paragraph(f"Établi le: {doc_date}", styles['BodyText']))
+    elements.append(Paragraph(f"Établi le: {doc_date}", styles['YamaBody']))
     elements.append(Spacer(1, 10*mm))
     
     # Parties
@@ -649,7 +649,7 @@ def generate_contract_pdf(
     elements.append(Spacer(1, 5*mm))
     
     # Party 1: GROUPE YAMA PLUS
-    elements.append(Paragraph("<b>D'une part:</b>", styles['BodyText']))
+    elements.append(Paragraph("<b>D'une part:</b>", styles['YamaBody']))
     elements.append(Paragraph(
         f"""<b>{COMPANY_INFO['name']}</b><br/>
         {COMPANY_INFO['address']}<br/>
@@ -661,7 +661,7 @@ def generate_contract_pdf(
     elements.append(Spacer(1, 5*mm))
     
     # Party 2: Partner
-    elements.append(Paragraph("<b>D'autre part:</b>", styles['BodyText']))
+    elements.append(Paragraph("<b>D'autre part:</b>", styles['YamaBody']))
     partner_info = f"<b>{partner.get('company_name', partner.get('name', ''))}</b><br/>"
     if partner.get('address'):
         partner_info += f"{partner['address']}<br/>"
@@ -694,13 +694,13 @@ def generate_contract_pdf(
         period_text += "<br/>Durée indéterminée"
     if value:
         period_text += f"<br/>Valeur du contrat: {format_price(value)}"
-    elements.append(Paragraph(period_text, styles['BodyText']))
+    elements.append(Paragraph(period_text, styles['YamaBody']))
     elements.append(Spacer(1, 8*mm))
     
     # Description
     if description:
         elements.append(Paragraph("PRÉAMBULE", styles['SectionTitle']))
-        elements.append(Paragraph(description, styles['BodyText']))
+        elements.append(Paragraph(description, styles['YamaBody']))
         elements.append(Spacer(1, 5*mm))
     
     # Clauses
@@ -721,8 +721,8 @@ def generate_contract_pdf(
     
     sig_table = Table([
         [
-            Paragraph(f"<b>Pour {COMPANY_INFO['name']}</b><br/><br/><br/><br/>Signature:", styles['BodyText']),
-            Paragraph(f"<b>Pour {partner.get('company_name', partner.get('name', ''))}</b><br/><br/><br/><br/>Signature:", styles['BodyText'])
+            Paragraph(f"<b>Pour {COMPANY_INFO['name']}</b><br/><br/><br/><br/>Signature:", styles['YamaBody']),
+            Paragraph(f"<b>Pour {partner.get('company_name', partner.get('name', ''))}</b><br/><br/><br/><br/>Signature:", styles['YamaBody'])
         ]
     ], colWidths=[85*mm, 85*mm])
     sig_table.setStyle(TableStyle([
