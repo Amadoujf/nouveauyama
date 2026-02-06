@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
@@ -9,131 +9,109 @@ import {
   Star,
   Phone,
   MessageCircle,
-  ChevronRight,
   Filter,
-  X,
-  CheckCircle,
+  ChevronRight,
+  BadgeCheck,
+  Crown,
+  Briefcase,
   Clock,
+  Users,
+  X,
   Sparkles,
   ArrowRight,
-  Zap,
-  Shield,
-  Users,
-  Wrench,
-  Paintbrush,
-  Car,
-  Scissors,
-  Home,
-  Laptop,
-  Truck,
-  PartyPopper,
-  GraduationCap,
-  Settings,
-  Building,
-  Droplets,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Category icons mapping with colors
-const CATEGORY_CONFIG = {
-  construction: { 
-    icon: Building, 
-    color: "from-amber-500 to-orange-600",
-    bgLight: "bg-amber-50",
-    size: "md:col-span-2 md:row-span-2"
-  },
-  electricity_plumbing: { 
-    icon: Droplets, 
-    color: "from-blue-500 to-cyan-600",
-    bgLight: "bg-blue-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
-  auto_mechanics: { 
-    icon: Car, 
-    color: "from-slate-600 to-zinc-700",
-    bgLight: "bg-slate-50",
-    size: "md:col-span-1 md:row-span-2"
-  },
-  beauty_wellness: { 
-    icon: Scissors, 
-    color: "from-pink-500 to-rose-600",
-    bgLight: "bg-pink-50",
-    size: "md:col-span-2 md:row-span-1"
-  },
-  tech_repair: { 
-    icon: Laptop, 
-    color: "from-violet-500 to-purple-600",
-    bgLight: "bg-violet-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
-  cleaning_home: { 
-    icon: Home, 
-    color: "from-emerald-500 to-teal-600",
-    bgLight: "bg-emerald-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
-  transport_delivery: { 
-    icon: Truck, 
-    color: "from-indigo-500 to-blue-600",
-    bgLight: "bg-indigo-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
-  events_entertainment: { 
-    icon: PartyPopper, 
-    color: "from-fuchsia-500 to-pink-600",
-    bgLight: "bg-fuchsia-50",
-    size: "md:col-span-2 md:row-span-1"
-  },
-  education_training: { 
-    icon: GraduationCap, 
-    color: "from-sky-500 to-blue-600",
-    bgLight: "bg-sky-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
-  other_services: { 
-    icon: Settings, 
-    color: "from-gray-500 to-slate-600",
-    bgLight: "bg-gray-50",
-    size: "md:col-span-1 md:row-span-1"
-  },
+// Category icons mapping
+const categoryIcons = {
+  construction: "🏗️",
+  electricity_plumbing: "⚡",
+  auto_mechanics: "🚗",
+  beauty_wellness: "💅",
+  tech_repair: "💻",
+  cleaning_home: "🧹",
+  transport_delivery: "🚚",
+  events_entertainment: "🎉",
+  education_training: "📚",
+  other_services: "🔧",
+};
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.05,
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  })
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.4, ease: "easeOut" }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1
+    }
+  }
 };
 
 export default function ServicesPage() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
+  const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [providers, setProviders] = useState([]);
   const [locations, setLocations] = useState({ cities: [], dakar_zones: [] });
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
+  const [totalProviders, setTotalProviders] = useState(0);
   
   // Filters
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [selectedCity, setSelectedCity] = useState(searchParams.get("city") || "");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
-  const [verifiedOnly, setVerifiedOnly] = useState(searchParams.get("verified") === "true");
+  const [selectedCity, setSelectedCity] = useState(searchParams.get("city") || "");
+  const [selectedZone, setSelectedZone] = useState(searchParams.get("zone") || "");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchCategories();
+    fetchLocations();
   }, []);
 
   useEffect(() => {
     fetchProviders();
-  }, [selectedCity, selectedCategory, verifiedOnly]);
+  }, [selectedCategory, selectedCity, selectedZone, verifiedOnly, search]);
 
-  const fetchData = async () => {
+  const fetchCategories = async () => {
     try {
-      const [catRes, locRes] = await Promise.all([
-        axios.get(`${API_URL}/api/services/categories`),
-        axios.get(`${API_URL}/api/services/locations`),
-      ]);
-      setCategories(catRes.data);
-      setLocations(locRes.data);
+      const response = await axios.get(`${API_URL}/api/services/categories`);
+      setCategories(response.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchLocations = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/services/locations`);
+      setLocations(response.data);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
     }
   };
 
@@ -141,15 +119,19 @@ export default function ServicesPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selectedCity) params.append("city", selectedCity);
       if (selectedCategory) params.append("category", selectedCategory);
-      if (verifiedOnly) params.append("verified", "true");
-      if (searchQuery) params.append("search", searchQuery);
+      if (selectedCity) params.append("city", selectedCity);
+      if (selectedZone) params.append("zone", selectedZone);
+      if (verifiedOnly) params.append("verified_only", "true");
+      if (search) params.append("search", search);
+      params.append("limit", "20");
 
       const response = await axios.get(`${API_URL}/api/services/providers?${params}`);
       setProviders(response.data.providers || []);
+      setTotalProviders(response.data.total || 0);
     } catch (error) {
       console.error("Error fetching providers:", error);
+      setProviders([]);
     } finally {
       setLoading(false);
     }
@@ -160,499 +142,672 @@ export default function ServicesPage() {
     fetchProviders();
   };
 
-  const handleCategoryClick = (categoryId) => {
-    setSelectedCategory(categoryId === selectedCategory ? "" : categoryId);
-  };
-
   const clearFilters = () => {
-    setSelectedCity("");
+    setSearch("");
     setSelectedCategory("");
+    setSelectedCity("");
+    setSelectedZone("");
     setVerifiedOnly(false);
-    setSearchQuery("");
   };
 
-  const activeFiltersCount = [selectedCity, selectedCategory, verifiedOnly].filter(Boolean).length;
+  const activeFiltersCount = [selectedCategory, selectedCity, selectedZone, verifiedOnly].filter(Boolean).length;
 
   return (
-    <main className="min-h-screen bg-[#F9F9F7] dark:bg-[#020617]">
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0A]">
       <Helmet>
-        <title>Services Professionnels - YAMA+ Sénégal</title>
-        <meta name="description" content="Trouvez les meilleurs professionnels au Sénégal. Plombiers, électriciens, mécaniciens, coiffeurs et plus. Services vérifiés et de qualité." />
+        <title>Services & Prestataires - GROUPE YAMA+</title>
+        <meta name="description" content="Trouvez des professionnels qualifiés au Sénégal : plombiers, électriciens, peintres, menuisiers et plus encore." />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]" />
-          <div 
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-          {/* Gold accent glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#D4AF37]/10 rounded-full blur-3xl" />
+      {/* Hero Section with enhanced animations */}
+      <section className="relative bg-gradient-to-br from-black via-gray-900 to-black text-white py-16 lg:py-24 overflow-hidden">
+        {/* Animated background pattern */}
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920')] opacity-10 bg-cover bg-center" />
+        <motion.div 
+          className="absolute inset-0 opacity-20"
+          initial={{ backgroundPosition: "0% 0%" }}
+          animate={{ backgroundPosition: "100% 100%" }}
+          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212, 175, 55, 0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px',
+          }}
+        />
+        
+        {/* Floating particles effect */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-yellow-400/30 rounded-full"
+              initial={{ 
+                x: Math.random() * 100 + "%", 
+                y: "110%",
+                opacity: 0 
+              }}
+              animate={{ 
+                y: "-10%",
+                opacity: [0, 1, 1, 0]
+              }}
+              transition={{
+                duration: 8 + Math.random() * 4,
+                repeat: Infinity,
+                delay: i * 1.5,
+                ease: "linear"
+              }}
+            />
+          ))}
         </div>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 py-24 w-full">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* Badge */}
-            <motion.div 
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37] text-sm font-medium mb-8"
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-400/20 border border-yellow-400/30 text-yellow-400 text-sm font-medium mb-6"
             >
               <Sparkles className="w-4 h-4" />
               Plus de 1000 professionnels vérifiés
             </motion.div>
 
-            {/* Title */}
-            <h1 
-              className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-[1.1]"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4"
             >
-              Trouvez l'Expert
-              <span className="block text-[#D4AF37]">Idéal</span>
-            </h1>
+              Trouvez le bon professionnel
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg text-gray-300 mb-8"
+            >
+              Des milliers de prestataires qualifiés au Sénégal
+            </motion.p>
 
-            <p className="text-xl text-white/70 mb-12 max-w-2xl mx-auto" style={{ fontFamily: "'Manrope', sans-serif" }}>
-              Artisans, techniciens et professionnels qualifiés à votre service partout au Sénégal
-            </p>
+            {/* Animated Search Bar */}
+            <motion.form
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              onSubmit={handleSearch}
+              className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto"
+            >
+              <motion.div 
+                className="flex-1 relative group"
+                whileFocus={{ scale: 1.02 }}
+              >
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-yellow-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Rechercher un métier, prestataire..."
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
+                  data-testid="service-search-input"
+                />
+              </motion.div>
+              <motion.select
+                whileHover={{ scale: 1.02 }}
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="px-4 py-4 rounded-xl bg-white text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer transition-all duration-300"
+              >
+                <option value="">Toutes les villes</option>
+                {locations.cities.map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </motion.select>
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(250, 204, 21, 0.3)" }}
+                whileTap={{ scale: 0.98 }}
+                className="px-8 py-4 bg-yellow-400 text-black font-semibold rounded-xl hover:bg-yellow-300 transition-colors"
+                data-testid="service-search-btn"
+              >
+                Rechercher
+              </motion.button>
+            </motion.form>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
-              <div className="flex flex-col sm:flex-row gap-3 p-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10">
-                {/* Profession Search */}
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Quel service recherchez-vous ?"
-                    className="w-full h-14 pl-12 pr-4 bg-white/10 rounded-xl border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#D4AF37]/50 transition-colors"
-                    style={{ fontFamily: "'Manrope', sans-serif" }}
-                    data-testid="search-input"
-                  />
-                </div>
-
-                {/* City Select */}
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    className="h-14 pl-12 pr-8 bg-white/10 rounded-xl border border-white/10 text-white appearance-none cursor-pointer focus:outline-none focus:border-[#D4AF37]/50 transition-colors min-w-[180px]"
-                    style={{ fontFamily: "'Manrope', sans-serif" }}
-                    data-testid="city-select"
-                  >
-                    <option value="" className="text-gray-900">Toutes les villes</option>
-                    {locations.cities.map((city) => (
-                      <option key={city} value={city} className="text-gray-900">{city}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Search Button */}
-                <button
-                  type="submit"
-                  className="h-14 px-8 bg-[#D4AF37] hover:bg-[#B5952F] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#D4AF37]/20 flex items-center justify-center gap-2"
-                  style={{ fontFamily: "'Manrope', sans-serif" }}
-                  data-testid="search-btn"
-                >
-                  <Search className="w-5 h-5" />
-                  <span className="hidden sm:inline">Rechercher</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Quick Stats */}
-            <div className="flex flex-wrap justify-center gap-8 mt-12">
+            {/* Quick stats with staggered animation */}
+            <motion.div 
+              className="flex flex-wrap justify-center gap-8 mt-10"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {[
-                { icon: Shield, label: "Vérifiés", value: "100%" },
+                { icon: BadgeCheck, label: "Vérifiés", value: "100%" },
                 { icon: Users, label: "Clients satisfaits", value: "5000+" },
-                { icon: Zap, label: "Réponse rapide", value: "< 2h" },
+                { icon: Clock, label: "Réponse rapide", value: "< 2h" },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className="flex items-center gap-3 text-white/80"
+                  variants={fadeInUp}
+                  custom={i}
+                  className="flex items-center gap-3"
                 >
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-[#D4AF37]" />
+                    <stat.icon className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div className="text-left">
-                    <p className="text-2xl font-bold text-white">{stat.value}</p>
-                    <p className="text-sm text-white/60">{stat.label}</p>
+                    <p className="text-xl font-bold text-white">{stat.value}</p>
+                    <p className="text-sm text-gray-400">{stat.label}</p>
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Animated scroll indicator */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2"
           >
-            <div className="w-1.5 h-3 bg-white/50 rounded-full" />
+            <motion.div 
+              className="w-1.5 h-3 bg-yellow-400 rounded-full"
+              animate={{ opacity: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
         </motion.div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-24 px-6 md:px-12">
-        <div className="max-w-[1400px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+      {/* Categories with animation */}
+      <section className="py-12 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4">
+          <motion.h2 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-xl font-semibold mb-6"
           >
-            <h2 
-              className="text-4xl md:text-5xl font-bold text-[#0F172A] dark:text-white mb-4"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              Explorez nos Catégories
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" style={{ fontFamily: "'Manrope', sans-serif" }}>
-              Des experts qualifiés dans chaque domaine pour répondre à tous vos besoins
-            </p>
-          </motion.div>
-
-          {/* Bento Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[140px] md:auto-rows-[160px]">
-            {categories.map((cat, index) => {
-              const config = CATEGORY_CONFIG[cat.category_id] || CATEGORY_CONFIG.other_services;
-              const Icon = config.icon;
-              const isSelected = selectedCategory === cat.category_id;
-
-              return (
-                <motion.button
-                  key={cat.category_id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => handleCategoryClick(cat.category_id)}
-                  className={cn(
-                    "group relative overflow-hidden rounded-2xl md:rounded-3xl transition-all duration-500",
-                    config.size,
-                    isSelected 
-                      ? "ring-4 ring-[#D4AF37] ring-offset-2 dark:ring-offset-[#020617]" 
-                      : "hover:scale-[1.02]"
-                  )}
-                  data-testid={`category-${cat.category_id}`}
-                >
-                  {/* Background gradient */}
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-br opacity-90 group-hover:opacity-100 transition-opacity",
-                    config.color
-                  )} />
-                  
-                  {/* Pattern overlay */}
-                  <div 
-                    className="absolute inset-0 opacity-10"
-                    style={{
-                      backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                      backgroundSize: '20px 20px',
-                    }}
-                  />
-
-                  {/* Content */}
-                  <div className="relative h-full p-5 md:p-6 flex flex-col justify-between">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                    </div>
-                    
-                    <div className="text-left">
-                      <h3 className="text-lg md:text-xl font-bold text-white mb-1" style={{ fontFamily: "'Manrope', sans-serif" }}>
-                        {cat.name_fr}
-                      </h3>
-                      {cat.subcategories && (
-                        <p className="text-white/70 text-sm hidden md:block">
-                          {cat.subcategories.slice(0, 3).join(" • ")}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Hover shine effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Providers Section */}
-      <section className="py-24 px-6 md:px-12 bg-white dark:bg-[#0F172A]">
-        <div className="max-w-[1400px] mx-auto">
-          {/* Header with filters */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-            <div>
-              <h2 
-                className="text-4xl md:text-5xl font-bold text-[#0F172A] dark:text-white mb-2"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                {selectedCategory 
-                  ? categories.find(c => c.category_id === selectedCategory)?.name_fr || "Prestataires"
-                  : "Nos Meilleurs Experts"
-                }
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400" style={{ fontFamily: "'Manrope', sans-serif" }}>
-                {providers.length} professionnel{providers.length > 1 ? "s" : ""} disponible{providers.length > 1 ? "s" : ""}
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              {/* Verified filter */}
-              <button
-                onClick={() => setVerifiedOnly(!verifiedOnly)}
+            Catégories de services
+          </motion.h2>
+          <motion.div 
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {categories.map((cat, index) => (
+              <motion.button
+                key={cat.category_id}
+                variants={fadeInUp}
+                custom={index}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -5,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedCategory(selectedCategory === cat.category_id ? "" : cat.category_id)}
                 className={cn(
-                  "flex items-center gap-2 px-5 py-3 rounded-full font-medium transition-all",
-                  verifiedOnly 
-                    ? "bg-[#D4AF37] text-white" 
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  "flex flex-col items-center p-4 rounded-xl transition-all duration-300",
+                  selectedCategory === cat.category_id
+                    ? "bg-black text-white dark:bg-yellow-400 dark:text-black shadow-lg"
+                    : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"
                 )}
-                style={{ fontFamily: "'Manrope', sans-serif" }}
-                data-testid="verified-filter"
+                data-testid={`category-${cat.category_id}`}
               >
-                <CheckCircle className="w-5 h-5" />
-                Vérifiés uniquement
-              </button>
-
-              {/* Clear filters */}
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-2 px-5 py-3 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
-                  style={{ fontFamily: "'Manrope', sans-serif" }}
-                  data-testid="clear-filters"
+                <motion.span 
+                  className="text-2xl mb-2"
+                  animate={selectedCategory === cat.category_id ? { 
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 10, -10, 0]
+                  } : {}}
+                  transition={{ duration: 0.4 }}
                 >
-                  <X className="w-5 h-5" />
-                  Effacer ({activeFiltersCount})
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Providers Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-[400px] rounded-3xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
-              ))}
-            </div>
-          ) : providers.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                <Search className="w-10 h-10 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Aucun prestataire trouvé
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-8" style={{ fontFamily: "'Manrope', sans-serif" }}>
-                Essayez de modifier vos critères de recherche
-              </p>
-              <Link
-                to="/services/request"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#D4AF37] text-white font-semibold rounded-full hover:bg-[#B5952F] transition-all"
-                data-testid="request-service-btn"
-              >
-                Demander un service
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <AnimatePresence>
-                {providers.map((provider, index) => (
-                  <ProviderCard key={provider.provider_id} provider={provider} index={index} />
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+                  {categoryIcons[cat.category_id] || cat.icon || "🔧"}
+                </motion.span>
+                <span className="text-xs font-medium text-center leading-tight">{cat.name_fr}</span>
+              </motion.button>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-6 md:px-12">
-        <div className="max-w-[1400px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-gradient-to-br from-[#0F172A] to-[#1E293B] p-12 md:p-20"
-          >
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#D4AF37]/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+      {/* Main Content */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar Filters - Desktop with slide animation */}
+            <motion.aside 
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="hidden lg:block w-64 flex-shrink-0"
+            >
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sticky top-24 shadow-sm">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filtres
+                  {activeFiltersCount > 0 && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="ml-auto px-2 py-0.5 text-xs bg-yellow-400 text-black rounded-full"
+                    >
+                      {activeFiltersCount}
+                    </motion.span>
+                  )}
+                </h3>
 
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <h2 
-                className="text-4xl md:text-5xl font-bold text-white mb-6"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+                {/* City Filter */}
+                <div className="mb-4">
+                  <label className="text-sm text-muted-foreground mb-2 block">Ville</label>
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => {
+                      setSelectedCity(e.target.value);
+                      setSelectedZone("");
+                    }}
+                    className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                  >
+                    <option value="">Toutes</option>
+                    {locations.cities.map((city) => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Zone Filter (Dakar only) */}
+                <AnimatePresence>
+                  {selectedCity === "Dakar" && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mb-4 overflow-hidden"
+                    >
+                      <label className="text-sm text-muted-foreground mb-2 block">Quartier</label>
+                      <select
+                        value={selectedZone}
+                        onChange={(e) => setSelectedZone(e.target.value)}
+                        className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                      >
+                        <option value="">Tous</option>
+                        {locations.dakar_zones.map((zone) => (
+                          <option key={zone} value={zone}>{zone}</option>
+                        ))}
+                      </select>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Verified Only */}
+                <motion.div 
+                  className="mb-4"
+                  whileHover={{ x: 3 }}
+                >
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={verifiedOnly}
+                      onChange={(e) => setVerifiedOnly(e.target.checked)}
+                      className="rounded accent-yellow-400"
+                    />
+                    <span className="text-sm group-hover:text-yellow-600 transition-colors">Vérifiés uniquement</span>
+                    <BadgeCheck className="w-4 h-4 text-blue-500" />
+                  </label>
+                </motion.div>
+
+                {/* Clear Filters */}
+                <motion.button
+                  onClick={clearFilters}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-2 text-sm text-gray-500 hover:text-black dark:hover:text-white transition-colors border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400"
+                >
+                  Réinitialiser les filtres
+                </motion.button>
+              </div>
+            </motion.aside>
+
+            {/* Providers List */}
+            <div className="flex-1">
+              {/* Header */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-between mb-6"
               >
-                Vous n'avez pas trouvé ?
-              </h2>
-              <p className="text-xl text-white/70 mb-10" style={{ fontFamily: "'Manrope', sans-serif" }}>
-                Décrivez votre besoin et nous trouverons le professionnel idéal pour vous
-              </p>
-              <Link
-                to="/services/request"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-[#D4AF37] hover:bg-[#B5952F] text-white text-lg font-semibold rounded-full transition-all duration-300 hover:shadow-xl hover:shadow-[#D4AF37]/20 hover:scale-105"
-                style={{ fontFamily: "'Manrope', sans-serif" }}
-                data-testid="cta-request-btn"
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    {selectedCategory
+                      ? categories.find((c) => c.category_id === selectedCategory)?.name_fr
+                      : "Tous les prestataires"}
+                  </h2>
+                  <motion.p 
+                    key={totalProviders}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-sm text-muted-foreground"
+                  >
+                    {totalProviders} prestataires trouvés
+                  </motion.p>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"
+                >
+                  <Filter className="w-4 h-4" />
+                  Filtres
+                  {activeFiltersCount > 0 && (
+                    <span className="px-2 py-0.5 text-xs bg-yellow-400 text-black rounded-full">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </motion.button>
+              </motion.div>
+
+              {/* Mobile Filters with slide animation */}
+              <AnimatePresence>
+                {showFilters && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="lg:hidden bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 overflow-hidden shadow-sm"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-medium">Filtres</span>
+                      <button onClick={() => setShowFilters(false)}>
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <select
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        className="p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
+                      >
+                        <option value="">Toutes les villes</option>
+                        {locations.cities.map((city) => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={verifiedOnly}
+                          onChange={(e) => setVerifiedOnly(e.target.checked)}
+                          className="rounded accent-yellow-400"
+                        />
+                        <span className="text-sm">Vérifiés</span>
+                      </label>
+                    </div>
+                    {activeFiltersCount > 0 && (
+                      <button 
+                        onClick={clearFilters}
+                        className="mt-4 w-full py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        Effacer les filtres ({activeFiltersCount})
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Providers Grid with staggered animation */}
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="bg-white dark:bg-gray-800 rounded-2xl p-6"
+                    >
+                      <div className="flex gap-4">
+                        <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+                        <div className="flex-1">
+                          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2 animate-pulse" />
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : providers.length > 0 ? (
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {providers.map((provider, index) => (
+                      <ProviderCard key={provider.provider_id} provider={provider} index={index} />
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl"
+                >
+                  <motion.div
+                    animate={{ 
+                      y: [0, -10, 0],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Briefcase className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  </motion.div>
+                  <h3 className="text-xl font-semibold mb-2">Aucun prestataire trouvé</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Essayez de modifier vos critères de recherche
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={clearFilters}
+                    className="px-6 py-2 bg-black text-white dark:bg-white dark:text-black rounded-lg"
+                  >
+                    Réinitialiser les filtres
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {/* CTA - Request Service with enhanced animation */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mt-12 relative overflow-hidden bg-gradient-to-r from-yellow-400 via-yellow-300 to-orange-400 rounded-2xl p-8 text-center"
               >
-                Demander un service
-                <ArrowRight className="w-6 h-6" />
-              </Link>
+                {/* Animated shine effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "200%" }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                />
+                
+                <div className="relative z-10">
+                  <motion.h3 
+                    className="text-2xl font-bold text-black mb-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                  >
+                    Vous n'avez pas trouvé ce que vous cherchez ?
+                  </motion.h3>
+                  <motion.p 
+                    className="text-black/80 mb-6"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    Publiez votre demande et recevez des propositions de professionnels
+                  </motion.p>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link
+                      to="/services/request"
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-900 transition-all duration-300 hover:shadow-xl"
+                      data-testid="request-service-btn"
+                    >
+                      Demander un service
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </motion.div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </main>
   );
 }
 
-// Provider Card Component
+// Provider Card Component with enhanced animations
 function ProviderCard({ provider, index }) {
+  const whatsappLink = `https://wa.me/${provider.whatsapp?.replace(/[^0-9]/g, "") || provider.phone?.replace(/[^0-9]/g, "")}`;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ delay: index * 0.1 }}
-      className="group relative overflow-hidden rounded-3xl bg-white dark:bg-[#1E293B] border border-black/5 dark:border-white/5 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+      layout
+      variants={fadeInUp}
+      custom={index}
+      initial="hidden"
+      animate="visible"
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ 
+        y: -5, 
+        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+        transition: { duration: 0.2 }
+      }}
+      className="bg-white dark:bg-gray-800 rounded-2xl p-5 transition-shadow"
     >
-      {/* Image */}
-      <div className="relative h-56 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800">
-          {provider.photos?.[0] ? (
-            <img
-              src={provider.photos[0]}
-              alt={provider.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl">
-              👷
-            </div>
-          )}
-        </div>
-        
-        {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2">
-          {provider.is_verified && (
-            <span className="flex items-center gap-1 px-3 py-1.5 bg-[#D4AF37] text-white text-xs font-semibold rounded-full">
-              <CheckCircle className="w-3 h-3" />
-              Vérifié
-            </span>
-          )}
+      <div className="flex gap-4">
+        {/* Photo with hover effect */}
+        <div className="relative">
+          <motion.div 
+            className="w-20 h-20 rounded-xl bg-gray-100 dark:bg-gray-700 overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+          >
+            {provider.photos?.[0] ? (
+              <img
+                src={provider.photos[0]}
+                alt={provider.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-3xl">
+                {categoryIcons[provider.category] || "👷"}
+              </div>
+            )}
+          </motion.div>
           {provider.is_premium && (
-            <span className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white text-xs font-semibold rounded-full">
-              <Sparkles className="w-3 h-3" />
-              Premium
-            </span>
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, delay: 0.2 }}
+              className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg"
+            >
+              <Crown className="w-3 h-3 text-black" />
+            </motion.div>
           )}
         </div>
 
-        {/* Availability */}
-        <div className="absolute top-4 right-4">
-          <span className={cn(
-            "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-full",
-            provider.availability === "available" 
-              ? "bg-green-500 text-white" 
-              : provider.availability === "busy"
-              ? "bg-yellow-500 text-white"
-              : "bg-gray-500 text-white"
-          )}>
-            <Clock className="w-3 h-3" />
-            {provider.availability === "available" ? "Disponible" : 
-             provider.availability === "busy" ? "Occupé" : "Indisponible"}
-          </span>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="font-semibold flex items-center gap-1">
+                {provider.name}
+                {provider.is_verified && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                  >
+                    <BadgeCheck className="w-4 h-4 text-blue-500" />
+                  </motion.div>
+                )}
+              </h3>
+              <p className="text-sm text-muted-foreground">{provider.profession}</p>
+            </div>
+            {provider.rating > 0 && (
+              <motion.div 
+                className="flex items-center gap-1 px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg"
+                whileHover={{ scale: 1.1 }}
+              >
+                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                <span className="text-sm font-semibold">{provider.rating}</span>
+              </motion.div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+            <MapPin className="w-3 h-3" />
+            <span>{provider.city}{provider.zone ? `, ${provider.zone}` : ""}</span>
+          </div>
+
+          {provider.price_from && (
+            <p className="text-sm font-medium mt-1">
+              À partir de <span className="text-yellow-600 dark:text-yellow-400">{provider.price_from.toLocaleString()} FCFA</span>
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Manrope', sans-serif" }}>
-              {provider.name}
-            </h3>
-            <p className="text-[#D4AF37] font-medium">{provider.profession}</p>
-          </div>
-          {provider.rating > 0 && (
-            <div className="flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 rounded-full">
-              <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
-              <span className="font-bold text-[#D4AF37]">{provider.rating.toFixed(1)}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
-          <MapPin className="w-4 h-4" />
-          <span className="text-sm">{provider.city}{provider.zone ? `, ${provider.zone}` : ""}</span>
-        </div>
-
-        {provider.price_from && (
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            À partir de <span className="text-lg font-bold text-gray-900 dark:text-white">{provider.price_from.toLocaleString()} FCFA</span>
-            {provider.price_description && <span className="text-sm"> / {provider.price_description}</span>}
-          </p>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-          <Link
-            to={`/provider/${provider.provider_id}`}
-            className="flex-1 py-3 text-center font-semibold text-[#0F172A] dark:text-white bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            style={{ fontFamily: "'Manrope', sans-serif" }}
-            data-testid={`view-provider-${provider.provider_id}`}
+      {/* Actions with hover animations */}
+      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+        <Link
+          to={`/provider/${provider.provider_id}`}
+          className="flex-1"
+        >
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="py-2 text-center text-sm font-medium bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             Voir le profil
-          </Link>
-          <a
-            href={`https://wa.me/${provider.whatsapp?.replace(/[^0-9]/g, '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 flex items-center justify-center bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors"
-            data-testid={`whatsapp-${provider.provider_id}`}
-          >
-            <MessageCircle className="w-5 h-5" />
-          </a>
-          <a
-            href={`tel:${provider.phone}`}
-            className="w-12 h-12 flex items-center justify-center bg-[#0F172A] dark:bg-white text-white dark:text-[#0F172A] rounded-xl hover:opacity-90 transition-opacity"
-            data-testid={`phone-${provider.provider_id}`}
-          >
-            <Phone className="w-5 h-5" />
-          </a>
-        </div>
+          </motion.div>
+        </Link>
+        <motion.a
+          href={`tel:${provider.phone}`}
+          whileHover={{ scale: 1.1, rotate: 10 }}
+          whileTap={{ scale: 0.9 }}
+          className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        >
+          <Phone className="w-5 h-5" />
+        </motion.a>
+        <motion.a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ scale: 1.1, rotate: -10 }}
+          whileTap={{ scale: 0.9 }}
+          className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        >
+          <MessageCircle className="w-5 h-5" />
+        </motion.a>
       </div>
     </motion.div>
   );
