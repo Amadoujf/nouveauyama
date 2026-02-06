@@ -8117,6 +8117,65 @@ async def login_provider(phone: str, password: str):
         }
     }
 
+# Provider Dashboard endpoints
+async def get_current_provider(token: str = Depends(oauth2_scheme)):
+    """Dependency to get current provider from JWT token"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        provider_id = payload.get("sub")
+        token_type = payload.get("type")
+        
+        # Check if it's a provider token or a user token
+        if token_type == "provider":
+            provider = await db.service_providers.find_one(
+                {"provider_id": provider_id},
+                {"_id": 0, "password": 0}
+            )
+            if provider:
+                return provider
+        
+        # Also check if user has a provider profile
+        user_id = payload.get("sub")
+        if user_id:
+            provider = await db.service_providers.find_one(
+                {"user_id": user_id},
+                {"_id": 0, "password": 0}
+            )
+            if provider:
+                return provider
+        
+        raise HTTPException(status_code=404, detail="Profil prestataire non trouvé")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expiré")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Token invalide")
+
+@api_router.get("/services/provider/me")
+async def get_my_provider_profile(provider: dict = Depends(get_current_provider)):
+    """Get current provider's profile"""
+    return provider
+
+@api_router.put("/services/provider/me")
+async def update_my_provider_profile(
+    update_data: dict,
+    provider: dict = Depends(get_current_provider)
+):
+    """Update current provider's profile"""
+    allowed_fields = [
+        "description", "availability", "price_from", "price_description",
+        "phone", "whatsapp", "photos"
+    ]
+    
+    update_dict = {k: v for k, v in update_data.items() if k in allowed_fields}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider["provider_id"]},
+        {"$set": update_dict}
+    )
+    
+    return {"success": True, "message": "Profil mis à jour avec succès"}
+
 # Admin endpoints for providers
 @api_router.get("/admin/service-providers")
 async def admin_get_providers(
