@@ -230,6 +230,8 @@ const ProductFormModal = memo(({
         specs: form.specs || {},
         is_on_order: form.is_on_order || false,
         order_delivery_days: form.order_delivery_days ? parseInt(form.order_delivery_days) : null,
+        meta_title: form.meta_title?.trim() || null,
+        meta_description: form.meta_description?.trim() || null,
       };
 
       const headers = { Authorization: `Bearer ${token}` };
