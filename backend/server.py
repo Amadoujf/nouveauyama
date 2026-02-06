@@ -8118,14 +8118,28 @@ async def login_provider(phone: str, password: str):
     }
 
 # Provider Dashboard endpoints
-async def get_current_provider(token: str = Depends(oauth2_scheme)):
+async def get_current_provider(request: Request):
     """Dependency to get current provider from JWT token"""
+    token = None
+    
+    # Check cookie first
+    token = request.cookies.get("token")
+    
+    # Fall back to Authorization header
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+    
+    if not token:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         provider_id = payload.get("sub")
         token_type = payload.get("type")
         
-        # Check if it's a provider token or a user token
+        # Check if it's a provider token
         if token_type == "provider":
             provider = await db.service_providers.find_one(
                 {"provider_id": provider_id},
@@ -8134,7 +8148,7 @@ async def get_current_provider(token: str = Depends(oauth2_scheme)):
             if provider:
                 return provider
         
-        # Also check if user has a provider profile
+        # Also check if user has a provider profile linked by user_id
         user_id = payload.get("sub")
         if user_id:
             provider = await db.service_providers.find_one(
@@ -8151,16 +8165,16 @@ async def get_current_provider(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Token invalide")
 
 @api_router.get("/services/provider/me")
-async def get_my_provider_profile(provider: dict = Depends(get_current_provider)):
+async def get_my_provider_profile(request: Request):
     """Get current provider's profile"""
+    provider = await get_current_provider(request)
     return provider
 
 @api_router.put("/services/provider/me")
-async def update_my_provider_profile(
-    update_data: dict,
-    provider: dict = Depends(get_current_provider)
-):
+async def update_my_provider_profile(update_data: dict, request: Request):
     """Update current provider's profile"""
+    provider = await get_current_provider(request)
+    
     allowed_fields = [
         "description", "availability", "price_from", "price_description",
         "phone", "whatsapp", "photos"
