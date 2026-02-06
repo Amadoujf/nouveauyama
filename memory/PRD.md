@@ -9,74 +9,131 @@ Plateforme e-commerce premium pour le marché sénégalais avec boutique en lign
 - **Email**: MailerSend (transactionnel) + MailerLite (marketing)
 - **Push**: Web Push Notifications (pywebpush, VAPID)
 - **Auth**: JWT + Emergent Google Auth
+- **Payments**: PayTech (production)
 
 ---
 
-## Session: February 5, 2026 - Completed Work
+## Session: February 6, 2026 - Services Marketplace Complete ✅
 
-### ✅ Toutes les demandes implémentées
+### 🆕 NEW FEATURE: Services Marketplace
 
-| Fonctionnalité | Statut |
-|---------------|--------|
-| Chat Widget compact (comme WhatsApp) | ✅ |
-| Chat n'agrandit plus le site | ✅ |
-| Notifications email admin (amadoubourydiouf@gmail.com) | ✅ |
-| RDV visibles sur Dashboard | ✅ |
-| Confirmation WhatsApp pour RDV | ✅ |
-| Modifier statut commande | ✅ |
-| Email depuis contact@groupeyamaplus.com | ✅ |
-| Système de rendez-vous complet | ✅ |
-| **Push Notifications Web** | ✅ |
-| Refactoring server.py (début) | ✅ |
+**Description**: Annuaire de prestataires professionnels au Sénégal (type Pages Jaunes modernes)
 
-### 🔔 Push Notifications - Détails
+#### Backend APIs (Prefix: `/api/services/`)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/categories` | GET | 10 catégories de services |
+| `/locations` | GET | Villes du Sénégal + zones de Dakar |
+| `/providers` | GET | Liste des prestataires (filtrable) |
+| `/providers/{id}` | GET | Profil d'un prestataire |
+| `/providers/{id}/reviews` | GET/POST | Avis sur un prestataire |
+| `/requests` | POST | Créer une demande de service |
+| `/requests/{id}` | GET | Suivre une demande |
+| `/provider/me` | GET/PUT | Dashboard prestataire |
 
-**Backend:**
-- `GET /api/push/vapid-public-key` - Obtenir la clé VAPID
-- `POST /api/push/subscribe` - S'abonner aux notifications
-- `POST /api/push/unsubscribe` - Se désabonner
-- `GET /api/admin/push/stats` - Statistiques admin
-- `POST /api/admin/push/send` - Envoyer une notification (admin)
+#### Admin APIs (Prefix: `/api/admin/`)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/service-providers` | GET | Liste tous les prestataires |
+| `/service-providers/{id}` | PUT/DELETE | Modifier/Supprimer un prestataire |
+| `/service-requests` | GET | Liste toutes les demandes |
+| `/service-requests/{id}` | PUT | Assigner/Modifier statut |
 
-**Frontend:**
-- Service Worker `/sw.js` avec handler push
-- Composant `PushNotificationPrompt.js` (s'affiche après 2 visites)
-- Clé VAPID dans `REACT_APP_VAPID_PUBLIC_KEY`
+#### Frontend Pages
+- `/services` - Page principale avec catégories et recherche
+- `/provider/{id}` - Profil prestataire public
+- `/services/request` - Formulaire de demande de service
+- `/provider/register/{code}` - Inscription prestataire (privée)
+- `/provider/dashboard` - Dashboard prestataire
+- `/admin/service-providers` - Gestion admin des prestataires
+- `/admin/service-requests` - Gestion admin des demandes
 
-**Notifications automatiques:**
-- Création de commande → "🎉 Commande confirmée !"
-- Commande en préparation → "📦 Commande en préparation"
-- Commande expédiée → "🚚 Commande expédiée"
-- Commande livrée → "✅ Commande livrée"
-- Commande annulée → "❌ Commande annulée"
+#### Catégories de Services
+1. 🏠 Maison & Construction (Peintre, Maçon, Carreleur, Menuisier...)
+2. ⚡ Électricité & Plomberie (Électricien, Plombier, Climatisation...)
+3. 🚗 Auto & Mécanique (Mécanicien, Soudeur, Carrossier...)
+4. 💅 Beauté & Bien-être (Coiffeur, Esthéticienne, Massage...)
+5. 💻 Tech & Réparation (Informaticien, Réparateur téléphone...)
+6. 🧹 Nettoyage & Maison (Femme de ménage, Jardinier...)
+7. 🚚 Transport & Déménagement (Déménageur, Coursier...)
+8. 🎉 Événements & Animation (DJ, Photographe, Traiteur...)
+9. 📚 Éducation & Cours (Professeur, Coach, Traducteur...)
+10. 🔧 Autres Services (Couturier, Serrurier, Forgeron...)
 
----
+#### Codes d'Invitation Prestataires
+- `YAMAPLUS2025`
+- `PRESTATAIRE`
+- `SERVICEPRO`
 
-## Tests Passés
-- Iteration 17: 100% (15/15 tests backend + frontend vérifié)
-
----
-
-## En attente de l'utilisateur
-
-| Action | Statut |
-|--------|--------|
-| Ajouter logo dans MailerSend (Sender Identities) | ⏳ |
-| URLs TikTok/Snapchat pour le footer | ⏳ |
-
----
-
-## Limitations Connues
-
-- **PayTech** : Mode TEST (paiements non traités)
-- **MailerSend** : Mode trial (limite destinataires)
-- **Google OAuth** : Tester dans Chrome/Safari (pas webview)
+#### Sécurité Implémentée
+- ✅ Mots de passe exclus des réponses API
+- ✅ Inscription prestataire par invitation seulement
+- ✅ Approbation admin requise avant visibilité
+- ✅ Badge "Vérifié" contrôlé par admin
 
 ---
 
-## Credentials Test
+## Completed Features
+
+### E-Commerce Core
+- [x] Catalogue produits avec catégories
+- [x] Panier et checkout
+- [x] Paiements PayTech (production)
+- [x] Gestion des commandes
+- [x] Système de wishlist
+- [x] Comparaison de produits
+- [x] Avis clients
+
+### Marketing & Engagement
+- [x] Email marketing (MailerLite)
+- [x] Push notifications web
+- [x] Programme de fidélité
+- [x] Parrainage
+- [x] Codes promo
+- [x] Ventes flash
+- [x] Newsletter
+
+### Administration
+- [x] Dashboard analytique
+- [x] Gestion produits
+- [x] Gestion commandes
+- [x] Gestion utilisateurs
+- [x] Gestion rendez-vous
+- [x] **Gestion prestataires** (NEW)
+- [x] **Gestion demandes de services** (NEW)
+- [x] Paniers abandonnés
+- [x] Campagnes email
+
+---
+
+## Backlog / Future Tasks
+
+### P1 - High Priority
+- [ ] Upload de photos pour prestataires
+- [ ] Système de notation/avis prestataires (côté client)
+- [ ] Profils premium/sponsorisés (monétisation)
+
+### P2 - Medium Priority
+- [ ] Notifications push pour nouvelles demandes
+- [ ] Statistiques avancées pour prestataires
+- [ ] Intégration calendrier pour RDV prestataires
+
+### P3 - Low Priority
+- [ ] Application mobile prestataire
+- [ ] Système de paiement pour services
+- [ ] Chat direct client-prestataire
+
+---
+
+## Test Credentials
 - **Admin**: admin@yama.sn / admin123
 - **Preview URL**: https://pro-connect-42.preview.emergentagent.com
 
+## Test Data
+- **Provider**: PRV-FAB5D4AD (Mamadou Ndiaye - Plombier)
+- **Service Request**: SR-3944A8AE
+- **Invitation Codes**: YAMAPLUS2025, PRESTATAIRE, SERVICEPRO
+
 ---
-*Last updated: February 5, 2026*
+
+*Last updated: February 6, 2026*
