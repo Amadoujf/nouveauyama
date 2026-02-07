@@ -478,6 +478,282 @@ export default function ProviderDashboardPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Email professionnel</label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                      disabled={!editing}
+                      placeholder="contact@exemple.com"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Services */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      <Briefcase className="w-4 h-4 inline mr-1" />
+                      Services proposés
+                    </label>
+                    {editing && (
+                      <div className="flex gap-2 mb-3">
+                        <input
+                          type="text"
+                          value={newService}
+                          onChange={(e) => setNewService(e.target.value)}
+                          placeholder="Ex: Réparation de fuites"
+                          className="flex-1 p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <button
+                          onClick={() => {
+                            if (newService.trim()) {
+                              setEditForm({
+                                ...editForm,
+                                services: [...editForm.services, newService.trim()]
+                              });
+                              setNewService("");
+                            }
+                          }}
+                          className="px-4 py-2 bg-yellow-400 text-black font-medium rounded-xl"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {editForm.services.map((service, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
+                        >
+                          {service}
+                          {editing && (
+                            <button
+                              onClick={() => {
+                                setEditForm({
+                                  ...editForm,
+                                  services: editForm.services.filter((_, idx) => idx !== i)
+                                });
+                              }}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                      {editForm.services.length === 0 && (
+                        <p className="text-sm text-muted-foreground">Aucun service ajouté</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Links Section */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+                <h2 className="font-semibold flex items-center gap-2 mb-4">
+                  <Share2 className="w-5 h-5" />
+                  Réseaux sociaux
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Ajoutez vos liens de réseaux sociaux pour que vos clients puissent vous suivre
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Facebook */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Facebook className="w-4 h-4 text-blue-600" />
+                      Facebook
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.facebook}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, facebook: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://facebook.com/votre-page"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Instagram */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Instagram className="w-4 h-4 text-pink-600" />
+                      Instagram
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.instagram}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, instagram: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://instagram.com/votre-compte"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* LinkedIn */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Linkedin className="w-4 h-4 text-blue-700" />
+                      LinkedIn
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.linkedin}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, linkedin: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://linkedin.com/in/votre-profil"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Twitter/X */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Twitter className="w-4 h-4 text-sky-500" />
+                      Twitter / X
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.twitter}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, twitter: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://twitter.com/votre-compte"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* TikTok */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
+                      </svg>
+                      TikTok
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.tiktok}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, tiktok: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://tiktok.com/@votre-compte"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* YouTube */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Youtube className="w-4 h-4 text-red-600" />
+                      YouTube
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.youtube}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, youtube: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://youtube.com/@votre-chaine"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Website */}
+                  <div className="sm:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                      <Globe className="w-4 h-4" />
+                      Site web personnel
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.social_links.website}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        social_links: { ...editForm.social_links, website: e.target.value }
+                      })}
+                      disabled={!editing}
+                      placeholder="https://votre-site.com"
+                      className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 disabled:opacity-60"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Link Card */}
+              <div className="bg-gradient-to-r from-yellow-400/20 to-orange-400/20 border border-yellow-400/30 rounded-2xl p-6">
+                <h2 className="font-semibold flex items-center gap-2 mb-2">
+                  <LinkIcon className="w-5 h-5 text-yellow-500" />
+                  Votre lien de profil YAMA+
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Partagez ce lien sur vos réseaux sociaux, cartes de visite, etc.
+                </p>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${window.location.origin}/provider/${provider.provider_id}`}
+                    className="flex-1 bg-transparent text-sm outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/provider/${provider.provider_id}`);
+                      toast.success("Lien copié !");
+                    }}
+                    className="px-4 py-2 bg-yellow-400 text-black font-medium rounded-lg text-sm flex items-center gap-2"
+                  >
+                    Copier
+                  </button>
+                </div>
+                <div className="flex gap-3 mt-4">
+                  <a
+                    href={`https://wa.me/?text=Découvrez mon profil professionnel sur YAMA+ ${window.location.origin}/provider/${provider.provider_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
+                  </a>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + "/provider/" + provider.provider_id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    Facebook
+                  </a>
+                  <Link
+                    to={`/provider/${provider.provider_id}`}
+                    target="_blank"
+                    className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-sm"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Voir
+                  </Link>
                 </div>
               </div>
             </motion.div>
