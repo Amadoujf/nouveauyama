@@ -317,38 +317,18 @@ export default function ProviderProfilePage() {
                 )}
               </motion.div>
 
-              {/* CTA Buttons */}
+              {/* CTA Buttons - REMOVED: Client should not contact provider directly */}
+              {/* Contact goes through YAMA+ platform */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
                 className="flex flex-wrap justify-center lg:justify-start gap-3"
               >
-                <a
-                  href={`tel:${provider.phone}`}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <Phone className="w-5 h-5" />
-                  Appeler
-                </a>
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white font-medium rounded-xl hover:bg-green-600 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  WhatsApp
-                </a>
-                {provider.email && (
-                  <a
-                    href={`mailto:${provider.email}`}
-                    className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-gray-300 transition-all"
-                  >
-                    <Mail className="w-5 h-5" />
-                    Email
-                  </a>
-                )}
+                <div className="flex items-center gap-2 px-6 py-3 bg-yellow-50 border-2 border-yellow-200 text-yellow-800 font-medium rounded-xl">
+                  <BadgeCheck className="w-5 h-5" />
+                  Prestataire vérifié YAMA+
+                </div>
               </motion.div>
             </div>
           </div>
