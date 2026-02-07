@@ -183,10 +183,21 @@ def create_header(styles, doc_type: str = ""):
     
     header_data = []
     
-    # Left side: Logo or Company name
+    # Left side: Logo with tagline or Company name
     if logo_data:
-        img = Image(logo_data, width=50*mm, height=20*mm)
-        left_content = img
+        # Use proportional sizing to avoid stretching - square logo
+        img = Image(logo_data, width=35*mm, height=35*mm)
+        # Create logo with tagline below
+        logo_table = Table([
+            [img],
+            [Paragraph("<i>Votre partenaire de croissance</i>", ParagraphStyle('Tagline', fontSize=8, textColor=YAMA_GRAY, alignment=TA_CENTER))]
+        ], colWidths=[40*mm])
+        logo_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 1), (0, 1), 2),
+        ]))
+        left_content = logo_table
     else:
         left_content = Paragraph(COMPANY_INFO["name"], styles['CompanyName'])
     
