@@ -1012,6 +1012,120 @@ def get_commercial_routes(db, require_admin):
     
     # ============== DASHBOARD STATS ==============
     
+    # ============== CONTRACT SIGNATURES ==============
+    
+    class SignatureRequest(BaseModel):
+        signature_data: str  # Base64 encoded signature image
+        signer_name: str
+        signer_role: str = "partner"  # "partner" or "company"
+    
+    @commercial_router.post("/contracts/{contract_id}/sign")
+    async def sign_contract(contract_id: str, data: SignatureRequest, user = Depends(require_admin)):
+        """Add a digital signature to a contract"""
+        contract = await db.contracts.find_one({"contract_id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contrat non trouvé")
+        
+        # Get existing signatures or create new list
+        signatures = contract.get("signatures", [])
+        
+        # Add new signature
+        new_signature = {
+            "signature_id": f"SIG-{secrets.token_hex(4).upper()}",
+            "signature_data": data.signature_data,
+            "signer_name": data.signer_name,
+            "signer_role": data.signer_role,
+            "signed_at": datetime.now(timezone.utc).isoformat(),
+            "ip_address": None,  # Could be captured from request if needed
+        }
+        signatures.append(new_signature)
+        
+        # Check if both parties have signed
+        partner_signed = any(s["signer_role"] == "partner" for s in signatures)
+        company_signed = any(s["signer_role"] == "company" for s in signatures)
+        
+        # Update contract status if both signed
+        new_status = contract.get("status")
+        if partner_signed and company_signed:
+            new_status = "signed"
+        elif partner_signed or company_signed:
+            new_status = "pending_signature"
+        
+        await db.contracts.update_one(
+            {"contract_id": contract_id},
+            {"$set": {
+                "signatures": signatures,
+                "status": new_status,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {
+            "success": True,
+            "message": f"Signature de {data.signer_name} ajoutée",
+            "signature_id": new_signature["signature_id"],
+            "contract_status": new_status,
+            "partner_signed": partner_signed,
+            "company_signed": company_signed
+        }
+    
+    @commercial_router.get("/contracts/{contract_id}/signatures")
+    async def get_contract_signatures(contract_id: str, user = Depends(require_admin)):
+        """Get all signatures for a contract"""
+        contract = await db.contracts.find_one({"contract_id": contract_id}, {"_id": 0, "signatures": 1, "status": 1})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contrat non trouvé")
+        
+        signatures = contract.get("signatures", [])
+        partner_signed = any(s["signer_role"] == "partner" for s in signatures)
+        company_signed = any(s["signer_role"] == "company" for s in signatures)
+        
+        return {
+            "signatures": signatures,
+            "status": contract.get("status"),
+            "partner_signed": partner_signed,
+            "company_signed": company_signed,
+            "fully_signed": partner_signed and company_signed
+        }
+    
+    @commercial_router.delete("/contracts/{contract_id}/signatures/{signature_id}")
+    async def delete_signature(contract_id: str, signature_id: str, user = Depends(require_admin)):
+        """Remove a signature from a contract"""
+        contract = await db.contracts.find_one({"contract_id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contrat non trouvé")
+        
+        signatures = contract.get("signatures", [])
+        original_count = len(signatures)
+        signatures = [s for s in signatures if s.get("signature_id") != signature_id]
+        
+        if len(signatures) == original_count:
+            raise HTTPException(status_code=404, detail="Signature non trouvée")
+        
+        # Update status
+        partner_signed = any(s["signer_role"] == "partner" for s in signatures)
+        company_signed = any(s["signer_role"] == "company" for s in signatures)
+        
+        if not signatures:
+            new_status = "active"
+        elif partner_signed and company_signed:
+            new_status = "signed"
+        else:
+            new_status = "pending_signature"
+        
+        await db.contracts.update_one(
+            {"contract_id": contract_id},
+            {"$set": {
+                "signatures": signatures,
+                "status": new_status,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {"success": True, "message": "Signature supprimée"}
+    
+    # ============== DASHBOARD STATS ENDPOINT ==============
+    
     @commercial_router.get("/dashboard")
     async def get_commercial_dashboard(user = Depends(require_admin)):
         """Get commercial dashboard statistics"""
