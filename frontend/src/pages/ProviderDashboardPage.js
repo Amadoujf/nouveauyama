@@ -760,6 +760,132 @@ export default function ProviderDashboardPage() {
             </motion.div>
           )}
 
+          {/* Gallery Tab */}
+          {activeTab === "gallery" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5" />
+                    Ma galerie photos ({provider.photos?.length || 0})
+                  </h2>
+                </div>
+                
+                <p className="text-sm text-muted-foreground mb-6">
+                  Ajoutez des photos de vos réalisations pour attirer plus de clients. Les images de qualité augmentent la confiance.
+                </p>
+
+                {/* Photo Upload */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2">Ajouter une photo (URL)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      id="new-photo-url"
+                      placeholder="https://exemple.com/image.jpg"
+                      className="flex-1 p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <button
+                      onClick={async () => {
+                        const input = document.getElementById("new-photo-url");
+                        const url = input.value.trim();
+                        if (!url) {
+                          toast.error("Veuillez entrer une URL d'image");
+                          return;
+                        }
+                        try {
+                          const token = localStorage.getItem("token");
+                          await axios.post(
+                            `${API_URL}/api/services/providers/${provider.provider_id}/gallery`,
+                            { image_url: url },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          toast.success("Photo ajoutée !");
+                          input.value = "";
+                          fetchProviderProfile();
+                        } catch (error) {
+                          toast.error("Erreur lors de l'ajout");
+                        }
+                      }}
+                      className="px-6 py-3 bg-yellow-400 text-black font-medium rounded-xl flex items-center gap-2"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+
+                {/* Photo Grid */}
+                {provider.photos?.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {provider.photos.map((photo, i) => (
+                      <div key={i} className="aspect-square relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+                        <img
+                          src={photo}
+                          alt={`Photo ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Supprimer cette photo ?")) return;
+                              try {
+                                const token = localStorage.getItem("token");
+                                // Get gallery to find photo_id
+                                const response = await axios.get(
+                                  `${API_URL}/api/services/providers/${provider.provider_id}/gallery`,
+                                  { headers: { Authorization: `Bearer ${token}` } }
+                                );
+                                const gallery = response.data.gallery || [];
+                                const photoItem = gallery.find(p => p.image_url === photo);
+                                if (photoItem) {
+                                  await axios.delete(
+                                    `${API_URL}/api/services/providers/${provider.provider_id}/gallery/${photoItem.photo_id}`,
+                                    { headers: { Authorization: `Bearer ${token}` } }
+                                  );
+                                  toast.success("Photo supprimée");
+                                  fetchProviderProfile();
+                                }
+                              } catch (error) {
+                                toast.error("Erreur lors de la suppression");
+                              }
+                            }}
+                            className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                    <p className="text-muted-foreground mb-4">Aucune photo dans votre galerie</p>
+                    <p className="text-sm text-muted-foreground">
+                      Ajoutez des photos de vos réalisations pour montrer votre travail
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Tips */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">💡 Conseils pour de bonnes photos</h3>
+                <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
+                  <li>• Prenez des photos en bonne lumière</li>
+                  <li>• Montrez vos réalisations avant/après</li>
+                  <li>• Utilisez des images de haute qualité</li>
+                  <li>• Variez les types de travaux</li>
+                </ul>
+              </div>
+            </motion.div>
+          )}
+
           {/* Stats Tab */}
           {activeTab === "stats" && (
             <motion.div
