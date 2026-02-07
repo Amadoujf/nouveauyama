@@ -781,6 +781,21 @@ function QuotesSection({ token }) {
                     PDF
                   </button>
                   <button
+                    onClick={() => setShareModal({
+                      type: "quote",
+                      id: quote.quote_id,
+                      number: quote.quote_number,
+                      phone: quote.partner_phone,
+                      email: quote.partner_email,
+                      name: quote.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer via WhatsApp"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
+                  </button>
+                  <button
                     onClick={() => setEmailModal({
                       type: "quote",
                       id: quote.quote_id,
@@ -788,10 +803,10 @@ function QuotesSection({ token }) {
                       email: quote.partner_email,
                       name: quote.partner_name
                     })}
-                    className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
                     title="Envoyer par email"
                   >
-                    <Send className="w-4 h-4" />
+                    <Mail className="w-4 h-4" />
                     Email
                   </button>
                   {quote.status === "pending" && (
