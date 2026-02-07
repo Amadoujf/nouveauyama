@@ -1726,6 +1726,266 @@ function ContractFormModal({ token, onClose, onSuccess }) {
   );
 }
 
+// ============== PARTNERSHIP CONTRACT MODAL ==============
+
+function PartnershipContractModal({ token, onClose, onSuccess }) {
+  const [partners, setPartners] = useState([]);
+  const [form, setForm] = useState({
+    partner_id: "",
+    commission_percent: "",
+    payment_frequency: "chaque mois",
+    payment_method: "Wave / Orange Money / Virement bancaire",
+    delivery_responsibility: "GROUPE YAMA PLUS",
+    delivery_fees: "inclus dans le prix",
+    contract_duration: "12 mois",
+  });
+  const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    fetchPartners();
+  }, []);
+
+  const fetchPartners = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/commercial/partners`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPartners(response.data.partners || []);
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.partner_id) {
+      toast.error("Veuillez sélectionner un partenaire");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axios.post(`${API_URL}/api/commercial/partnership-contract/create-and-save`, form, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Contrat de partenariat créé avec succès");
+      onSuccess?.();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erreur lors de la création");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!form.partner_id) {
+      toast.error("Veuillez sélectionner un partenaire");
+      return;
+    }
+
+    setDownloading(true);
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/commercial/partnership-contract/generate`,
+        form,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "blob"
+        }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Contrat_Partenariat_Commercial.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("PDF téléchargé");
+    } catch (error) {
+      toast.error("Erreur lors du téléchargement");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800">
+          <h3 className="font-semibold flex items-center gap-2">
+            <FileText className="w-5 h-5 text-yellow-500" />
+            Contrat de Partenariat Commercial
+          </h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {/* Partner Selection */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Partenaire *</label>
+            <select
+              required
+              value={form.partner_id}
+              onChange={(e) => setForm({ ...form, partner_id: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+              data-testid="partnership-partner-select"
+            >
+              <option value="">Sélectionner un partenaire</option>
+              {partners.map((p) => (
+                <option key={p.partner_id} value={p.partner_id}>
+                  {p.company_name || p.name} {p.email && `(${p.email})`}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Commission */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Commission (%)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              value={form.commission_percent}
+              onChange={(e) => setForm({ ...form, commission_percent: e.target.value })}
+              placeholder="Ex: 15"
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Laisser vide pour marquer "à définir"</p>
+          </div>
+
+          {/* Payment Frequency */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Fréquence de paiement</label>
+            <select
+              value={form.payment_frequency}
+              onChange={(e) => setForm({ ...form, payment_frequency: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="chaque semaine">Chaque semaine</option>
+              <option value="chaque 15 jours">Chaque 15 jours</option>
+              <option value="chaque mois">Chaque mois</option>
+            </select>
+          </div>
+
+          {/* Payment Method */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Mode de paiement</label>
+            <select
+              value={form.payment_method}
+              onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="Wave / Orange Money / Virement bancaire">Wave / Orange Money / Virement bancaire</option>
+              <option value="Wave">Wave uniquement</option>
+              <option value="Orange Money">Orange Money uniquement</option>
+              <option value="Virement bancaire">Virement bancaire</option>
+              <option value="Espèces">Espèces</option>
+            </select>
+          </div>
+
+          {/* Delivery Responsibility */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Responsable de la livraison</label>
+            <select
+              value={form.delivery_responsibility}
+              onChange={(e) => setForm({ ...form, delivery_responsibility: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="GROUPE YAMA PLUS">GROUPE YAMA PLUS</option>
+              <option value="Le Partenaire">Le Partenaire</option>
+              <option value="Service externe">Service externe</option>
+            </select>
+          </div>
+
+          {/* Delivery Fees */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Frais de livraison</label>
+            <select
+              value={form.delivery_fees}
+              onChange={(e) => setForm({ ...form, delivery_fees: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="inclus dans le prix">Inclus dans le prix</option>
+              <option value="à la charge du client">À la charge du client</option>
+              <option value="à la charge du Partenaire">À la charge du Partenaire</option>
+            </select>
+          </div>
+
+          {/* Contract Duration */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Durée du contrat</label>
+            <select
+              value={form.contract_duration}
+              onChange={(e) => setForm({ ...form, contract_duration: e.target.value })}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="3 mois">3 mois</option>
+              <option value="6 mois">6 mois</option>
+              <option value="12 mois">12 mois</option>
+            </select>
+          </div>
+
+          {/* Info Box */}
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl">
+            <h4 className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">Articles inclus automatiquement:</h4>
+            <ul className="text-sm text-yellow-700 dark:text-yellow-400 space-y-1">
+              <li>• Article 1: Objet du contrat</li>
+              <li>• Article 2: Engagements du Partenaire</li>
+              <li>• Article 3: Engagements de GROUPE YAMA PLUS</li>
+              <li>• Article 4-6: Prix, Commission, Paiement, Livraison</li>
+              <li>• Article 7-11: Retour, Confidentialité, Durée, Résiliation, Litiges</li>
+            </ul>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={downloading || !form.partner_id}
+              className="flex-1 px-4 py-3 bg-blue-500 text-white font-medium rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {downloading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Génération...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Télécharger PDF
+                </>
+              )}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 px-4 py-3 bg-yellow-400 text-black font-medium rounded-xl disabled:opacity-50"
+            >
+              {saving ? "Création..." : "Créer & Sauvegarder"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ============== EMAIL MODAL COMPONENT ==============
 
 function EmailModal({ token, documentType, documentId, documentNumber, partnerEmail, partnerName, onClose, onSuccess }) {
