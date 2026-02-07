@@ -1103,6 +1103,7 @@ function InvoicesSection({ token }) {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [emailModal, setEmailModal] = useState(null);
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
