@@ -840,9 +840,12 @@ def generate_partnership_contract_pdf(
     try:
         logo_image = download_image(COMPANY_INFO['logo_url'])
         if logo_image:
-            logo = Image(logo_image, width=40*mm, height=40*mm)
+            # Use proportional sizing to avoid stretching - square logo
+            logo = Image(logo_image, width=35*mm, height=35*mm)
             logo.hAlign = 'CENTER'
             elements.append(logo)
+            # Add tagline below logo
+            elements.append(Paragraph("<i>Votre partenaire de croissance</i>", ParagraphStyle('Tagline', fontSize=9, textColor=YAMA_GRAY, fontName='Helvetica-Oblique', alignment=TA_CENTER)))
             elements.append(Spacer(1, 5*mm))
     except:
         pass
