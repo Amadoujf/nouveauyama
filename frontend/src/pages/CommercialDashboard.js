@@ -1498,6 +1498,21 @@ function ContractsSection({ token }) {
                     PDF
                   </button>
                   <button
+                    onClick={() => setShareModal({
+                      type: "contract",
+                      id: contract.contract_id,
+                      number: contract.contract_number,
+                      phone: contract.partner_phone,
+                      email: contract.partner_email,
+                      name: contract.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer via WhatsApp"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
+                  </button>
+                  <button
                     onClick={() => setEmailModal({
                       type: "contract",
                       id: contract.contract_id,
@@ -1505,10 +1520,10 @@ function ContractsSection({ token }) {
                       email: contract.partner_email,
                       name: contract.partner_name
                     })}
-                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
                     title="Envoyer par email"
                   >
-                    <Send className="w-4 h-4" />
+                    <Mail className="w-4 h-4" />
                     Email
                   </button>
                   <button
