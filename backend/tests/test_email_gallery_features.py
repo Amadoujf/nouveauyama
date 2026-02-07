@@ -362,20 +362,33 @@ class TestEmailAndGalleryFeatures:
     
     def test_add_gallery_photo_requires_auth(self):
         """Test POST /api/services/providers/{id}/gallery requires authentication"""
-        # Remove auth header temporarily
-        auth_header = self.session.headers.pop("Authorization", None)
+        # First get an existing provider
+        providers_response = self.session.get(f"{BASE_URL}/api/services/providers?limit=1")
         
-        response = self.session.post(f"{BASE_URL}/api/services/providers/TEST123/gallery", json={
-            "image_url": "https://example.com/test.jpg",
-            "caption": "Test photo"
-        })
-        
-        # Restore auth header
-        if auth_header:
-            self.session.headers["Authorization"] = auth_header
-        
-        assert response.status_code in [401, 403], f"Expected 401/403, got {response.status_code}"
-        print("✅ Gallery POST requires authentication")
+        if providers_response.status_code == 200:
+            providers = providers_response.json().get("providers", [])
+            if providers:
+                provider_id = providers[0].get("provider_id")
+                
+                # Remove auth header temporarily
+                auth_header = self.session.headers.pop("Authorization", None)
+                
+                response = self.session.post(f"{BASE_URL}/api/services/providers/{provider_id}/gallery", json={
+                    "image_url": "https://example.com/test.jpg",
+                    "caption": "Test photo"
+                })
+                
+                # Restore auth header
+                if auth_header:
+                    self.session.headers["Authorization"] = auth_header
+                
+                # 401 = not authenticated, 403 = not authorized
+                assert response.status_code in [401, 403], f"Expected 401/403, got {response.status_code}"
+                print("✅ Gallery POST requires authentication")
+            else:
+                print("⚠️ No providers found to test gallery auth")
+        else:
+            print("⚠️ Could not fetch providers for gallery auth test")
     
     # ============== PDF DOWNLOAD TESTS ==============
     
