@@ -651,6 +651,7 @@ function QuotesSection({ token }) {
   const [statusFilter, setStatusFilter] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [emailModal, setEmailModal] = useState(null);
+  const [shareModal, setShareModal] = useState(null);
 
   const fetchQuotes = useCallback(async () => {
     setLoading(true);
