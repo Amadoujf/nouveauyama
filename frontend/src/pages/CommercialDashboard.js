@@ -1620,4 +1620,158 @@ function ContractFormModal({ token, onClose, onSuccess }) {
   );
 }
 
+// ============== EMAIL MODAL COMPONENT ==============
+
+function EmailModal({ token, documentType, documentId, documentNumber, partnerEmail, partnerName, onClose, onSuccess }) {
+  const [form, setForm] = useState({
+    recipient_email: partnerEmail || "",
+    recipient_name: partnerName || "",
+    subject: "",
+    message: "",
+  });
+  const [sending, setSending] = useState(false);
+
+  const getDefaultSubject = () => {
+    const labels = {
+      quote: `Devis ${documentNumber} - GROUPE YAMA+`,
+      invoice: `Facture ${documentNumber} - GROUPE YAMA+`,
+      contract: `Contrat ${documentNumber} - GROUPE YAMA+`,
+    };
+    return labels[documentType] || `Document ${documentNumber}`;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!form.recipient_email) {
+      toast.error("Veuillez saisir une adresse email");
+      return;
+    }
+
+    setSending(true);
+    try {
+      const endpoints = {
+        quote: `/api/commercial/quotes/${documentId}/send-email`,
+        invoice: `/api/commercial/invoices/${documentId}/send-email`,
+        contract: `/api/commercial/contracts/${documentId}/send-email`,
+      };
+
+      const payload = {
+        recipient_email: form.recipient_email,
+        recipient_name: form.recipient_name || undefined,
+        subject: form.subject || undefined,
+        message: form.message || undefined,
+      };
+
+      await axios.post(`${API_URL}${endpoints[documentType]}`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success(`Document envoyé à ${form.recipient_email}`);
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erreur lors de l'envoi");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Send className="w-5 h-5 text-blue-500" />
+            Envoyer par email
+          </h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl">
+            <p className="text-sm text-blue-700 dark:text-blue-400">
+              <strong>Document:</strong> {documentNumber}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Email destinataire *</label>
+            <input
+              type="email"
+              required
+              value={form.recipient_email}
+              onChange={(e) => setForm({ ...form, recipient_email: e.target.value })}
+              placeholder="email@exemple.com"
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Nom du destinataire</label>
+            <input
+              type="text"
+              value={form.recipient_name}
+              onChange={(e) => setForm({ ...form, recipient_name: e.target.value })}
+              placeholder="Nom ou entreprise"
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Sujet (optionnel)</label>
+            <input
+              type="text"
+              value={form.subject}
+              onChange={(e) => setForm({ ...form, subject: e.target.value })}
+              placeholder={getDefaultSubject()}
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Message personnalisé (optionnel)</label>
+            <textarea
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              rows={3}
+              placeholder="Ajoutez un message personnalisé..."
+              className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={sending}
+              className="flex-1 px-4 py-3 bg-blue-500 text-white font-medium rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {sending ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Envoyer
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default CommercialDashboard;
