@@ -1361,6 +1361,7 @@ function ContractsSection({ token }) {
   const [showForm, setShowForm] = useState(false);
   const [emailModal, setEmailModal] = useState(null);
   const [signatureModal, setSignatureModal] = useState(null);
+  const [shareModal, setShareModal] = useState(null);
 
   const fetchContracts = useCallback(async () => {
     setLoading(true);
