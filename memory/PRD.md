@@ -177,4 +177,44 @@ TVA non applicable
 
 ---
 
-*Last updated: February 6, 2026*
+*Last updated: February 7, 2026*
+
+---
+
+## Session: February 7, 2026 - Complete ✅
+
+### Changes Made:
+
+#### 1. Services Page Redesign (User requested old design with animations)
+- Restored original layout with hero section, categories grid, sidebar filters
+- Added framer-motion animations:
+  - Staggered entry for categories and provider cards
+  - Hover effects with scale and elevation
+  - Animated scroll indicator
+  - Floating particles in hero section
+- Fixed category icons mapping to match API category_id values
+- File: `/app/frontend/src/pages/ServicesPage.js`
+
+#### 2. Email Documents Feature
+- Added 3 new API endpoints for sending documents via email:
+  - `POST /api/commercial/quotes/{id}/send-email`
+  - `POST /api/commercial/invoices/{id}/send-email`
+  - `POST /api/commercial/contracts/{id}/send-email`
+- Updated email_service.py to use MailerSend HTTP API directly (fixed package import issue)
+- Added EmailModal component to CommercialDashboard
+- Added Email buttons to quote, invoice, and contract rows
+- Files: `/app/backend/routes/commercial_routes.py`, `/app/backend/services/email_service.py`, `/app/frontend/src/pages/CommercialDashboard.js`
+
+#### 3. Provider Photo Gallery APIs
+- Added 4 new API endpoints for gallery management:
+  - `GET /api/services/providers/{id}/gallery` - Get gallery photos
+  - `POST /api/services/providers/{id}/gallery` - Add photo
+  - `DELETE /api/services/providers/{id}/gallery/{photo_id}` - Remove photo
+  - `PUT /api/services/providers/{id}/gallery/reorder` - Reorder photos
+- Maintains backward compatibility with existing photos array
+- File: `/app/backend/server.py` (lines 7958-8100)
+
+### Test Results: iteration_21.json
+- Backend: 17/17 tests passed (100%)
+- Frontend: Services page verified with all 10 categories
+- Email APIs: All 3 endpoints return success=true
