@@ -8115,16 +8115,16 @@ class VerificationDocumentUpload(BaseModel):
 async def upload_verification_document(
     provider_id: str,
     doc_data: VerificationDocumentUpload,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(require_auth)
 ):
     """Upload a verification document (CNI, photo) for provider validation"""
     provider = await db.service_providers.find_one({"provider_id": provider_id})
     if not provider:
         raise HTTPException(status_code=404, detail="Prestataire non trouvé")
     
-    # Check authorization
-    is_admin = current_user.get("role") == "admin"
-    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    # Check authorization - access User attributes directly (not as dict)
+    is_admin = current_user.role == "admin"
+    is_owner = provider.get("user_id") == current_user.user_id or provider.get("phone") == current_user.phone
     
     if not is_admin and not is_owner:
         raise HTTPException(status_code=403, detail="Non autorisé")
@@ -8174,16 +8174,16 @@ async def upload_verification_document(
 @api_router.get("/services/providers/{provider_id}/verification-documents")
 async def get_verification_documents(
     provider_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(require_auth)
 ):
     """Get verification documents for a provider"""
     provider = await db.service_providers.find_one({"provider_id": provider_id})
     if not provider:
         raise HTTPException(status_code=404, detail="Prestataire non trouvé")
     
-    # Check authorization
-    is_admin = current_user.get("role") == "admin"
-    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    # Check authorization - access User attributes directly (not as dict)
+    is_admin = current_user.role == "admin"
+    is_owner = provider.get("user_id") == current_user.user_id or provider.get("phone") == current_user.phone
     
     if not is_admin and not is_owner:
         raise HTTPException(status_code=403, detail="Non autorisé")
