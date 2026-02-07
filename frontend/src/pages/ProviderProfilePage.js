@@ -195,13 +195,11 @@ export default function ProviderProfilePage() {
               <ChevronLeft className="w-4 h-4" />
               <span>Services</span>
             </Link>
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-black font-medium rounded-full hover:bg-yellow-300 transition-all"
-            >
-              <Share2 className="w-4 h-4" />
-              <span>Partager</span>
-            </button>
+            {/* Share button removed - Link sharing is managed by admin/provider only */}
+            <div className="flex items-center gap-2 text-gray-500 text-sm">
+              <Shield className="w-4 h-4 text-yellow-500" />
+              <span>YAMA+</span>
+            </div>
           </div>
         </div>
       </div>
