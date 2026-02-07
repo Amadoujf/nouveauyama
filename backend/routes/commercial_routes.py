@@ -1176,7 +1176,7 @@ def get_commercial_routes(db, require_admin):
             "status": "draft",
             "notes": f"Durée: {data.contract_duration}",
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "created_by": user.get("email")
+            "created_by": user.email if hasattr(user, 'email') else str(user)
         }
         
         await db.contracts.insert_one(contract)
