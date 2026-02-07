@@ -916,6 +916,90 @@ def get_commercial_routes(db, require_admin):
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     
+    @commercial_router.post("/contracts/{contract_id}/send-email")
+    async def send_contract_email(contract_id: str, data: EmailDocumentRequest, user = Depends(require_admin)):
+        """Send contract PDF via email to partner"""
+        contract = await db.contracts.find_one({"contract_id": contract_id}, {"_id": 0})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contrat non trouvé")
+        
+        partner = await db.partners.find_one({"partner_id": contract["partner_id"]}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        
+        # Generate PDF
+        pdf_buffer = generate_contract_pdf(
+            contract_number=contract["contract_number"],
+            contract_type=contract["contract_type"],
+            partner=partner,
+            clauses=contract["clauses"],
+            title=contract["title"],
+            description=contract.get("description"),
+            start_date=contract.get("start_date"),
+            end_date=contract.get("end_date"),
+            value=contract.get("value"),
+            notes=contract.get("notes")
+        )
+        
+        # Prepare email content
+        recipient_email = data.recipient_email or partner.get("email")
+        if not recipient_email:
+            raise HTTPException(status_code=400, detail="Aucune adresse email disponible pour ce partenaire")
+        
+        recipient_name = data.recipient_name or partner.get("name", "")
+        
+        type_labels = {
+            "partnership": "Contrat de partenariat",
+            "sponsoring": "Contrat de sponsoring",
+            "vendor": "Contrat vendeur"
+        }
+        type_label = type_labels.get(contract["contract_type"], "Contrat")
+        subject = data.subject or f"{type_label} {contract['contract_number']} - GROUPE YAMA+"
+        
+        custom_message = data.message or ""
+        value_text = f"<p style='margin: 8px 0 0 0; color: #333;'><strong>Valeur:</strong> {contract.get('value', 0):,.0f} FCFA</p>" if contract.get('value') else ""
+        end_date_text = f" au {contract.get('end_date')}" if contract.get('end_date') else ""
+        
+        email_content = f"""
+        <h2 style="color: #333; margin-bottom: 16px;">Votre {type_label}</h2>
+        <p style="color: #666; margin-bottom: 24px;">
+            Bonjour {recipient_name},
+        </p>
+        <p style="color: #666; margin-bottom: 16px;">
+            Veuillez trouver ci-joint votre {type_label.lower()} <strong>{contract['contract_number']}</strong>.
+        </p>
+        {f'<p style="color: #666; margin-bottom: 16px;">{custom_message}</p>' if custom_message else ''}
+        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p style="margin: 0; color: #333;"><strong>Référence:</strong> {contract['contract_number']}</p>
+            <p style="margin: 8px 0 0 0; color: #333;"><strong>Période:</strong> Du {contract.get('start_date', 'N/A')}{end_date_text}</p>
+            {value_text}
+        </div>
+        <p style="color: #666;">
+            Merci de nous retourner le contrat signé à votre convenance.
+        </p>
+        """
+        
+        html_content = get_email_template(email_content, f"{type_label} {contract['contract_number']}")
+        
+        # Prepare attachment
+        pdf_content = base64.b64encode(pdf_buffer.getvalue()).decode('utf-8')
+        attachments = [{
+            "content": pdf_content,
+            "filename": f"Contrat_{contract['contract_number']}.pdf"
+        }]
+        
+        # Send email
+        result = await send_email_async(recipient_email, subject, html_content, attachments)
+        
+        if result.get("success"):
+            await db.contracts.update_one(
+                {"contract_id": contract_id},
+                {"$set": {"last_email_sent_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            return {"success": True, "message": f"{type_label} envoyé à {recipient_email}"}
+        else:
+            raise HTTPException(status_code=500, detail=f"Erreur lors de l'envoi: {result.get('error', 'Unknown error')}")
+    
     # ============== DASHBOARD STATS ==============
     
     @commercial_router.get("/dashboard")
