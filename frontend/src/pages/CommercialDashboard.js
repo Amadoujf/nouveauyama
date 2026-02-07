@@ -1505,6 +1505,229 @@ function ContractsSection({ token }) {
           onSuccess={fetchContracts}
         />
       )}
+
+      {/* Signature Modal */}
+      {signatureModal && (
+        <SignatureModal
+          token={token}
+          contractId={signatureModal.contractId}
+          contractNumber={signatureModal.contractNumber}
+          partnerName={signatureModal.partnerName}
+          onClose={() => setSignatureModal(null)}
+          onSuccess={fetchContracts}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============== SIGNATURE MODAL COMPONENT ==============
+
+function SignatureModal({ token, contractId, contractNumber, partnerName, onClose, onSuccess }) {
+  const [signerName, setSignerName] = useState("");
+  const [signerRole, setSignerRole] = useState("partner");
+  const [signatureData, setSignatureData] = useState(null);
+  const [existingSignatures, setExistingSignatures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchSignatures();
+  }, []);
+
+  const fetchSignatures = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/commercial/contracts/${contractId}/signatures`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setExistingSignatures(response.data.signatures || []);
+    } catch (error) {
+      console.error("Error fetching signatures:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveSignature = async () => {
+    if (!signatureData) {
+      toast.error("Veuillez signer d'abord");
+      return;
+    }
+    if (!signerName.trim()) {
+      toast.error("Veuillez entrer le nom du signataire");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axios.post(
+        `${API_URL}/api/commercial/contracts/${contractId}/sign`,
+        {
+          signature_data: signatureData,
+          signer_name: signerName,
+          signer_role: signerRole
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Signature enregistrée !");
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erreur lors de l'enregistrement");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteSignature = async (signatureId) => {
+    if (!confirm("Supprimer cette signature ?")) return;
+    
+    try {
+      await axios.delete(
+        `${API_URL}/api/commercial/contracts/${contractId}/signatures/${signatureId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Signature supprimée");
+      fetchSignatures();
+      onSuccess?.();
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  const partnerSigned = existingSignatures.some(s => s.signer_role === "partner");
+  const companySigned = existingSignatures.some(s => s.signer_role === "company");
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Pen className="w-5 h-5 text-purple-500" />
+            Signatures - {contractNumber}
+          </h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Status */}
+          <div className="flex gap-4">
+            <div className={cn(
+              "flex-1 p-4 rounded-xl text-center",
+              partnerSigned ? "bg-green-50 dark:bg-green-900/20 border border-green-200" : "bg-gray-50 dark:bg-gray-700"
+            )}>
+              <p className="font-medium">{partnerName || "Partenaire"}</p>
+              <p className={cn("text-sm", partnerSigned ? "text-green-600" : "text-gray-500")}>
+                {partnerSigned ? "✓ Signé" : "En attente"}
+              </p>
+            </div>
+            <div className={cn(
+              "flex-1 p-4 rounded-xl text-center",
+              companySigned ? "bg-green-50 dark:bg-green-900/20 border border-green-200" : "bg-gray-50 dark:bg-gray-700"
+            )}>
+              <p className="font-medium">GROUPE YAMA+</p>
+              <p className={cn("text-sm", companySigned ? "text-green-600" : "text-gray-500")}>
+                {companySigned ? "✓ Signé" : "En attente"}
+              </p>
+            </div>
+          </div>
+
+          {/* Existing Signatures */}
+          {existingSignatures.length > 0 && (
+            <div>
+              <h4 className="font-medium mb-3">Signatures existantes</h4>
+              <div className="space-y-3">
+                {existingSignatures.map((sig) => (
+                  <div key={sig.signature_id} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <img src={sig.signature_data} alt="Signature" className="h-16 w-auto bg-white rounded border" />
+                    <div className="flex-1">
+                      <p className="font-medium">{sig.signer_name}</p>
+                      <p className="text-sm text-gray-500">
+                        {sig.signer_role === "partner" ? "Partenaire" : "GROUPE YAMA+"} • {new Date(sig.signed_at).toLocaleString("fr-FR")}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSignature(sig.signature_id)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add New Signature */}
+          {(!partnerSigned || !companySigned) && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h4 className="font-medium mb-4">Ajouter une signature</h4>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nom du signataire *</label>
+                  <input
+                    type="text"
+                    value={signerName}
+                    onChange={(e) => setSignerName(e.target.value)}
+                    placeholder="Ex: Jean Dupont"
+                    className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Signe pour *</label>
+                  <select
+                    value={signerRole}
+                    onChange={(e) => setSignerRole(e.target.value)}
+                    className="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+                  >
+                    {!partnerSigned && <option value="partner">Partenaire</option>}
+                    {!companySigned && <option value="company">GROUPE YAMA+</option>}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Signature *</label>
+                <SignaturePad
+                  width={500}
+                  height={150}
+                  onSave={(data) => setSignatureData(data)}
+                />
+              </div>
+
+              <button
+                onClick={handleSaveSignature}
+                disabled={saving || !signatureData || !signerName.trim()}
+                className="w-full py-3 bg-purple-500 text-white font-medium rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Enregistrer la signature
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {partnerSigned && companySigned && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 p-4 rounded-xl text-center">
+              <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
+              <p className="font-medium text-green-700 dark:text-green-400">Contrat entièrement signé</p>
+              <p className="text-sm text-green-600">Les deux parties ont signé ce contrat</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
