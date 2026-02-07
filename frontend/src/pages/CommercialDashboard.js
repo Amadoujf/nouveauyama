@@ -1239,10 +1239,24 @@ function InvoicesSection({ token }) {
                     <Download className="w-4 h-4" />
                     PDF
                   </button>
+                  <button
+                    onClick={() => setEmailModal({
+                      type: "invoice",
+                      id: invoice.invoice_id,
+                      number: invoice.invoice_number,
+                      email: invoice.partner_email,
+                      name: invoice.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer par email"
+                  >
+                    <Send className="w-4 h-4" />
+                    Email
+                  </button>
                   {invoice.status !== "paid" && (
                     <button
                       onClick={() => handleMarkPaid(invoice.invoice_id, invoice.total)}
-                      className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg"
+                      className="px-4 py-2 bg-yellow-400 text-black text-sm font-medium rounded-lg"
                     >
                       Marquer payée
                     </button>
@@ -1252,6 +1266,20 @@ function InvoicesSection({ token }) {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Email Modal */}
+      {emailModal && (
+        <EmailModal
+          token={token}
+          documentType={emailModal.type}
+          documentId={emailModal.id}
+          documentNumber={emailModal.number}
+          partnerEmail={emailModal.email}
+          partnerName={emailModal.name}
+          onClose={() => setEmailModal(null)}
+          onSuccess={fetchInvoices}
+        />
       )}
     </div>
   );
