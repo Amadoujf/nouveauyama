@@ -1475,6 +1475,15 @@ function ContractsSection({ token }) {
         />
       )}
 
+      {/* Partnership Contract Modal */}
+      {showPartnershipForm && (
+        <PartnershipContractModal
+          token={token}
+          onClose={() => setShowPartnershipForm(false)}
+          onSuccess={() => { setShowPartnershipForm(false); fetchContracts(); }}
+        />
+      )}
+
       {/* Email Modal */}
       {emailModal && (
         <EmailModal
