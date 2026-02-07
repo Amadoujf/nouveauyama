@@ -131,17 +131,25 @@ TVA non applicable
   - [x] Devis avec PDF
   - [x] Factures avec PDF
   - [x] Contrats avec modèles et PDF
+  - [x] **Envoi documents par email** (Feb 7, 2026)
 - [x] Paniers abandonnés
 - [x] Campagnes email
+
+### Services Marketplace
+- [x] Page Services avec design restauré et animations
+- [x] 10 catégories avec emojis
+- [x] Recherche et filtres par ville
+- [x] Cartes prestataires avec actions
+- [x] **Galerie photos prestataires** (Feb 7, 2026)
 
 ---
 
 ## Backlog / Future Tasks
 
 ### P1 - High Priority
-- [ ] Upload de photos pour prestataires
+- [ ] Signatures digitales pour contrats
+- [ ] CRUD complet produits admin (toutes les fonctionnalités)
 - [ ] Système de notation/avis prestataires
-- [ ] Envoi de documents par email depuis le dashboard
 
 ### P2 - Medium Priority
 - [ ] Profils premium/sponsorisés (monétisation marketplace)
