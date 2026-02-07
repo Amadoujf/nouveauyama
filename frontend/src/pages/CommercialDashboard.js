@@ -1446,20 +1446,24 @@ function ContractsSection({ token }) {
                     <Send className="w-4 h-4" />
                     Email
                   </button>
+                  <button
+                    onClick={() => setSignatureModal({
+                      contractId: contract.contract_id,
+                      contractNumber: contract.contract_number,
+                      partnerName: contract.partner_name
+                    })}
+                    className="px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Signature digitale"
+                  >
+                    <Pen className="w-4 h-4" />
+                    Signer
+                  </button>
                   {contract.status === "draft" && (
                     <button
                       onClick={() => handleUpdateStatus(contract.contract_id, "active")}
                       className="px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg"
                     >
                       Activer
-                    </button>
-                  )}
-                  {contract.status === "active" && (
-                    <button
-                      onClick={() => handleUpdateStatus(contract.contract_id, "signed")}
-                      className="px-4 py-2 bg-yellow-400 text-black text-sm font-medium rounded-lg"
-                    >
-                      Marquer signé
                     </button>
                   )}
                 </div>
