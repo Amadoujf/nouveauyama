@@ -214,7 +214,22 @@ TVA non applicable
 - Maintains backward compatibility with existing photos array
 - File: `/app/backend/server.py` (lines 7958-8100)
 
+#### 4. Partnership Contract Template (User's PDF Example)
+- Created new function `generate_partnership_contract_pdf()` in pdf_service.py
+- Reproduces exact format of GROUPE YAMA PLUS partnership agreement:
+  - 11 Articles (Objet, Engagements, Commission, Paiement, Livraison, Retour, Confidentialité, Durée, Résiliation, Litiges)
+  - Company info header with logo
+  - Partner info section with all fields
+  - Signature table at bottom
+- Added 3 new API endpoints:
+  - `POST /api/commercial/partnership-contract/generate` - Download PDF
+  - `POST /api/commercial/partnership-contract/preview` - Preview without saving
+  - `POST /api/commercial/partnership-contract/create-and-save` - Create and save to DB
+- Added PartnershipContractModal component with all configurable fields
+- File: `/app/backend/services/pdf_service.py`, `/app/backend/routes/commercial_routes.py`
+
 ### Test Results: iteration_21.json
 - Backend: 17/17 tests passed (100%)
 - Frontend: Services page verified with all 10 categories
 - Email APIs: All 3 endpoints return success=true
+- Partnership Contract: PDF generation tested and verified (224KB)
