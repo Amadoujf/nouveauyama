@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class Phase1BackendTester:
-    def __init__(self, base_url="https://service-hub-design.preview.emergentagent.com"):
+    def __init__(self, base_url="https://provider-portfolio.preview.emergentagent.com"):
         self.base_url = base_url
         self.session = requests.Session()
         self.admin_token = None

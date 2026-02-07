@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_mailerlite_endpoints():
-    base_url = "https://service-hub-design.preview.emergentagent.com"
+    base_url = "https://provider-portfolio.preview.emergentagent.com"
     
     # First, login as admin
     login_data = {
