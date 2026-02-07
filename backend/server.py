@@ -8105,6 +8105,206 @@ async def reorder_gallery(
     
     return {"success": True, "gallery": reordered, "message": "Galerie réorganisée"}
 
+# Verification Documents (CNI, Photo)
+class VerificationDocumentUpload(BaseModel):
+    document_type: str  # "cni_front", "cni_back", "photo", "other"
+    document_url: str
+    description: Optional[str] = None
+
+@api_router.post("/services/providers/{provider_id}/verification-documents")
+async def upload_verification_document(
+    provider_id: str,
+    doc_data: VerificationDocumentUpload,
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload a verification document (CNI, photo) for provider validation"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Check authorization
+    is_admin = current_user.get("role") == "admin"
+    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    
+    if not is_admin and not is_owner:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    # Get current verification documents
+    verification_docs = provider.get("verification_documents", [])
+    
+    # Add new document
+    new_doc = {
+        "doc_id": f"DOC-{secrets.token_hex(4).upper()}",
+        "document_type": doc_data.document_type,
+        "document_url": doc_data.document_url,
+        "description": doc_data.description or "",
+        "status": "pending",  # pending, approved, rejected
+        "uploaded_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Replace if same type already exists
+    verification_docs = [d for d in verification_docs if d.get("document_type") != doc_data.document_type]
+    verification_docs.append(new_doc)
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {
+            "verification_documents": verification_docs,
+            "verification_status": "pending",
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Notify admin
+    asyncio.create_task(send_email_async(
+        to=ADMIN_NOTIFICATION_EMAIL,
+        subject=f"📄 Nouveau document de vérification - {provider.get('name')}",
+        html=get_email_template(f"""
+            <h2>Document de vérification soumis</h2>
+            <p><strong>Prestataire:</strong> {provider.get('name')}</p>
+            <p><strong>Type de document:</strong> {doc_data.document_type}</p>
+            <p><strong>Description:</strong> {doc_data.description or 'Aucune'}</p>
+            <p><a href="{doc_data.document_url}" target="_blank">Voir le document</a></p>
+            <a href="{SITE_URL}/admin/providers" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Vérifier le prestataire</a>
+        """, "Document de vérification")
+    ))
+    
+    return {"success": True, "document": new_doc, "message": "Document soumis pour vérification"}
+
+@api_router.get("/services/providers/{provider_id}/verification-documents")
+async def get_verification_documents(
+    provider_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get verification documents for a provider"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Check authorization
+    is_admin = current_user.get("role") == "admin"
+    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    
+    if not is_admin and not is_owner:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    
+    return {
+        "documents": provider.get("verification_documents", []),
+        "verification_status": provider.get("verification_status", "not_started")
+    }
+
+@api_router.put("/services/providers/{provider_id}/verification-documents/{doc_id}/status")
+async def update_verification_document_status(
+    provider_id: str,
+    doc_id: str,
+    status: str,  # approved, rejected
+    admin_note: Optional[str] = None,
+    current_user: dict = Depends(get_current_admin)
+):
+    """Admin: Update verification document status"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    verification_docs = provider.get("verification_documents", [])
+    updated = False
+    
+    for doc in verification_docs:
+        if doc.get("doc_id") == doc_id:
+            doc["status"] = status
+            doc["admin_note"] = admin_note
+            doc["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+            updated = True
+            break
+    
+    if not updated:
+        raise HTTPException(status_code=404, detail="Document non trouvé")
+    
+    # Check if all required documents are approved
+    required_types = ["cni_front", "photo"]
+    all_approved = all(
+        any(d.get("document_type") == t and d.get("status") == "approved" for d in verification_docs)
+        for t in required_types
+    )
+    
+    verification_status = "approved" if all_approved else ("rejected" if status == "rejected" else "pending")
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {
+            "verification_documents": verification_docs,
+            "verification_status": verification_status,
+            "is_verified": all_approved,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"success": True, "verification_status": verification_status}
+
+# Share Provider Profile via WhatsApp/Email (Admin only)
+class ShareProviderProfile(BaseModel):
+    method: str  # "whatsapp", "email"
+    recipient_phone: Optional[str] = None
+    recipient_email: Optional[str] = None
+    message: Optional[str] = None
+
+@api_router.post("/services/providers/{provider_id}/share")
+async def share_provider_profile(
+    provider_id: str,
+    share_data: ShareProviderProfile,
+    current_user: dict = Depends(get_current_admin)
+):
+    """Admin: Share provider profile link via WhatsApp or Email"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    profile_url = f"{SITE_URL}/provider/{provider_id}"
+    provider_name = provider.get("name", "Prestataire")
+    profession = provider.get("profession", "")
+    
+    default_message = f"Découvrez le profil de {provider_name}, {profession} certifié sur YAMA+ : {profile_url}"
+    message = share_data.message or default_message
+    
+    if share_data.method == "whatsapp":
+        if not share_data.recipient_phone:
+            raise HTTPException(status_code=400, detail="Numéro de téléphone requis")
+        
+        # Return WhatsApp link for frontend to open
+        phone = share_data.recipient_phone.replace("+", "").replace(" ", "")
+        whatsapp_url = f"https://wa.me/{phone}?text={message}"
+        
+        return {
+            "success": True,
+            "method": "whatsapp",
+            "share_url": whatsapp_url,
+            "message": "Lien WhatsApp généré"
+        }
+    
+    elif share_data.method == "email":
+        if not share_data.recipient_email:
+            raise HTTPException(status_code=400, detail="Email requis")
+        
+        await send_email_async(
+            to=share_data.recipient_email,
+            subject=f"Découvrez {provider_name} sur YAMA+",
+            html=get_email_template(f"""
+                <h2>Nous vous recommandons ce prestataire</h2>
+                <p><strong>{provider_name}</strong> - {profession}</p>
+                <p>Un prestataire de qualité, vérifié par YAMA+.</p>
+                <p>{message}</p>
+                <a href="{profile_url}" style="display: inline-block; padding: 12px 24px; background: #FCD34D; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold;">Voir le profil</a>
+            """, f"Découvrez {provider_name}")
+        )
+        
+        return {
+            "success": True,
+            "method": "email",
+            "message": f"Email envoyé à {share_data.recipient_email}"
+        }
+    
+    raise HTTPException(status_code=400, detail="Méthode de partage invalide")
+
 # Service Requests (Client requests)
 @api_router.post("/services/requests")
 async def create_service_request(request_data: ServiceRequestCreate):
