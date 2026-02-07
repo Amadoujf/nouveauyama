@@ -775,6 +775,20 @@ function QuotesSection({ token }) {
                     <Download className="w-4 h-4" />
                     PDF
                   </button>
+                  <button
+                    onClick={() => setEmailModal({
+                      type: "quote",
+                      id: quote.quote_id,
+                      number: quote.quote_number,
+                      email: quote.partner_email,
+                      name: quote.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer par email"
+                  >
+                    <Send className="w-4 h-4" />
+                    Email
+                  </button>
                   {quote.status === "pending" && (
                     <>
                       <button
