@@ -12,7 +12,8 @@ import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import GameFloatingButton from "./components/GameFloatingButton";
 import WhatsAppButton from "./components/WhatsAppButton";
-import LiveChatWidget from "./components/LiveChatWidget";
+// LiveChatWidget removed per user request
+// import LiveChatWidget from "./components/LiveChatWidget";
 import PushNotificationPrompt from "./components/PushNotificationPrompt";
 import { CompareFloatingBar } from "./components/ProductComparison";
 
@@ -88,7 +89,7 @@ function PublicLayout({ children }) {
       {!isAdminPage && <GameFloatingButton />}
       {!isAdminPage && <CompareFloatingBar />}
       {!isAdminPage && <WhatsAppButton />}
-      {!isAdminPage && <LiveChatWidget />}
+      {/* LiveChatWidget removed per user request */}
       {!isAdminPage && <PushNotificationPrompt />}
     </>
   );
