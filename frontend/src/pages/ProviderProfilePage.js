@@ -593,47 +593,6 @@ export default function ProviderProfilePage() {
               </div>
             </motion.div>
 
-            {/* Share Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200"
-            >
-              <h3 className="text-lg font-bold mb-2 flex items-center gap-2 text-gray-900">
-                <Share2 className="w-5 h-5 text-yellow-600" />
-                Partager ce profil
-              </h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Recommandez {provider.name} à vos proches
-              </p>
-              
-              <div className="flex gap-2 mb-4">
-                {[
-                  { platform: "whatsapp", color: "bg-green-500 hover:bg-green-600", icon: MessageCircle },
-                  { platform: "facebook", color: "bg-blue-600 hover:bg-blue-700", icon: Facebook },
-                  { platform: "twitter", color: "bg-sky-500 hover:bg-sky-600", icon: Twitter },
-                  { platform: "linkedin", color: "bg-blue-700 hover:bg-blue-800", icon: Linkedin },
-                ].map(({ platform, color, icon: Icon }) => (
-                  <button
-                    key={platform}
-                    onClick={() => handleShare(platform)}
-                    className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110 shadow-md", color)}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={handleCopyLink}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-white rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
-              >
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-500" />}
-                <span className="text-sm text-gray-700">{copied ? "Lien copié !" : "Copier le lien"}</span>
-              </button>
-            </motion.div>
-
             {/* Location Card */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
