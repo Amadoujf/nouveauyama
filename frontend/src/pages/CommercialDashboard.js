@@ -1276,6 +1276,21 @@ function InvoicesSection({ token }) {
                     PDF
                   </button>
                   <button
+                    onClick={() => setShareModal({
+                      type: "invoice",
+                      id: invoice.invoice_id,
+                      number: invoice.invoice_number,
+                      phone: invoice.partner_phone,
+                      email: invoice.partner_email,
+                      name: invoice.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer via WhatsApp"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
+                  </button>
+                  <button
                     onClick={() => setEmailModal({
                       type: "invoice",
                       id: invoice.invoice_id,
@@ -1283,10 +1298,10 @@ function InvoicesSection({ token }) {
                       email: invoice.partner_email,
                       name: invoice.partner_name
                     })}
-                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
                     title="Envoyer par email"
                   >
-                    <Send className="w-4 h-4" />
+                    <Mail className="w-4 h-4" />
                     Email
                   </button>
                   {invoice.status !== "paid" && (
@@ -1314,6 +1329,21 @@ function InvoicesSection({ token }) {
           partnerEmail={emailModal.email}
           partnerName={emailModal.name}
           onClose={() => setEmailModal(null)}
+          onSuccess={fetchInvoices}
+        />
+      )}
+
+      {/* Share Modal (WhatsApp) */}
+      {shareModal && (
+        <ShareModal
+          token={token}
+          documentType={shareModal.type}
+          documentId={shareModal.id}
+          documentNumber={shareModal.number}
+          partnerPhone={shareModal.phone}
+          partnerEmail={shareModal.email}
+          partnerName={shareModal.name}
+          onClose={() => setShareModal(null)}
           onSuccess={fetchInvoices}
         />
       )}
