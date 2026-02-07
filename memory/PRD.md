@@ -150,6 +150,8 @@ TVA non applicable
 - [ ] Signatures digitales pour contrats
 - [ ] CRUD complet produits admin (toutes les fonctionnalités)
 - [ ] Système de notation/avis prestataires
+- [ ] Corriger les liens qui scrollent vers footer (bugs navigation)
+- [ ] README.md pour export code vers Cursor
 
 ### P2 - Medium Priority
 - [ ] Profils premium/sponsorisés (monétisation marketplace)
