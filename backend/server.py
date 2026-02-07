@@ -7956,6 +7956,155 @@ async def add_provider_review(
     
     return {"message": "Avis ajouté avec succès", "review_id": review["review_id"]}
 
+# Provider Gallery Management
+class GalleryPhotoUpload(BaseModel):
+    """Model for uploading gallery photos"""
+    image_url: str
+    caption: Optional[str] = None
+    order: Optional[int] = 0
+
+@api_router.get("/services/providers/{provider_id}/gallery")
+async def get_provider_gallery(provider_id: str):
+    """Get a provider's photo gallery"""
+    provider = await db.service_providers.find_one(
+        {"provider_id": provider_id},
+        {"_id": 0, "gallery": 1, "photos": 1}
+    )
+    
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Return gallery if exists, otherwise return photos array
+    gallery = provider.get("gallery", [])
+    if not gallery and provider.get("photos"):
+        # Convert old photos array to gallery format
+        gallery = [{"image_url": url, "caption": "", "order": i} for i, url in enumerate(provider.get("photos", []))]
+    
+    return {"gallery": gallery, "total": len(gallery)}
+
+@api_router.post("/services/providers/{provider_id}/gallery")
+async def add_gallery_photo(
+    provider_id: str, 
+    photo_data: GalleryPhotoUpload,
+    current_user: dict = Depends(get_current_user)
+):
+    """Add a photo to provider's gallery (provider only)"""
+    # Verify provider exists and user is the provider
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Check if user is the provider or admin
+    is_admin = current_user.get("role") == "admin"
+    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    
+    if not is_admin and not is_owner:
+        raise HTTPException(status_code=403, detail="Non autorisé à modifier cette galerie")
+    
+    # Get current gallery
+    gallery = provider.get("gallery", [])
+    
+    # Add new photo
+    new_photo = {
+        "photo_id": f"PHT-{secrets.token_hex(4).upper()}",
+        "image_url": photo_data.image_url,
+        "caption": photo_data.caption or "",
+        "order": photo_data.order or len(gallery),
+        "added_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    gallery.append(new_photo)
+    
+    # Also update photos array for backward compatibility
+    photos = [p["image_url"] for p in gallery]
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {"gallery": gallery, "photos": photos, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"success": True, "photo": new_photo, "message": "Photo ajoutée à la galerie"}
+
+@api_router.delete("/services/providers/{provider_id}/gallery/{photo_id}")
+async def delete_gallery_photo(
+    provider_id: str,
+    photo_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a photo from provider's gallery"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Check authorization
+    is_admin = current_user.get("role") == "admin"
+    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    
+    if not is_admin and not is_owner:
+        raise HTTPException(status_code=403, detail="Non autorisé à modifier cette galerie")
+    
+    gallery = provider.get("gallery", [])
+    original_count = len(gallery)
+    gallery = [p for p in gallery if p.get("photo_id") != photo_id]
+    
+    if len(gallery) == original_count:
+        raise HTTPException(status_code=404, detail="Photo non trouvée")
+    
+    # Update photos array for backward compatibility
+    photos = [p["image_url"] for p in gallery]
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {"gallery": gallery, "photos": photos, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"success": True, "message": "Photo supprimée de la galerie"}
+
+@api_router.put("/services/providers/{provider_id}/gallery/reorder")
+async def reorder_gallery(
+    provider_id: str,
+    photo_ids: List[str],
+    current_user: dict = Depends(get_current_user)
+):
+    """Reorder gallery photos"""
+    provider = await db.service_providers.find_one({"provider_id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Prestataire non trouvé")
+    
+    # Check authorization
+    is_admin = current_user.get("role") == "admin"
+    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    
+    if not is_admin and not is_owner:
+        raise HTTPException(status_code=403, detail="Non autorisé à modifier cette galerie")
+    
+    gallery = provider.get("gallery", [])
+    
+    # Reorder based on provided photo_ids
+    photo_map = {p["photo_id"]: p for p in gallery}
+    reordered = []
+    for i, pid in enumerate(photo_ids):
+        if pid in photo_map:
+            photo = photo_map[pid]
+            photo["order"] = i
+            reordered.append(photo)
+    
+    # Add any photos not in the list at the end
+    for p in gallery:
+        if p["photo_id"] not in photo_ids:
+            p["order"] = len(reordered)
+            reordered.append(p)
+    
+    # Update photos array for backward compatibility
+    photos = [p["image_url"] for p in reordered]
+    
+    await db.service_providers.update_one(
+        {"provider_id": provider_id},
+        {"$set": {"gallery": reordered, "photos": photos, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"success": True, "gallery": reordered, "message": "Galerie réorganisée"}
+
 # Service Requests (Client requests)
 @api_router.post("/services/requests")
 async def create_service_request(request_data: ServiceRequestCreate):
