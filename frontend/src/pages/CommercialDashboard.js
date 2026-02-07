@@ -1419,6 +1419,20 @@ function ContractsSection({ token }) {
                     <Download className="w-4 h-4" />
                     PDF
                   </button>
+                  <button
+                    onClick={() => setEmailModal({
+                      type: "contract",
+                      id: contract.contract_id,
+                      number: contract.contract_number,
+                      email: contract.partner_email,
+                      name: contract.partner_name
+                    })}
+                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+                    title="Envoyer par email"
+                  >
+                    <Send className="w-4 h-4" />
+                    Email
+                  </button>
                   {contract.status === "draft" && (
                     <button
                       onClick={() => handleUpdateStatus(contract.contract_id, "active")}
@@ -1430,7 +1444,7 @@ function ContractsSection({ token }) {
                   {contract.status === "active" && (
                     <button
                       onClick={() => handleUpdateStatus(contract.contract_id, "signed")}
-                      className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg"
+                      className="px-4 py-2 bg-yellow-400 text-black text-sm font-medium rounded-lg"
                     >
                       Marquer signé
                     </button>
@@ -1448,6 +1462,20 @@ function ContractsSection({ token }) {
           token={token}
           onClose={() => setShowForm(false)}
           onSuccess={() => { setShowForm(false); fetchContracts(); }}
+        />
+      )}
+
+      {/* Email Modal */}
+      {emailModal && (
+        <EmailModal
+          token={token}
+          documentType={emailModal.type}
+          documentId={emailModal.id}
+          documentNumber={emailModal.number}
+          partnerEmail={emailModal.email}
+          partnerName={emailModal.name}
+          onClose={() => setEmailModal(null)}
+          onSuccess={fetchContracts}
         />
       )}
     </div>
