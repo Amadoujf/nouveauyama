@@ -1352,6 +1352,8 @@ function ContractsSection({ token }) {
     vendor: "Vendeur"
   };
 
+  const [showPartnershipForm, setShowPartnershipForm] = useState(false);
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -1368,6 +1370,14 @@ function ContractsSection({ token }) {
           <option value="expired">Expiré ({stats.expired || 0})</option>
         </select>
         <div className="flex-1" />
+        <button
+          onClick={() => setShowPartnershipForm(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-black font-medium rounded-xl"
+          data-testid="new-partnership-contract-btn"
+        >
+          <FileText className="w-4 h-4" />
+          Contrat Partenariat
+        </button>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-medium rounded-xl"
