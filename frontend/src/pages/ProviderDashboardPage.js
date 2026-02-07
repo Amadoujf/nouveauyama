@@ -198,35 +198,44 @@ export default function ProviderDashboardPage() {
     );
   }
 
-  // Pending approval
+  // Pending approval - with document upload
   if (!provider.is_active) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0A0A0A] px-4">
+      <main className="min-h-screen bg-gray-50 dark:bg-[#0A0A0A] px-4 py-8">
         <Helmet>
           <title>En attente d'approbation - YAMA+</title>
         </Helmet>
-        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-6 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-            <Clock className="w-8 h-8 text-orange-600" />
-          </div>
-          <h1 className="text-2xl font-bold mb-3">En attente d'approbation</h1>
-          <p className="text-muted-foreground mb-6">
-            Votre profil prestataire est en cours de vérification. Vous serez notifié une fois votre compte activé.
-          </p>
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-6 text-left">
-            <h3 className="font-semibold mb-2">Votre profil</h3>
-            <p className="text-sm text-muted-foreground">
-              <strong>Nom:</strong> {provider.name}<br />
-              <strong>Métier:</strong> {provider.profession}<br />
-              <strong>Ville:</strong> {provider.city}
+        <div className="max-w-lg mx-auto">
+          {/* Status Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center mb-6">
+            <div className="w-16 h-16 mx-auto mb-6 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+              <Clock className="w-8 h-8 text-orange-600" />
+            </div>
+            <h1 className="text-2xl font-bold mb-3">En attente d'approbation</h1>
+            <p className="text-muted-foreground mb-6">
+              Votre profil prestataire est en cours de vérification. Pour accélérer le processus, veuillez soumettre vos documents d'identité.
             </p>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-6 text-left">
+              <h3 className="font-semibold mb-2">Votre profil</h3>
+              <p className="text-sm text-muted-foreground">
+                <strong>Nom:</strong> {provider.name}<br />
+                <strong>Métier:</strong> {provider.profession}<br />
+                <strong>Ville:</strong> {provider.city}
+              </p>
+            </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            Se déconnecter
-          </button>
+
+          {/* Document Upload Section */}
+          <DocumentUploadSection provider={provider} onRefresh={fetchProviderProfile} />
+
+          <div className="text-center mt-6">
+            <button
+              onClick={handleLogout}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Se déconnecter
+            </button>
+          </div>
         </div>
       </main>
     );
