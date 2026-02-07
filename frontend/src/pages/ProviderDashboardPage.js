@@ -47,7 +47,21 @@ export default function ProviderDashboardPage() {
     price_description: "",
     phone: "",
     whatsapp: "",
+    email: "",
+    services: [],
+    social_links: {
+      facebook: "",
+      instagram: "",
+      linkedin: "",
+      twitter: "",
+      tiktok: "",
+      youtube: "",
+      website: "",
+    }
   });
+
+  const [newService, setNewService] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -71,6 +85,17 @@ export default function ProviderDashboardPage() {
         price_description: response.data.price_description || "",
         phone: response.data.phone || "",
         whatsapp: response.data.whatsapp || "",
+        email: response.data.email || "",
+        services: response.data.services || [],
+        social_links: {
+          facebook: response.data.social_links?.facebook || "",
+          instagram: response.data.social_links?.instagram || "",
+          linkedin: response.data.social_links?.linkedin || "",
+          twitter: response.data.social_links?.twitter || "",
+          tiktok: response.data.social_links?.tiktok || "",
+          youtube: response.data.social_links?.youtube || "",
+          website: response.data.social_links?.website || "",
+        }
       });
     } catch (error) {
       if (error.response?.status === 404) {
