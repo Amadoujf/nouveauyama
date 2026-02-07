@@ -392,6 +392,80 @@ def get_commercial_routes(db, require_admin):
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     
+    @commercial_router.post("/quotes/{quote_id}/send-email")
+    async def send_quote_email(quote_id: str, data: EmailDocumentRequest, user = Depends(require_admin)):
+        """Send quote PDF via email to partner"""
+        quote = await db.quotes.find_one({"quote_id": quote_id}, {"_id": 0})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Devis non trouvé")
+        
+        partner = await db.partners.find_one({"partner_id": quote["partner_id"]}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        
+        # Generate PDF
+        pdf_buffer = generate_quote_pdf(
+            quote_number=quote["quote_number"],
+            partner=partner,
+            items=quote["items"],
+            title=quote["title"],
+            description=quote.get("description"),
+            notes=quote.get("notes"),
+            validity_days=quote.get("validity_days", 30),
+            payment_terms=quote.get("payment_terms")
+        )
+        
+        # Prepare email content
+        recipient_email = data.recipient_email or partner.get("email")
+        if not recipient_email:
+            raise HTTPException(status_code=400, detail="Aucune adresse email disponible pour ce partenaire")
+        
+        recipient_name = data.recipient_name or partner.get("name", "")
+        subject = data.subject or f"Devis {quote['quote_number']} - GROUPE YAMA+"
+        
+        custom_message = data.message or ""
+        email_content = f"""
+        <h2 style="color: #333; margin-bottom: 16px;">Votre Devis</h2>
+        <p style="color: #666; margin-bottom: 24px;">
+            Bonjour {recipient_name},
+        </p>
+        <p style="color: #666; margin-bottom: 16px;">
+            Veuillez trouver ci-joint votre devis <strong>{quote['quote_number']}</strong> 
+            d'un montant de <strong>{quote.get('total', 0):,.0f} FCFA</strong>.
+        </p>
+        {f'<p style="color: #666; margin-bottom: 16px;">{custom_message}</p>' if custom_message else ''}
+        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p style="margin: 0; color: #333;"><strong>Référence:</strong> {quote['quote_number']}</p>
+            <p style="margin: 8px 0 0 0; color: #333;"><strong>Montant:</strong> {quote.get('total', 0):,.0f} FCFA</p>
+            <p style="margin: 8px 0 0 0; color: #333;"><strong>Validité:</strong> {quote.get('validity_days', 30)} jours</p>
+        </div>
+        <p style="color: #666;">
+            N'hésitez pas à nous contacter pour toute question.
+        </p>
+        """
+        
+        html_content = get_email_template(email_content, f"Devis {quote['quote_number']}")
+        
+        # Prepare attachment
+        pdf_content = base64.b64encode(pdf_buffer.getvalue()).decode('utf-8')
+        attachments = [{
+            "content": pdf_content,
+            "filename": f"Devis_{quote['quote_number']}.pdf"
+        }]
+        
+        # Send email
+        result = await send_email_async(recipient_email, subject, html_content, attachments)
+        
+        if result.get("success"):
+            # Log the email send
+            await db.quotes.update_one(
+                {"quote_id": quote_id},
+                {"$set": {"last_email_sent_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            return {"success": True, "message": f"Devis envoyé à {recipient_email}"}
+        else:
+            raise HTTPException(status_code=500, detail=f"Erreur lors de l'envoi: {result.get('error', 'Unknown error')}")
+    
     # ============== INVOICES (FACTURES) ==============
     
     async def get_next_invoice_number(invoice_type: str):
