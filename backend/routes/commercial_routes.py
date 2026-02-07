@@ -11,7 +11,7 @@ import os
 import base64
 
 # PDF Generation
-from services.pdf_service import generate_quote_pdf, generate_invoice_pdf, generate_contract_pdf
+from services.pdf_service import generate_quote_pdf, generate_invoice_pdf, generate_contract_pdf, generate_partnership_contract_pdf
 
 # Email Service
 from services.email_service import send_email_async, get_email_template
