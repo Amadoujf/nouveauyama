@@ -26,9 +26,12 @@ import {
   Phone,
   MapPin,
   X,
+  Pen,
+  Check,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
+import SignaturePad from "../components/SignaturePad";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
