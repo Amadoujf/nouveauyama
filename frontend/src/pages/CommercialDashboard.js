@@ -829,6 +829,20 @@ function QuotesSection({ token }) {
           onSuccess={() => { setShowForm(false); fetchQuotes(); }}
         />
       )}
+
+      {/* Email Modal */}
+      {emailModal && (
+        <EmailModal
+          token={token}
+          documentType={emailModal.type}
+          documentId={emailModal.id}
+          documentNumber={emailModal.number}
+          partnerEmail={emailModal.email}
+          partnerName={emailModal.name}
+          onClose={() => setEmailModal(null)}
+          onSuccess={fetchQuotes}
+        />
+      )}
     </div>
   );
 }
