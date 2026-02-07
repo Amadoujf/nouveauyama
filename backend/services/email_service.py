@@ -84,35 +84,43 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
         return {"success": False, "error": "API key not configured"}
     
     try:
-        mailer = mailersend_emails.NewEmail(MAILERSEND_API_KEY)
+        # Use HTTP API directly for better control
+        url = "https://api.mailersend.com/v1/email"
+        headers = {
+            "Authorization": f"Bearer {MAILERSEND_API_KEY}",
+            "Content-Type": "application/json"
+        }
         
-        mail_body = {}
-        mailer.set_mail_from({
-            "name": MAILERSEND_FROM_NAME,
-            "email": MAILERSEND_FROM_EMAIL
-        }, mail_body)
-        
-        mailer.set_mail_to([{
-            "name": to_name or to_email.split("@")[0],
-            "email": to_email
-        }], mail_body)
-        
-        mailer.set_subject(subject, mail_body)
-        mailer.set_html_content(html_content, mail_body)
+        payload = {
+            "from": {
+                "email": MAILERSEND_FROM_EMAIL,
+                "name": MAILERSEND_FROM_NAME
+            },
+            "to": [{
+                "email": to_email,
+                "name": to_name or to_email.split("@")[0]
+            }],
+            "subject": subject,
+            "html": html_content
+        }
         
         # Add attachments if provided
         if attachments:
-            for attachment in attachments:
-                mailer.add_attachment(
-                    content=attachment.get("content"),
-                    filename=attachment.get("filename"),
-                    disposition="attachment",
-                    mail_body=mail_body
-                )
+            payload["attachments"] = [{
+                "content": att.get("content"),
+                "filename": att.get("filename"),
+                "disposition": "attachment"
+            } for att in attachments]
         
-        response = mailer.send(mail_body)
-        logger.info(f"Email sent to {to_email}: {subject}")
-        return {"success": True, "response": response}
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=payload, headers=headers) as response:
+                if response.status in [200, 201, 202]:
+                    logger.info(f"Email sent to {to_email}: {subject}")
+                    return {"success": True, "response": await response.text()}
+                else:
+                    error_text = await response.text()
+                    logger.error(f"MailerSend error: {response.status} - {error_text}")
+                    return {"success": False, "error": f"HTTP {response.status}: {error_text}"}
         
     except Exception as e:
         logger.error(f"MailerSend error: {str(e)}")
@@ -122,6 +130,7 @@ async def send_email_mailersend(to_email: str, to_name: str, subject: str, html_
 async def send_email_async(to: str, subject: str, html: str, attachments: list = None) -> dict:
     """Async wrapper for sending emails"""
     return await send_email_mailersend(to, to.split("@")[0], subject, html, attachments)
+
 
 
 class MailerLiteService:
