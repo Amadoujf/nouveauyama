@@ -8199,7 +8199,7 @@ async def update_verification_document_status(
     doc_id: str,
     status: str,  # approved, rejected
     admin_note: Optional[str] = None,
-    current_user: dict = Depends(get_current_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Admin: Update verification document status"""
     provider = await db.service_providers.find_one({"provider_id": provider_id})
