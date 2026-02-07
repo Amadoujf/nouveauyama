@@ -34,6 +34,16 @@ class EmailDocumentRequest(BaseModel):
     subject: Optional[str] = None
     message: Optional[str] = None
 
+class PartnershipContractRequest(BaseModel):
+    """Request model for generating partnership contract"""
+    partner_id: str
+    commission_percent: Optional[float] = None
+    payment_frequency: Optional[str] = "chaque mois"
+    payment_method: Optional[str] = "Wave / Orange Money / Virement bancaire"
+    delivery_responsibility: Optional[str] = "GROUPE YAMA PLUS"
+    delivery_fees: Optional[str] = "inclus dans le prix"
+    contract_duration: Optional[str] = "12 mois"
+
 
 class PartnerCreate(BaseModel):
     name: str
