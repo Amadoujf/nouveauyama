@@ -560,70 +560,39 @@ export default function ProviderProfilePage() {
 
           {/* Right Column - Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Contact Card */}
+            {/* Info Card - No direct contact */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
-              <h3 className="text-lg font-bold mb-4 text-gray-900">Contacter {provider.name}</h3>
+              <h3 className="text-lg font-bold mb-4 text-gray-900">À propos de {provider.name}</h3>
               
               <div className="space-y-3">
-                <a
-                  href={`tel:${provider.phone}`}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center group-hover:bg-gray-300 transition-colors">
-                    <Phone className="w-5 h-5 text-gray-700" />
+                <div className="flex items-center gap-4 p-4 bg-yellow-50 rounded-xl">
+                  <div className="w-12 h-12 rounded-xl bg-yellow-200 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-yellow-700" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Téléphone</p>
-                    <p className="text-gray-500 text-sm">{provider.phone}</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 ml-auto text-gray-400 group-hover:text-gray-600" />
-                </a>
-
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-green-200 flex items-center justify-center">
-                    <MessageCircle className="w-5 h-5 text-green-700" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-green-700">WhatsApp</p>
-                    <p className="text-green-600 text-sm">Envoyez un message</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 ml-auto text-green-400 group-hover:text-green-600" />
-                </a>
-              </div>
-
-              {/* Social Links */}
-              {Object.keys(socialLinks).length > 0 && (
-                <div className="mt-6 pt-6 border-t border-gray-100">
-                  <p className="text-sm text-gray-500 mb-4">Réseaux sociaux</p>
-                  <div className="flex flex-wrap gap-3">
-                    {Object.entries(socialLinks).map(([platform, url]) => {
-                      if (!url) return null;
-                      const IconComponent = socialIcons[platform] || Globe;
-                      return (
-                        <a
-                          key={platform}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-yellow-100 hover:scale-110 transition-all text-gray-600 hover:text-yellow-600"
-                          title={platform}
-                        >
-                          {typeof IconComponent === "function" ? <IconComponent /> : <IconComponent className="w-5 h-5" />}
-                        </a>
-                      );
-                    })}
+                    <p className="font-medium text-gray-900">Prestataire Certifié</p>
+                    <p className="text-gray-500 text-sm">Vérifié par YAMA+</p>
                   </div>
                 </div>
-              )}
+
+                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
+                  <div className="w-12 h-12 rounded-xl bg-blue-200 flex items-center justify-center">
+                    <Briefcase className="w-5 h-5 text-blue-700" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{provider.profession}</p>
+                    <p className="text-gray-500 text-sm">{provider.experience_years ? `${provider.experience_years} ans d'expérience` : "Professionnel expérimenté"}</p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-500 text-center mt-4">
+                  Pour contacter ce prestataire, veuillez passer par YAMA+
+                </p>
+              </div>
             </motion.div>
 
             {/* Share Card */}
