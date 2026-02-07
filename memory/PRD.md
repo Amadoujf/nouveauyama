@@ -181,6 +181,62 @@ TVA non applicable
 
 ---
 
+## Session: February 7, 2026 (Part 2) - Complete ✅
+
+### Changes Made:
+
+#### 1. WhatsApp Sharing for Documents (User Request)
+- Added WhatsApp buttons to all document sections (Devis, Factures, Contrats)
+- WhatsApp workflow: Downloads PDF + Opens WhatsApp with pre-filled message
+- Added ShareModal component for combined WhatsApp + Email sharing
+- Green-colored buttons with MessageCircle icon
+- File: `/app/frontend/src/pages/CommercialDashboard.js`
+
+#### 2. Provider Profile Page - Client Contact Removed (User Request)
+- Removed direct contact buttons (téléphone, WhatsApp, email) from provider page
+- Removed share button from public navbar
+- Added "Prestataire vérifié YAMA+" badge instead
+- Added message "Pour contacter ce prestataire, veuillez passer par YAMA+"
+- Share link only visible to admin/provider (not clients)
+- File: `/app/frontend/src/pages/ProviderProfilePage.js`
+
+#### 3. Blue Chat Widget Removed (User Request)
+- Commented out LiveChatWidget from App.js
+- No longer renders on any public page
+- File: `/app/frontend/src/App.js`
+
+#### 4. PDF Logo Improvements
+- Changed logo dimensions from stretched (50x20mm) to square (35x35mm)
+- Added tagline "Votre partenaire de croissance" below logo
+- Applied to all PDF documents (quotes, invoices, contracts, partnership agreements)
+- File: `/app/backend/services/pdf_service.py`
+
+#### 5. Verification Documents Feature (CNI, Photo)
+- New API endpoints for provider verification:
+  - `POST /api/services/providers/{id}/verification-documents` - Upload CNI/photo
+  - `GET /api/services/providers/{id}/verification-documents` - List documents
+  - `PUT /api/services/providers/{id}/verification-documents/{doc_id}/status` - Admin approval
+- DocumentUploadSection component for providers awaiting approval
+- Document types: cni_front, cni_back, photo
+- Status flow: pending → approved/rejected
+- Admin notification email when documents uploaded
+- Files: `/app/backend/server.py`, `/app/frontend/src/pages/ProviderDashboardPage.js`
+
+#### 6. Provider Profile Sharing API (Admin Only)
+- `POST /api/services/providers/{id}/share` - Share provider profile via WhatsApp/Email
+- Generates WhatsApp link or sends email with profile URL
+- Only accessible to admins
+- File: `/app/backend/server.py`
+
+### Test Results: iteration_22.json
+- Backend: 7/7 tests passed (100%)
+- Frontend: All UI features verified (100%)
+- WhatsApp buttons visible on all document tabs
+- Provider profile page correctly shows no direct contact options
+- Blue chat widget successfully removed
+
+---
+
 ## Session: February 7, 2026 - Complete ✅
 
 ### Changes Made:
