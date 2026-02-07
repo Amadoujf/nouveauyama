@@ -23,6 +23,18 @@ import {
   BarChart3,
   Upload,
   X,
+  Plus,
+  Trash2,
+  Globe,
+  Instagram,
+  Facebook,
+  Linkedin,
+  Twitter,
+  Youtube,
+  Share2,
+  Image as ImageIcon,
+  ExternalLink,
+  Link as LinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
