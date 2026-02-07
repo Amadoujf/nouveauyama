@@ -1596,6 +1596,21 @@ function ContractsSection({ token }) {
           onSuccess={fetchContracts}
         />
       )}
+
+      {/* Share Modal (WhatsApp) */}
+      {shareModal && (
+        <ShareModal
+          token={token}
+          documentType={shareModal.type}
+          documentId={shareModal.id}
+          documentNumber={shareModal.number}
+          partnerPhone={shareModal.phone}
+          partnerEmail={shareModal.email}
+          partnerName={shareModal.name}
+          onClose={() => setShareModal(null)}
+          onSuccess={fetchContracts}
+        />
+      )}
     </div>
   );
 }
