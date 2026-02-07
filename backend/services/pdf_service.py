@@ -745,3 +745,275 @@ def generate_contract_pdf(
     buffer.seek(0)
     
     return buffer
+
+
+
+def generate_partnership_contract_pdf(
+    contract_number: str,
+    partner: Dict,
+    commission_percent: Optional[float] = None,
+    payment_frequency: str = "chaque mois",
+    payment_method: str = "Wave / Orange Money / Virement bancaire",
+    delivery_responsibility: str = "GROUPE YAMA PLUS",
+    delivery_fees: str = "inclus dans le prix",
+    contract_duration: str = "12 mois",
+    date: Optional[str] = None
+) -> io.BytesIO:
+    """
+    Generate a professional Partnership Contract PDF matching the exact format
+    of the GROUPE YAMA PLUS partnership agreement template.
+    """
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=20*mm,
+        leftMargin=20*mm,
+        topMargin=15*mm,
+        bottomMargin=20*mm
+    )
+    
+    styles = get_styles()
+    elements = []
+    
+    # Add specific styles for partnership contract
+    styles.add(ParagraphStyle(
+        name='ContractTitle',
+        fontSize=16,
+        textColor=YAMA_DARK,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER,
+        spaceAfter=20,
+        spaceBefore=10
+    ))
+    
+    styles.add(ParagraphStyle(
+        name='ArticleTitle',
+        fontSize=11,
+        textColor=YAMA_DARK,
+        fontName='Helvetica-Bold',
+        spaceBefore=12,
+        spaceAfter=6
+    ))
+    
+    styles.add(ParagraphStyle(
+        name='ArticleContent',
+        fontSize=10,
+        textColor=colors.black,
+        fontName='Helvetica',
+        alignment=TA_JUSTIFY,
+        leading=14,
+        leftIndent=10
+    ))
+    
+    styles.add(ParagraphStyle(
+        name='BulletPoint',
+        fontSize=10,
+        textColor=colors.black,
+        fontName='Helvetica',
+        leftIndent=20,
+        leading=14
+    ))
+    
+    styles.add(ParagraphStyle(
+        name='PartyInfo',
+        fontSize=10,
+        textColor=colors.black,
+        fontName='Helvetica',
+        leading=14,
+        leftIndent=15
+    ))
+    
+    # ========== HEADER WITH LOGO ==========
+    try:
+        logo_image = download_image(COMPANY_INFO['logo_url'])
+        if logo_image:
+            logo = Image(logo_image, width=40*mm, height=40*mm)
+            logo.hAlign = 'CENTER'
+            elements.append(logo)
+            elements.append(Spacer(1, 5*mm))
+    except:
+        pass
+    
+    # ========== TITLE ==========
+    elements.append(Paragraph("CONTRAT DE PARTENARIAT COMMERCIAL", styles['ContractTitle']))
+    elements.append(Spacer(1, 8*mm))
+    
+    # ========== PARTIES SECTION ==========
+    elements.append(Paragraph("<b>Entre les soussignés :</b>", styles['YamaBody']))
+    elements.append(Spacer(1, 5*mm))
+    
+    # Party 1: GROUPE YAMA PLUS
+    elements.append(Paragraph("<b>1. GROUPE YAMA PLUS</b>", styles['ArticleTitle']))
+    party1_info = f"""
+    <b>Type d'entreprise :</b> Entreprise Individuelle immatriculée au Sénégal<br/>
+    <b>Nom commercial :</b> {COMPANY_INFO['name']}<br/>
+    <b>Représentée par :</b> Monsieur DIOUF AMADOU BOURY, Gérant<br/>
+    <b>NINEA :</b> {COMPANY_INFO['ninea']}<br/>
+    <b>RCCM :</b> {COMPANY_INFO['rccm']}<br/>
+    <b>Siège :</b> Fass Paillotte, {COMPANY_INFO['address']}<br/>
+    <b>Email :</b> {COMPANY_INFO['email']}<br/>
+    Ci-après désigné <b>« GROUPE YAMA PLUS »</b>
+    """
+    elements.append(Paragraph(party1_info, styles['PartyInfo']))
+    elements.append(Spacer(1, 5*mm))
+    
+    # ET
+    elements.append(Paragraph("<b>ET</b>", styles['YamaBody']))
+    elements.append(Spacer(1, 5*mm))
+    
+    # Party 2: Partner
+    elements.append(Paragraph("<b>2. PARTENAIRE</b>", styles['ArticleTitle']))
+    partner_name = partner.get('company_name') or partner.get('name', '_________________')
+    partner_ninea = partner.get('ninea', '_________________')
+    partner_address = partner.get('address', '_________________')
+    partner_city = partner.get('city', '')
+    partner_country = partner.get('country', 'Sénégal')
+    if partner_city:
+        partner_address += f", {partner_city}"
+    if partner_country:
+        partner_address += f" – {partner_country}"
+    partner_phone = partner.get('phone', '_________________')
+    partner_email = partner.get('email', '_________________')
+    partner_rep = partner.get('representative', '_________________')
+    
+    party2_info = f"""
+    <b>Nom / Entreprise :</b> {partner_name}<br/>
+    <b>NINEA (si applicable) :</b> {partner_ninea}<br/>
+    <b>Adresse :</b> {partner_address}<br/>
+    <b>Téléphone :</b> {partner_phone}<br/>
+    <b>Email :</b> {partner_email}<br/>
+    <b>Représenté par :</b> {partner_rep}<br/>
+    Ci-après désigné <b>« Le Partenaire »</b>
+    """
+    elements.append(Paragraph(party2_info, styles['PartyInfo']))
+    elements.append(Spacer(1, 8*mm))
+    
+    # ========== ARTICLES ==========
+    
+    # Article 1: OBJET DU CONTRAT
+    elements.append(Paragraph("<b>ARTICLE 1 : OBJET DU CONTRAT</b>", styles['ArticleTitle']))
+    elements.append(Paragraph(
+        "Le présent contrat a pour objet de définir les conditions de partenariat entre GROUPE YAMA PLUS et Le Partenaire pour la commercialisation et/ou la fourniture de produits et services via la plateforme groupeyamaplus.com et les canaux associés.",
+        styles['ArticleContent']
+    ))
+    
+    # Article 2: ENGAGEMENTS DU PARTENAIRE
+    elements.append(Paragraph("<b>ARTICLE 2 : ENGAGEMENTS DU PARTENAIRE</b>", styles['ArticleTitle']))
+    elements.append(Paragraph("Le Partenaire s'engage à :", styles['ArticleContent']))
+    engagements_partenaire = [
+        "Fournir des produits/services conformes et de bonne qualité",
+        "Respecter les délais annoncés",
+        "Garantir l'authenticité des produits (si applicable)",
+        "Fournir des informations exactes (prix, stock, disponibilité)",
+        "Coopérer avec GROUPE YAMA PLUS en cas de réclamation client"
+    ]
+    for eng in engagements_partenaire:
+        elements.append(Paragraph(f"• {eng}", styles['BulletPoint']))
+    
+    # Article 3: ENGAGEMENTS DE GROUPE YAMA PLUS
+    elements.append(Paragraph("<b>ARTICLE 3 : ENGAGEMENTS DE GROUPE YAMA PLUS</b>", styles['ArticleTitle']))
+    elements.append(Paragraph("GROUPE YAMA PLUS s'engage à :", styles['ArticleContent']))
+    engagements_yama = [
+        "Promouvoir les produits/services du Partenaire sur sa plateforme",
+        "Assurer la visibilité marketing selon les campagnes en cours",
+        "Faciliter les commandes et la communication avec les clients",
+        "Assurer le suivi des paiements selon les conditions définies"
+    ]
+    for eng in engagements_yama:
+        elements.append(Paragraph(f"• {eng}", styles['BulletPoint']))
+    
+    # Article 4: PRIX ET COMMISSION
+    elements.append(Paragraph("<b>ARTICLE 4 : PRIX ET COMMISSION</b>", styles['ArticleTitle']))
+    commission_text = f"{commission_percent}" if commission_percent else "_____"
+    article4_content = f"""Les prix peuvent être fixés soit par le Partenaire, soit en accord avec GROUPE YAMA PLUS.<br/><br/>
+    Une commission de <b>{commission_text} %</b> est appliquée sur chaque vente réalisée via la plateforme.<br/><br/>
+    La commission couvre : marketing, visibilité, gestion client, service plateforme."""
+    elements.append(Paragraph(article4_content, styles['ArticleContent']))
+    
+    # Article 5: PAIEMENT AU PARTENAIRE
+    elements.append(Paragraph("<b>ARTICLE 5 : PAIEMENT AU PARTENAIRE</b>", styles['ArticleTitle']))
+    article5_content = f"""Le paiement du Partenaire se fait :<br/>
+    • <b>{payment_frequency}</b> (chaque semaine / chaque 15 jours / chaque mois)<br/>
+    • après validation de livraison au client<br/><br/>
+    Mode de paiement : <b>{payment_method}</b>."""
+    elements.append(Paragraph(article5_content, styles['ArticleContent']))
+    
+    # Article 6: LIVRAISON
+    elements.append(Paragraph("<b>ARTICLE 6 : LIVRAISON</b>", styles['ArticleTitle']))
+    article6_content = f"""La livraison peut être assurée par GROUPE YAMA PLUS, par le Partenaire ou par un service externe.<br/><br/>
+    Responsable de la livraison : <b>{delivery_responsibility}</b><br/>
+    Frais de livraison : <b>{delivery_fees}</b> (inclus dans le prix / à la charge du client / à la charge du Partenaire)."""
+    elements.append(Paragraph(article6_content, styles['ArticleContent']))
+    
+    # Article 7: RETOUR ET GARANTIE
+    elements.append(Paragraph("<b>ARTICLE 7 : RETOUR ET GARANTIE</b>", styles['ArticleTitle']))
+    elements.append(Paragraph(
+        "Le Partenaire accepte la politique de retour de GROUPE YAMA PLUS. Tout produit défectueux ou non conforme devra être remplacé ou remboursé selon les conditions convenues.",
+        styles['ArticleContent']
+    ))
+    
+    # Article 8: CONFIDENTIALITÉ
+    elements.append(Paragraph("<b>ARTICLE 8 : CONFIDENTIALITÉ</b>", styles['ArticleTitle']))
+    elements.append(Paragraph(
+        "Les deux parties s'engagent à garder confidentielles toutes les informations commerciales et stratégiques échangées dans le cadre de ce partenariat.",
+        styles['ArticleContent']
+    ))
+    
+    # Article 9: DURÉE DU CONTRAT
+    elements.append(Paragraph("<b>ARTICLE 9 : DURÉE DU CONTRAT</b>", styles['ArticleTitle']))
+    article9_content = f"""Le présent contrat est conclu pour une durée de : <b>{contract_duration}</b> (3 mois / 6 mois / 12 mois), renouvelable automatiquement sauf résiliation."""
+    elements.append(Paragraph(article9_content, styles['ArticleContent']))
+    
+    # Article 10: RÉSILIATION
+    elements.append(Paragraph("<b>ARTICLE 10 : RÉSILIATION</b>", styles['ArticleTitle']))
+    elements.append(Paragraph(
+        "Chaque partie peut résilier le contrat avec un préavis de 15 jours, en cas de non-respect des engagements ou pour toute raison valable.",
+        styles['ArticleContent']
+    ))
+    
+    # Article 11: LITIGES
+    elements.append(Paragraph("<b>ARTICLE 11 : LITIGES</b>", styles['ArticleTitle']))
+    elements.append(Paragraph(
+        "En cas de litige, les parties s'engagent à trouver une solution à l'amiable. À défaut, le litige sera soumis aux juridictions compétentes de Dakar (Sénégal).",
+        styles['ArticleContent']
+    ))
+    
+    elements.append(Spacer(1, 10*mm))
+    
+    # ========== DATE AND LOCATION ==========
+    doc_date = date or datetime.now().strftime("%d/%m/%Y")
+    elements.append(Paragraph(f"<b>Fait à Dakar, le {doc_date}</b>", styles['YamaBody']))
+    elements.append(Spacer(1, 15*mm))
+    
+    # ========== SIGNATURES TABLE ==========
+    sig_table = Table([
+        [
+            Paragraph("<b>Pour GROUPE YAMA PLUS</b>", styles['YamaBody']),
+            Paragraph("<b>Pour le Partenaire</b>", styles['YamaBody'])
+        ],
+        [
+            Paragraph("Nom : DIOUF AMADOU BOURY", styles['YamaBody']),
+            Paragraph(f"Nom : {partner_rep}", styles['YamaBody'])
+        ],
+        [
+            Paragraph("<br/><br/><br/>Signature :", styles['YamaBody']),
+            Paragraph("<br/><br/><br/>Signature :", styles['YamaBody'])
+        ]
+    ], colWidths=[85*mm, 85*mm])
+    
+    sig_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LINEBELOW', (0, 2), (0, 2), 0.5, YAMA_GRAY),
+        ('LINEBELOW', (1, 2), (1, 2), 0.5, YAMA_GRAY),
+    ]))
+    elements.append(sig_table)
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    
+    return buffer
