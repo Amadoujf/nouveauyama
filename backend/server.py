@@ -8252,7 +8252,7 @@ class ShareProviderProfile(BaseModel):
 async def share_provider_profile(
     provider_id: str,
     share_data: ShareProviderProfile,
-    current_user: dict = Depends(get_current_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Admin: Share provider profile link via WhatsApp or Email"""
     provider = await db.service_providers.find_one({"provider_id": provider_id})
