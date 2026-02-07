@@ -119,6 +119,8 @@ export default function ProviderDashboardPage() {
         {
           ...editForm,
           price_from: editForm.price_from ? parseInt(editForm.price_from) : null,
+          services: editForm.services,
+          social_links: editForm.social_links,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
