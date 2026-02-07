@@ -1063,4 +1063,131 @@ def get_commercial_routes(db, require_admin):
             "recent_invoices": recent_invoices
         }
     
+    # ============== PARTNERSHIP CONTRACT (Special Template) ==============
+    
+    @commercial_router.post("/partnership-contract/generate")
+    async def generate_partnership_contract(data: PartnershipContractRequest, user = Depends(require_admin)):
+        """Generate a partnership contract PDF using the official GROUPE YAMA PLUS template"""
+        
+        # Get partner info
+        partner = await db.partners.find_one({"partner_id": data.partner_id}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        
+        # Generate contract number
+        contract_number = await get_next_contract_number()
+        
+        # Generate PDF
+        pdf_buffer = generate_partnership_contract_pdf(
+            contract_number=contract_number,
+            partner=partner,
+            commission_percent=data.commission_percent,
+            payment_frequency=data.payment_frequency,
+            payment_method=data.payment_method,
+            delivery_responsibility=data.delivery_responsibility,
+            delivery_fees=data.delivery_fees,
+            contract_duration=data.contract_duration
+        )
+        
+        filename = f"Contrat_Partenariat_{contract_number}.pdf"
+        
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    
+    @commercial_router.post("/partnership-contract/preview")
+    async def preview_partnership_contract(data: PartnershipContractRequest, user = Depends(require_admin)):
+        """Preview a partnership contract PDF without saving to database"""
+        
+        # Get partner info
+        partner = await db.partners.find_one({"partner_id": data.partner_id}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        
+        # Use a preview number
+        preview_number = f"PREVIEW-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+        # Generate PDF
+        pdf_buffer = generate_partnership_contract_pdf(
+            contract_number=preview_number,
+            partner=partner,
+            commission_percent=data.commission_percent,
+            payment_frequency=data.payment_frequency,
+            payment_method=data.payment_method,
+            delivery_responsibility=data.delivery_responsibility,
+            delivery_fees=data.delivery_fees,
+            contract_duration=data.contract_duration
+        )
+        
+        filename = f"Apercu_Contrat_Partenariat.pdf"
+        
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"inline; filename={filename}"}
+        )
+    
+    @commercial_router.post("/partnership-contract/create-and-save")
+    async def create_partnership_contract(data: PartnershipContractRequest, user = Depends(require_admin)):
+        """Create and save a partnership contract to database"""
+        
+        # Get partner info
+        partner = await db.partners.find_one({"partner_id": data.partner_id}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        
+        # Generate contract number
+        contract_number = await get_next_contract_number()
+        contract_id = f"CTR-{secrets.token_hex(4).upper()}"
+        
+        # Create contract record
+        contract = {
+            "contract_id": contract_id,
+            "contract_number": contract_number,
+            "contract_type": "partnership",
+            "partner_id": data.partner_id,
+            "partner_name": partner.get("name") or partner.get("company_name"),
+            "partner_email": partner.get("email"),
+            "title": "Contrat de partenariat commercial",
+            "description": f"Partenariat commercial avec commission de {data.commission_percent or '___'}%",
+            "clauses": [
+                {"title": "Article 1 - Objet", "content": "Partenariat pour commercialisation de produits/services"},
+                {"title": "Article 2 - Engagements Partenaire", "content": "Qualité, délais, authenticité, informations exactes"},
+                {"title": "Article 3 - Engagements YAMA+", "content": "Promotion, visibilité, facilitation, suivi paiements"},
+                {"title": "Article 4 - Commission", "content": f"{data.commission_percent or '___'}%"},
+                {"title": "Article 5 - Paiement", "content": f"{data.payment_frequency} via {data.payment_method}"},
+                {"title": "Article 6 - Livraison", "content": f"Par {data.delivery_responsibility}, frais {data.delivery_fees}"},
+                {"title": "Article 7 - Retour/Garantie", "content": "Politique retour YAMA+"},
+                {"title": "Article 8 - Confidentialité", "content": "Informations confidentielles"},
+                {"title": "Article 9 - Durée", "content": f"{data.contract_duration}, renouvelable"},
+                {"title": "Article 10 - Résiliation", "content": "Préavis 15 jours"},
+                {"title": "Article 11 - Litiges", "content": "Juridictions Dakar"}
+            ],
+            "commission_percent": data.commission_percent,
+            "payment_frequency": data.payment_frequency,
+            "payment_method": data.payment_method,
+            "delivery_responsibility": data.delivery_responsibility,
+            "delivery_fees": data.delivery_fees,
+            "start_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "end_date": None,
+            "value": None,
+            "status": "draft",
+            "notes": f"Durée: {data.contract_duration}",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": user.get("email")
+        }
+        
+        await db.contracts.insert_one(contract)
+        
+        # Remove _id from response
+        contract.pop("_id", None)
+        
+        return {
+            "success": True,
+            "contract": contract,
+            "message": f"Contrat de partenariat {contract_number} créé avec succès"
+        }
+    
     return commercial_router
