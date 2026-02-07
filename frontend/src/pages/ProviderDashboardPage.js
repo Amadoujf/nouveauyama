@@ -35,12 +35,171 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Link as LinkIcon,
+  FileText,
+  CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 import { cn } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Document Upload Component for verification
+function DocumentUploadSection({ provider, onRefresh }) {
+  const [docs, setDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  
+  const documentTypes = [
+    { id: "cni_front", label: "CNI (recto)", icon: CreditCard, required: true },
+    { id: "cni_back", label: "CNI (verso)", icon: CreditCard, required: false },
+    { id: "photo", label: "Photo d'identité", icon: User, required: true },
+  ];
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${API_URL}/api/services/providers/${provider.provider_id}/verification-documents`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setDocs(response.data.documents || []);
+    } catch (error) {
+      console.error("Error fetching docs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = async (docType, url) => {
+    if (!url.trim()) {
+      toast.error("Veuillez entrer une URL valide");
+      return;
+    }
+    
+    setUploading(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${API_URL}/api/services/providers/${provider.provider_id}/verification-documents`,
+        {
+          document_type: docType,
+          document_url: url.trim(),
+          description: documentTypes.find(d => d.id === docType)?.label || docType
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Document soumis avec succès !");
+      fetchDocuments();
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi du document");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const getDocStatus = (docType) => {
+    const doc = docs.find(d => d.document_type === docType);
+    return doc ? doc.status : "not_uploaded";
+  };
+
+  const getDocUrl = (docType) => {
+    const doc = docs.find(d => d.document_type === docType);
+    return doc ? doc.document_url : "";
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+      <h2 className="font-semibold text-lg mb-2 flex items-center gap-2">
+        <FileText className="w-5 h-5 text-yellow-500" />
+        Documents de vérification
+      </h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        Soumettez votre CNI et photo pour valider votre profil. Ces documents sont confidentiels et ne seront pas partagés.
+      </p>
+
+      <div className="space-y-4">
+        {documentTypes.map(({ id, label, icon: Icon, required }) => {
+          const status = getDocStatus(id);
+          const existingUrl = getDocUrl(id);
+          
+          return (
+            <div key={id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center",
+                    status === "approved" ? "bg-green-100 text-green-600" :
+                    status === "pending" ? "bg-yellow-100 text-yellow-600" :
+                    status === "rejected" ? "bg-red-100 text-red-600" :
+                    "bg-gray-100 text-gray-600"
+                  )}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{label} {required && <span className="text-red-500">*</span>}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {status === "approved" && "✓ Approuvé"}
+                      {status === "pending" && "⏳ En cours de vérification"}
+                      {status === "rejected" && "✗ Rejeté - Veuillez renvoyer"}
+                      {status === "not_uploaded" && "Non soumis"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {status !== "approved" && (
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    id={`doc-url-${id}`}
+                    placeholder="https://lien-vers-votre-document.jpg"
+                    defaultValue={existingUrl}
+                    className="flex-1 p-3 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <button
+                    onClick={() => {
+                      const input = document.getElementById(`doc-url-${id}`);
+                      handleUpload(id, input.value);
+                    }}
+                    disabled={uploading}
+                    className="px-4 py-2 bg-yellow-400 text-black font-medium rounded-lg text-sm disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {status === "pending" ? "Renvoyer" : "Envoyer"}
+                  </button>
+                </div>
+              )}
+
+              {status === "approved" && existingUrl && (
+                <a
+                  href={existingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-500 hover:underline flex items-center gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Voir le document
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+        <p className="text-sm text-blue-800 dark:text-blue-300">
+          <strong>💡 Conseil :</strong> Pour télécharger vos documents, vous pouvez utiliser un service gratuit comme Google Drive, Imgur, ou nous envoyer directement vos images via WhatsApp au <strong>+221 78 382 75 75</strong>
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function ProviderDashboardPage() {
   const { user, logout } = useAuth();
