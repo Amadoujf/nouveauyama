@@ -8,9 +8,13 @@ from typing import Optional, List
 from datetime import datetime, timezone, timedelta
 import secrets
 import os
+import base64
 
 # PDF Generation
 from services.pdf_service import generate_quote_pdf, generate_invoice_pdf, generate_contract_pdf
+
+# Email Service
+from services.email_service import send_email_async, get_email_template
 
 # Models and templates
 from commercial_documents import (
@@ -22,6 +26,14 @@ from commercial_documents import (
 commercial_router = APIRouter(prefix="/api/commercial")
 
 # ============== REQUEST MODELS ==============
+
+class EmailDocumentRequest(BaseModel):
+    """Request model for sending document via email"""
+    recipient_email: EmailStr
+    recipient_name: Optional[str] = None
+    subject: Optional[str] = None
+    message: Optional[str] = None
+
 
 class PartnerCreate(BaseModel):
     name: str
