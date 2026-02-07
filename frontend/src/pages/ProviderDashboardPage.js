@@ -339,6 +339,7 @@ export default function ProviderDashboardPage() {
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             {[
               { id: "profile", label: "Mon profil", icon: User },
+              { id: "gallery", label: "Galerie photos", icon: ImageIcon },
               { id: "stats", label: "Statistiques", icon: BarChart3 },
             ].map(({ id, label, icon: Icon }) => (
               <button
