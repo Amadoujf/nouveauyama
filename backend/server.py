@@ -8326,7 +8326,8 @@ async def update_my_provider_profile(update_data: dict, request: Request):
     
     allowed_fields = [
         "description", "availability", "price_from", "price_description",
-        "phone", "whatsapp", "photos"
+        "phone", "whatsapp", "email", "photos", "services",
+        "social_links", "website", "address"
     ]
     
     update_dict = {k: v for k, v in update_data.items() if k in allowed_fields}
