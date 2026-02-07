@@ -2372,4 +2372,108 @@ function EmailModal({ token, documentType, documentId, documentNumber, partnerEm
   );
 }
 
+// ============== SHARE MODAL (WhatsApp + Email) ==============
+
+function ShareModal({ token, documentType, documentId, documentNumber, partnerPhone, partnerEmail, partnerName, onClose, onSuccess }) {
+  const [sending, setSending] = useState(false);
+  
+  const getDocumentLabel = () => {
+    const labels = {
+      quote: "Devis",
+      invoice: "Facture",
+      contract: "Contrat",
+    };
+    return labels[documentType] || "Document";
+  };
+
+  const handleDownloadAndShare = async (method) => {
+    setSending(true);
+    try {
+      // First download the PDF
+      const endpoints = {
+        quote: `/api/commercial/quotes/${documentId}/pdf`,
+        invoice: `/api/commercial/invoices/${documentId}/pdf`,
+        contract: `/api/commercial/contracts/${documentId}/pdf`,
+      };
+
+      // For WhatsApp, we'll create a message with the document info
+      // The user will need to download the PDF separately and attach it
+      if (method === "whatsapp") {
+        const phone = (partnerPhone || "").replace(/[^0-9]/g, "");
+        const text = encodeURIComponent(
+          `Bonjour ${partnerName || ""},\n\n` +
+          `Veuillez trouver ci-joint votre ${getDocumentLabel()} N° ${documentNumber} de GROUPE YAMA+.\n\n` +
+          `Pour toute question, n'hésitez pas à nous contacter.\n\n` +
+          `Cordialement,\nGROUPE YAMA+\n📞 78 382 75 75\n✉️ contact@groupeyamaplus.com`
+        );
+        
+        // Download PDF first
+        const response = await axios.get(`${API_URL}${endpoints[documentType]}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${getDocumentLabel()}_${documentNumber}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        
+        // Then open WhatsApp
+        const waUrl = phone 
+          ? `https://wa.me/${phone}?text=${text}`
+          : `https://wa.me/?text=${text}`;
+        window.open(waUrl, "_blank");
+        
+        toast.success("PDF téléchargé - Envoyez-le via WhatsApp");
+        onClose();
+      }
+    } catch (error) {
+      toast.error("Erreur lors de la préparation du document");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h3 className="font-semibold">Partager le document</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-xl text-center">
+            <p className="text-sm font-medium">{getDocumentLabel()} N° {documentNumber}</p>
+            {partnerName && <p className="text-xs text-muted-foreground">{partnerName}</p>}
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => handleDownloadAndShare("whatsapp")}
+              disabled={sending}
+              className="w-full flex items-center gap-3 p-4 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-colors disabled:opacity-50"
+            >
+              <MessageCircle className="w-6 h-6" />
+              <div className="text-left">
+                <p className="font-medium">WhatsApp</p>
+                <p className="text-xs opacity-80">Télécharge le PDF et ouvre WhatsApp</p>
+              </div>
+            </button>
+          </div>
+
+          <p className="text-xs text-center text-muted-foreground">
+            Le PDF sera téléchargé automatiquement.<br />
+            Joignez-le dans WhatsApp pour l'envoyer.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default CommercialDashboard;
