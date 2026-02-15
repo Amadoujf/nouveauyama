@@ -7994,7 +7994,7 @@ async def get_provider_gallery(provider_id: str):
 async def add_gallery_photo(
     provider_id: str, 
     photo_data: GalleryPhotoUpload,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Add a photo to provider's gallery (provider only)"""
     # Verify provider exists and user is the provider
@@ -8003,8 +8003,8 @@ async def add_gallery_photo(
         raise HTTPException(status_code=404, detail="Prestataire non trouvé")
     
     # Check if user is the provider or admin
-    is_admin = current_user.get("role") == "admin"
-    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    is_admin = current_user.role == "admin"
+    is_owner = provider.get("user_id") == current_user.user_id or provider.get("phone") == current_user.phone
     
     if not is_admin and not is_owner:
         raise HTTPException(status_code=403, detail="Non autorisé à modifier cette galerie")
