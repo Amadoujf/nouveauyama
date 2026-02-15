@@ -8518,7 +8518,7 @@ async def get_current_provider(request: Request):
         raise HTTPException(status_code=404, detail="Profil prestataire non trouvé")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expiré")
-    except jwt.JWTError:
+    except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token invalide")
 
 @api_router.get("/services/provider/me")
