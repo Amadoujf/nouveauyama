@@ -207,7 +207,9 @@ class TestCommercialManagement:
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         assert response.status_code == 200
-        partners = response.json()
+        data = response.json()
+        # API returns {"partners": [...], "total": N}
+        partners = data.get('partners', data) if isinstance(data, dict) else data
         assert isinstance(partners, list)
         print(f"PASS: Commercial partners endpoint - {len(partners)} partners")
     
@@ -218,7 +220,9 @@ class TestCommercialManagement:
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         assert response.status_code == 200
-        contracts = response.json()
+        data = response.json()
+        # API returns {"contracts": [...], "stats": {...}}
+        contracts = data.get('contracts', data) if isinstance(data, dict) else data
         assert isinstance(contracts, list)
         print(f"PASS: Commercial contracts endpoint - {len(contracts)} contracts")
     
@@ -229,7 +233,9 @@ class TestCommercialManagement:
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         assert response.status_code == 200
-        invoices = response.json()
+        data = response.json()
+        # API returns {"invoices": [...], "stats": {...}}
+        invoices = data.get('invoices', data) if isinstance(data, dict) else data
         assert isinstance(invoices, list)
         print(f"PASS: Commercial invoices endpoint - {len(invoices)} invoices")
 
