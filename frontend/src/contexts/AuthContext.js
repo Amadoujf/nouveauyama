@@ -82,8 +82,7 @@ export function AuthProvider({ children }) {
   const processGoogleCallback = async (sessionId) => {
     console.log("Google callback received:", sessionId);
     // Implement when Google OAuth is configured
-  };
-    return response.data;
+    return null;
   };
 
   // Logout
