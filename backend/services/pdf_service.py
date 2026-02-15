@@ -31,7 +31,7 @@ COMPANY_INFO = {
     "ninea": "012808210",
     "rccm": "SN DKR 2026 A 4814",
     "tva_mention": "TVA non applicable",
-    "logo_url": "https://customer-assets.emergentagent.com/job_pro-connect-42/artifacts/s4wn52m1_0CA7A224-A371-430F-8856-6F8BE8C1FCDE.png"
+    "logo_url": "/assets/images/logo_yama_pdf.png"
 }
 
 def download_image(url: str) -> Optional[io.BytesIO]:
