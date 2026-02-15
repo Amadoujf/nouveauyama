@@ -48,7 +48,7 @@ export default function Footer() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/GroupeYamaPlus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
@@ -57,7 +57,7 @@ export default function Footer() {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/groupeyamaplus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
@@ -66,7 +66,7 @@ export default function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://twitter.com/GroupeYamaPlus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
@@ -75,7 +75,7 @@ export default function Footer() {
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="https://tiktok.com"
+                href="https://www.tiktok.com/@groupeyamaplus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
@@ -86,7 +86,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://snapchat.com"
+                href="https://www.snapchat.com/add/groupeyamaplus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
