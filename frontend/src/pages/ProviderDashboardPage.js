@@ -308,6 +308,63 @@ export default function ProviderDashboardPage() {
 
   const handleLogout = () => {
     logout();
+
+  // Handle file upload for gallery photos
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image est trop grande. Maximum 5 MB");
+      return;
+    }
+    
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Format non supporté. Utilisez JPG, PNG ou WebP");
+      return;
+    }
+    
+    const uploadingToast = toast.loading("Upload en cours...");
+    
+    try {
+      const token = localStorage.getItem("token");
+      
+      // First upload the image to get URL
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const uploadResponse = await axios.post(
+        `${API_URL}/api/upload/image`,
+        formData,
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          } 
+        }
+      );
+      
+      const imageUrl = uploadResponse.data.url;
+      
+      // Then add to gallery
+      await axios.post(
+        `${API_URL}/api/services/providers/${provider.provider_id}/gallery`,
+        { image_url: imageUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      toast.dismiss(uploadingToast);
+      toast.success("Photo ajoutée à votre galerie !");
+      fetchProviderProfile();
+      
+    } catch (error) {
+      toast.dismiss(uploadingToast);
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.detail || "Erreur lors de l'upload");
+    }
+  };
     navigate("/");
   };
 
