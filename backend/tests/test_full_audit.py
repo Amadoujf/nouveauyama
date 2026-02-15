@@ -20,7 +20,7 @@ if not BASE_URL:
     except:
         pass
 if not BASE_URL:
-    BASE_URL = 'https://provider-portfolio.preview.emergentagent.com'
+    BASE_URL = 'https://marketplace-bugs-2.preview.emergentagent.com'
 BASE_URL = BASE_URL.rstrip('/')
 
 # Test credentials
