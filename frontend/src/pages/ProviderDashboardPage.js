@@ -947,9 +947,55 @@ export default function ProviderDashboardPage() {
                   Ajoutez des photos de vos réalisations pour attirer plus de clients. Les images de qualité augmentent la confiance.
                 </p>
 
-                {/* Photo Upload */}
+                {/* Photo Upload - Direct File Upload */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium mb-2">Ajouter une photo (URL)</label>
+                  <label className="block text-sm font-medium mb-2">Ajouter une photo</label>
+                  
+                  {/* File Upload Zone */}
+                  <div 
+                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-yellow-400 transition-colors cursor-pointer mb-4"
+                    onClick={() => document.getElementById("gallery-file-input").click()}
+                    onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-yellow-400", "bg-yellow-50", "dark:bg-yellow-900/10"); }}
+                    onDragLeave={(e) => { e.currentTarget.classList.remove("border-yellow-400", "bg-yellow-50", "dark:bg-yellow-900/10"); }}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove("border-yellow-400", "bg-yellow-50", "dark:bg-yellow-900/10");
+                      const file = e.dataTransfer.files[0];
+                      if (file && file.type.startsWith("image/")) {
+                        await handleFileUpload(file);
+                      } else {
+                        toast.error("Veuillez déposer une image (JPG, PNG, WebP)");
+                      }
+                    }}
+                  >
+                    <Upload className="w-10 h-10 mx-auto text-gray-400 mb-2" />
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Cliquez ou glissez-déposez une image
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1">JPG, PNG, WebP - Max 5 MB</p>
+                  </div>
+                  
+                  <input
+                    type="file"
+                    id="gallery-file-input"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        await handleFileUpload(file);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                  
+                  {/* Or URL input */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                    <span className="text-sm text-gray-500">ou via URL</span>
+                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                  
                   <div className="flex gap-2">
                     <input
                       type="url"
