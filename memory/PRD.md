@@ -377,3 +377,42 @@ TVA non applicable
 ---
 
 *Last updated: February 15, 2026*
+
+### Feature Implementation Complete:
+
+#### 1. Digital Signature for Contracts - ✅ COMPLETE
+- **SignatureModal** component fully implemented in CommercialDashboard.js
+- Shows signature status for both parties (Partner / GROUPE YAMA+)
+- Displays existing signatures with option to delete
+- Add new signature with name, role selection, and SignaturePad canvas
+- Backend APIs:
+  - `GET /api/commercial/contracts/{id}/signatures` - Get all signatures
+  - `POST /api/commercial/contracts/{id}/sign` - Add signature
+  - `DELETE /api/commercial/contracts/{id}/signatures/{sig_id}` - Remove signature
+- Contract status updates automatically: pending_signature → signed
+
+#### 2. Provider Photo Gallery - ✅ COMPLETE
+- Gallery tab in ProviderDashboardPage.js
+- **Dual upload methods**: 
+  - Direct file upload with drag-and-drop support
+  - URL input for external images
+- Photo grid with hover-to-delete functionality
+- Backend APIs:
+  - `GET /api/services/providers/{id}/gallery` - Get gallery
+  - `POST /api/services/providers/{id}/gallery` - Add photo
+  - `DELETE /api/services/providers/{id}/gallery/{photo_id}` - Remove photo
+  - `PUT /api/services/providers/{id}/gallery/reorder` - Reorder photos
+- **Bug fixed**: get_current_provider now correctly uses `user_id` JWT claim
+
+### Test Results: iteration_24.json
+- Backend: 12/12 tests passed (100%)
+- Frontend: Signature modal verified working (100%)
+- Bugs fixed during testing: Gallery endpoint attribute access
+
+### Test Credentials:
+- **Admin**: admin@yama.sn / admin123
+- **Provider**: mamadou@example.com / provider123
+
+---
+
+*Last updated: February 15, 2026*
