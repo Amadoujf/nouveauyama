@@ -55,8 +55,8 @@ const paymentMethods = [
     description: "Wave, Orange Money",
     recommended: true,
     logos: [
-      "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp",
-      "https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png"
+      "/assets/images/payment_wave.webp",
+      "/assets/images/payment_orange_money.png"
     ],
     infoText: "Vous serez redirigé vers la page de paiement sécurisée Paytech pour choisir Wave ou Orange Money."
   },

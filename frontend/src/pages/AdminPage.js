@@ -575,7 +575,7 @@ export default function AdminPage() {
         <div className="p-6 border-b border-black/5 dark:border-white/5">
           <Link to="/" className="flex items-center gap-3">
             <img 
-              src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+              src="/assets/images/logo_yama.png" 
               alt="YAMA+" 
               className="h-12 w-auto"
             />
