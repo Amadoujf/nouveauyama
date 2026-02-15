@@ -318,3 +318,62 @@ TVA non applicable
 #### 7. Backend API Updates
 - Extended `/api/services/provider/me` to accept social_links, services, email fields
 - File: `/app/backend/server.py`
+
+---
+
+## Session: February 15, 2026 - In Progress
+
+### Bug Fixes Applied:
+
+#### 1. Product Images Not Displaying - FIXED ✅
+- **Problem**: Uploaded product images had relative URLs (`/api/uploads/...`) which didn't display correctly
+- **Solution**: Modified backend to return absolute URLs with SITE_URL prefix
+- **Also fixed**: 4 existing products in database had broken relative URLs - migrated to absolute URLs
+- **File**: `/app/backend/server.py` (lines 1226-1234)
+
+#### 2. PayTech Test Mode - NEEDS PAYTECH SUPPORT ⚠️
+- **Problem**: Payments showing 104 FCFA instead of real amount (test mode behavior)
+- **Investigation**: Code correctly sends `env=prod`, but PayTech forces test mode
+- **Root Cause**: PayTech account not fully activated for production mode
+- **Solution**: User must contact PayTech support (+221 77 125 57 99 or contact@paytech.sn) to verify account activation
+
+#### 3. Site Not Visible on Google - EXPLAINED
+- **Problem**: User expected preview URL to be indexed by Google
+- **Explanation**: Preview environment (marketplace-bugs-2.preview.emergentagent.com) is for development only, not production deployment
+- **Solution**: Need proper production deployment with custom domain for Google indexing
+
+#### 4. Footer Social Media Links - FIXED ✅
+- **Problem**: Social media icons linked to generic URLs (facebook.com, instagram.com, etc.)
+- **Solution**: Updated to GROUPE YAMA PLUS specific URLs (@groupeyamaplus)
+- **File**: `/app/frontend/src/components/Footer.js`
+
+#### 5. SEO Files for Deployment - CREATED ✅
+- Created `/app/frontend/public/sitemap.xml` with all main pages
+- Updated `/app/frontend/public/robots.txt` (already existed)
+
+### Navigation Bug (Links Scrolling to Footer):
+- **Status**: Could not reproduce
+- **Tests**: Clicked on multiple navigation links (Catégories dropdown, Nouveautés, Électronique category)
+- **Result**: All navigation works correctly, pages open at top (scroll position = 0)
+- **Recommendation**: May be browser-specific or intermittent - user should provide specific reproduction steps
+
+---
+
+## Pending Tasks (Priority Order)
+
+### P0 - Critical (Blocked)
+- [ ] PayTech Production Mode - Waiting for PayTech account verification
+
+### P1 - High Priority
+- [ ] Digital signature feature completion
+- [ ] Provider photo gallery frontend UI
+- [ ] Scrolling links bug - needs more info from user
+
+### P2 - Medium Priority
+- [ ] Refactor server.py (move provider routes to separate file)
+- [ ] README.md for code export
+- [ ] Production deployment configuration
+
+---
+
+*Last updated: February 15, 2026*
