@@ -4827,7 +4827,7 @@ Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
             return result
             
         except json.JSONDecodeError as e:
-            logging.error(f"AI response not valid JSON: {response}")
+            logging.error(f"AI response not valid JSON: {ai_response}")
             return {
                 "success": False,
                 "error": "L'IA n'a pas pu analyser l'image correctement",
