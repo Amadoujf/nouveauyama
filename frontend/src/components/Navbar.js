@@ -157,7 +157,7 @@ export default function Navbar() {
               data-testid="nav-logo"
             >
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+                src="/assets/images/logo_yama.png" 
                 alt="Groupe YAMA+" 
                 className="h-16 md:h-20 w-auto"
               />
@@ -443,7 +443,7 @@ export default function Navbar() {
             {/* Header */}
             <div className="sticky top-0 bg-white dark:bg-[#1C1C1E] px-6 py-4 flex items-center justify-between border-b border-black/5 dark:border-white/10">
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+                src="/assets/images/logo_yama.png" 
                 alt="Groupe YAMA+" 
                 className="h-12 w-auto"
               />

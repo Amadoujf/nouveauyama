@@ -37,7 +37,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img 
-                src="https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png" 
+                src="/assets/images/logo_yama.png" 
                 alt="Groupe YAMA+" 
                 className="h-16 w-auto"
               />
@@ -201,12 +201,12 @@ export default function Footer() {
             </h3>
             <div className="flex flex-wrap items-center gap-3">
               <img 
-                src="https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/pjqy5yue_IMG_0629.webp" 
+                src="/assets/images/payment_wave.webp" 
                 alt="Wave" 
                 className="h-8 w-auto object-contain bg-white rounded-lg px-2 py-1"
               />
               <img 
-                src="https://customer-assets.emergentagent.com/job_senegal-shop-4/artifacts/056q2hjx_IMG_0628.png" 
+                src="/assets/images/payment_orange_money.png" 
                 alt="Orange Money" 
                 className="h-8 w-auto object-contain bg-white rounded-lg px-2 py-1"
               />
