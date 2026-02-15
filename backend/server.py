@@ -42,6 +42,10 @@ from reportlab.lib.units import cm, mm
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Log PayTech configuration at startup
+_paytech_env = os.environ.get('PAYTECH_ENV', 'NOT_SET')
+logging.info(f"🔧 PayTech configuration loaded: PAYTECH_ENV={_paytech_env}")
+
 # MailerSend configuration
 MAILERSEND_API_KEY = os.environ.get("MAILERSEND_API_KEY")
 MAILERSEND_FROM_EMAIL = os.environ.get("MAILERSEND_FROM_EMAIL", "noreply@groupeyamaplus.com")
