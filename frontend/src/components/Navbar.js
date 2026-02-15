@@ -33,35 +33,35 @@ const categoryItems = [
     name: "Électronique", 
     href: "/category/electronique", 
     icon: Smartphone,
-    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/dmn8w95m_8CF357C8-ECFD-423B-9203-96F930691053.png",
+    image: "/assets/images/category_electronique.png",
     description: "Smartphones, ordinateurs et gadgets"
   },
   { 
     name: "Électroménager", 
     href: "/category/electromenager", 
     icon: Home,
-    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/73q7zijc_F1B71D85-2102-4D21-B45A-5CC6BC7B6D14.png",
+    image: "/assets/images/category_electromenager.png",
     description: "Appareils du quotidien"
   },
   { 
     name: "Décoration", 
     href: "/category/decoration", 
     icon: Sofa,
-    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/47gc16fh_IMG_3040.jpeg",
+    image: "/assets/images/category_decoration.jpeg",
     description: "Design et confort"
   },
   { 
     name: "Accessoires mode et beauté", 
     href: "/category/beaute", 
     icon: Sparkles,
-    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/lxz61k08_IMG_3045.jpeg",
+    image: "/assets/images/category_beaute.jpeg",
     description: "Mode, soins et cosmétiques"
   },
   { 
     name: "Automobile", 
     href: "/category/automobile", 
     icon: Car,
-    image: "https://customer-assets.emergentagent.com/job_yama-market-1/artifacts/8g6b1p4r_E6A78E3A-E6D7-4CC2-AB1C-95D5689D1734.png",
+    image: "/assets/images/category_automobile.png",
     description: "Véhicules et accessoires"
   },
 ];
