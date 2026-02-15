@@ -4798,7 +4798,7 @@ Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
         # Parse AI response
         try:
             # Clean response if needed (remove markdown code blocks)
-            cleaned_response = response.strip()
+            cleaned_response = ai_response.strip()
             if cleaned_response.startswith("```"):
                 cleaned_response = cleaned_response.split("```")[1]
                 if cleaned_response.startswith("json"):
