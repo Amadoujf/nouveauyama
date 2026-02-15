@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 const SITE_NAME = "GROUPE YAMA+";
 const SITE_URL = "https://groupeyamaplus.com";
-const DEFAULT_IMAGE = "https://customer-assets.emergentagent.com/job_premium-senegal/artifacts/xs5g0hsy_IMG_0613.png";
+const DEFAULT_IMAGE = "/assets/images/logo_yama.png";
 const DEFAULT_DESCRIPTION = "GROUPE YAMA+ - Votre boutique premium au Sénégal. Électronique, électroménager, décoration et beauté. Livraison rapide à Dakar et régions. Paiement Wave, Orange Money, Free Money.";
 
 export default function SEO({ 
