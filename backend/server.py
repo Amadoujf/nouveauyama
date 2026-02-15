@@ -8072,7 +8072,7 @@ async def delete_gallery_photo(
 async def reorder_gallery(
     provider_id: str,
     photo_ids: List[str],
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Reorder gallery photos"""
     provider = await db.service_providers.find_one({"provider_id": provider_id})
@@ -8080,8 +8080,8 @@ async def reorder_gallery(
         raise HTTPException(status_code=404, detail="Prestataire non trouvé")
     
     # Check authorization
-    is_admin = current_user.get("role") == "admin"
-    is_owner = provider.get("user_id") == current_user.get("user_id") or provider.get("phone") == current_user.get("phone")
+    is_admin = current_user.role == "admin"
+    is_owner = provider.get("user_id") == current_user.user_id or provider.get("phone") == current_user.phone
     
     if not is_admin and not is_owner:
         raise HTTPException(status_code=403, detail="Non autorisé à modifier cette galerie")
