@@ -8494,10 +8494,11 @@ async def get_current_provider(request: Request):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         provider_id = payload.get("sub")
+        user_id = payload.get("user_id")  # Also check user_id claim
         token_type = payload.get("type")
         
         # Check if it's a provider token
-        if token_type == "provider":
+        if token_type == "provider" and provider_id:
             provider = await db.service_providers.find_one(
                 {"provider_id": provider_id},
                 {"_id": 0, "password": 0}
@@ -8506,10 +8507,10 @@ async def get_current_provider(request: Request):
                 return provider
         
         # Also check if user has a provider profile linked by user_id
-        user_id = payload.get("sub")
-        if user_id:
+        lookup_user_id = user_id or provider_id  # Use user_id claim or fall back to sub
+        if lookup_user_id:
             provider = await db.service_providers.find_one(
-                {"user_id": user_id},
+                {"user_id": lookup_user_id},
                 {"_id": 0, "password": 0}
             )
             if provider:
