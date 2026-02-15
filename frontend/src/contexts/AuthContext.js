@@ -68,26 +68,21 @@ export function AuthProvider({ children }) {
   };
 
   // Google OAuth Login
+  // NOTE: For production, implement Google OAuth using:
+  // 1. Create credentials at https://console.cloud.google.com/
+  // 2. Use a library like react-oauth/google
+  // 3. Verify tokens on backend with google-auth-library
   const loginWithGoogle = () => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-    const redirectUrl = window.location.origin + "/auth/callback";
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+    // Temporarily disabled - requires Google Cloud Console setup
+    alert("Google OAuth n'est pas encore configuré. Veuillez utiliser l'authentification par email/mot de passe.");
+    console.log("Google OAuth requires setup. See AuthContext.js for instructions.");
   };
 
-  // Process Google OAuth callback
+  // Process Google OAuth callback (placeholder for future implementation)
   const processGoogleCallback = async (sessionId) => {
-    const response = await axios.post(
-      `${API_URL}/api/auth/session`,
-      { session_id: sessionId }
-    );
-    
-    // Save the token if returned
-    if (response.data.token) {
-      setToken(response.data.token);
-      localStorage.setItem("auth_token", response.data.token);
-    }
-    
-    setUser(response.data);
+    console.log("Google callback received:", sessionId);
+    // Implement when Google OAuth is configured
+  };
     return response.data;
   };
 
