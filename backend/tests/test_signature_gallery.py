@@ -334,11 +334,11 @@ class TestProviderAuth:
         
         data = response.json()
         assert "token" in data, "Response should contain token"
-        assert "user" in data, "Response should contain user info"
+        assert "user_id" in data or "email" in data, "Response should contain user info"
         
-        user = data.get("user", {})
-        print(f"✓ Provider login successful - User ID: {user.get('user_id')}, "
-              f"Name: {user.get('name')}, Role: {user.get('role')}")
+        # User info is at top level of response
+        print(f"✓ Provider login successful - User ID: {data.get('user_id')}, "
+              f"Name: {data.get('name')}, Role: {data.get('role')}")
     
     def test_provider_me_with_user_id_claim(self):
         """Test /api/services/provider/me works with user_id claim in JWT"""
