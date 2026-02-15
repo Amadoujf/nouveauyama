@@ -1223,9 +1223,13 @@ async def upload_image(file: UploadFile = File(...), user: User = Depends(requir
         with open(filepath, "wb") as f:
             f.write(content)
         
-        # Return the URL
-        # In production, this would be a full URL to your domain
-        image_url = f"/api/uploads/{filename}"
+        # Return the FULL URL for proper image display in frontend
+        site_url = os.environ.get('SITE_URL', '')
+        if site_url:
+            image_url = f"{site_url}/api/uploads/{filename}"
+        else:
+            # Fallback to relative URL (will work if frontend adds base URL)
+            image_url = f"/api/uploads/{filename}"
         
         return {"success": True, "url": image_url, "filename": filename}
     
