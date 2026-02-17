@@ -37,7 +37,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6">
               <img 
-                src="/assets/images/logo_yama.png" 
+                src="/assets/images/logo_yama_full.png" 
                 alt="Groupe YAMA+" 
                 className="h-16 w-auto"
               />
