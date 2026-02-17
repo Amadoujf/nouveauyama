@@ -5,6 +5,10 @@ const AuthContext = createContext(null);
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Emergent Google OAuth Configuration
+const GOOGLE_CLIENT_ID = "648274877715-vgcqjv9hu75o9gr34ob11dsqk4st9qm8.apps.googleusercontent.com";
+const EMERGENT_AUTH_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/google";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,22 +71,30 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
-  // Google OAuth Login
-  // NOTE: For production, implement Google OAuth using:
-  // 1. Create credentials at https://console.cloud.google.com/
-  // 2. Use a library like react-oauth/google
-  // 3. Verify tokens on backend with google-auth-library
+  // Google OAuth Login via Emergent
   const loginWithGoogle = () => {
-    // Temporarily disabled - requires Google Cloud Console setup
-    alert("Google OAuth n'est pas encore configuré. Veuillez utiliser l'authentification par email/mot de passe.");
-    console.log("Google OAuth requires setup. See AuthContext.js for instructions.");
+    const currentUrl = window.location.origin;
+    const redirectUrl = `${EMERGENT_AUTH_URL}?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(currentUrl)}`;
+    window.location.href = redirectUrl;
   };
 
-  // Process Google OAuth callback (placeholder for future implementation)
+  // Process Google OAuth callback
   const processGoogleCallback = async (sessionId) => {
-    console.log("Google callback received:", sessionId);
-    // Implement when Google OAuth is configured
-    return null;
+    try {
+      const response = await axios.post(`${API_URL}/api/auth/session`, {
+        session_id: sessionId
+      });
+      
+      const { token: newToken, ...userData } = response.data;
+      setToken(newToken);
+      setUser(userData);
+      localStorage.setItem("auth_token", newToken);
+      
+      return userData;
+    } catch (error) {
+      console.error("Google callback error:", error);
+      throw error;
+    }
   };
 
   // Logout
