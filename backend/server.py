@@ -6000,7 +6000,7 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     company_info = """<b>GROUPE YAMA PLUS</b><br/>
 <font size='8' color='#666666'>Dakar – Sénégal<br/>
 Email : contact@groupeyamaplus.com<br/>
-Tel : 78 382 75 75<br/>
+Tel : 78 382 75 75 / 77 849 81 37<br/>
 NINEA : 012808210<br/>
 RCCM : SN DKR 2026 A 4814</font>"""
     
@@ -6188,7 +6188,7 @@ RCCM : SN DKR 2026 A 4814</font>"""
         alignment=1  # Center
     )
     elements.append(Paragraph("Merci pour votre achat chez GROUPE YAMA PLUS !", footer_style))
-    elements.append(Paragraph("Pour toute question, contactez-nous au 78 382 75 75", footer_style))
+    elements.append(Paragraph("Pour toute question, contactez-nous au 78 382 75 75 / 77 849 81 37", footer_style))
     elements.append(Paragraph("NINEA : 012808210 | RCCM : SN DKR 2026 A 4814", footer_style))
     elements.append(Paragraph("www.groupeyamaplus.com", footer_style))
     

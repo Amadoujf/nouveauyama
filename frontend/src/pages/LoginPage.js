@@ -63,14 +63,14 @@ export default function LoginPage() {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="inline-block mb-2">
               <img 
                 src="/assets/images/logo_yama_full.png" 
                 alt="Groupe YAMA+" 
                 className="h-28 w-auto mx-auto"
               />
             </Link>
-            <p className="text-sm text-muted-foreground mb-4">Votre partenaire au quotidien</p>
+            <p className="text-sm text-muted-foreground mb-6">Votre partenaire au quotidien</p>
             <h1 className="text-3xl font-semibold tracking-tight mb-2">
               {isLogin ? "Bon retour" : "Créer un compte"}
             </h1>
