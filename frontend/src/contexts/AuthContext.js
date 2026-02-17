@@ -25,10 +25,20 @@ export function AuthProvider({ children }) {
 
   // Check auth status on mount
   const checkAuth = useCallback(async () => {
+    const savedToken = localStorage.getItem("auth_token");
+    if (!savedToken) {
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const response = await axios.get(`${API_URL}/api/auth/me`);
+      const response = await axios.get(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${savedToken}` }
+      });
       setUser(response.data);
+      setToken(savedToken);
     } catch (error) {
+      console.error("Auth check failed:", error);
       setUser(null);
       setToken(null);
       localStorage.removeItem("auth_token");
