@@ -4756,28 +4756,34 @@ async def analyze_product_image(file: UploadFile = File(...), user: User = Depen
         if not ai_key:
             raise HTTPException(status_code=500, detail="Clé API non configurée")
         
-        system_message = """Tu es un expert en e-commerce spécialisé dans l'analyse de produits.
-Analyse l'image fournie et extrais les informations du produit.
+        system_message = """Tu es un expert copywriter e-commerce spécialisé dans la rédaction de fiches produits vendeuses.
+Analyse l'image fournie et crée une fiche produit complète et VENDEUSE.
 Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire, sans backticks.
 
 Le JSON doit avoir cette structure exacte:
 {
-  "name": "Nom du produit en français",
-  "description": "Description détaillée du produit (2-3 phrases)",
-  "short_description": "Description courte (max 50 caractères)",
+  "name": "Nom commercial du produit (accrocheur et professionnel)",
+  "description": "Description DÉTAILLÉE et VENDEUSE du produit. Inclus: les caractéristiques principales, les avantages pour l'utilisateur, la qualité des matériaux, l'usage recommandé. Minimum 4-5 phrases captivantes qui donnent envie d'acheter. Utilise un ton professionnel mais engageant.",
+  "short_description": "Phrase d'accroche percutante (max 80 caractères)",
   "category": "electronique|electromenager|decoration|beaute|automobile",
   "brand": "Marque du produit si visible, sinon null",
-  "estimated_price": "Prix estimé en FCFA (nombre entier)",
+  "estimated_price": "Prix estimé en FCFA (nombre entier basé sur le marché sénégalais)",
   "colors": ["Couleur1", "Couleur2"],
-  "suggested_tags": ["tag1", "tag2", "tag3"],
-  "is_new": true/false,
-  "confidence": "high|medium|low"
+  "suggested_tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "is_new": true,
+  "confidence": "high|medium|low",
+  "features": ["Caractéristique 1", "Caractéristique 2", "Caractéristique 3"]
 }
 
 Pour la catégorie, choisis parmi:
-- electronique: téléphones, ordinateurs, écouteurs, montres connectées, TV
-- electromenager: aspirateurs, machines à café, réfrigérateurs, climatiseurs
-- decoration: meubles, luminaires, tapis, cadres, vases
+- electronique: téléphones, ordinateurs, écouteurs, montres connectées, TV, consoles
+- electromenager: aspirateurs, machines à café, réfrigérateurs, climatiseurs, mixeurs
+- decoration: meubles, luminaires, tapis, cadres, vases, objets déco
+- beaute: parfums, cosmétiques, soins, maquillage, accessoires beauté
+- automobile: accessoires auto, pièces, équipements, GPS, dashcam
+
+Pour le prix, estime en FCFA pour le marché sénégalais (1€ ≈ 656 FCFA).
+Sois créatif et commercial dans tes descriptions !
 - beaute: parfums, cosmétiques, soins, accessoires beauté
 - automobile: accessoires auto, pièces, équipements
 
