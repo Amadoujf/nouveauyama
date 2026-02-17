@@ -265,6 +265,13 @@ export default function ProviderRegisterPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
+            <Link to="/" className="inline-block mb-4">
+              <img 
+                src="/assets/images/logo_yama_full.png" 
+                alt="Groupe YAMA+" 
+                className="h-20 w-auto mx-auto"
+              />
+            </Link>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full text-sm font-medium mb-4">
               <CheckCircle className="w-4 h-4" />
               Code d'invitation validé
