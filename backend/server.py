@@ -29,8 +29,8 @@ from mailersend import MailerSendClient, EmailBuilder
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-# AI Image Analysis - Using standard OpenAI SDK
-from openai import OpenAI
+# AI Image Analysis - Using emergentintegrations
+from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
 
 # PDF Generation
 from reportlab.lib.pagesizes import A4
