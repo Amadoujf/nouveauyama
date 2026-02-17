@@ -65,9 +65,9 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-4">
               <img 
-                src="/assets/images/logo_yama_alt.png" 
+                src="/assets/images/logo_yama_full.png" 
                 alt="Groupe YAMA+" 
-                className="h-20 w-auto mx-auto"
+                className="h-24 w-auto mx-auto"
               />
             </Link>
             <p className="text-sm text-muted-foreground mb-4">Votre partenaire au quotidien</p>
