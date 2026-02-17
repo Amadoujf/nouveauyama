@@ -40,10 +40,15 @@ Remove-Item yarn.lock -ErrorAction SilentlyContinue
 ### Étape 3 : Installer les dépendances
 
 ```powershell
+yarn install
+```
+
+Ou avec npm :
+```powershell
 npm install --legacy-peer-deps
 ```
 
-> **Note** : Le flag `--legacy-peer-deps` est nécessaire car React 19 a des conflits de peer dependencies avec certains packages.
+> **Note** : Le flag `--legacy-peer-deps` est nécessaire avec npm car React 19 a des conflits de peer dependencies avec certains packages.
 
 ### Étape 4 : Lancer le serveur de développement
 
