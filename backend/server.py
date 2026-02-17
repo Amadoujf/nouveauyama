@@ -5996,11 +5996,19 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
     logo_path = ROOT_DIR / "logo_yama.png"
     logging.info(f"Invoice logo path: {logo_path}, exists: {logo_path.exists()}")
     
+    # Company legal info
+    company_info = """<b>GROUPE YAMA PLUS</b><br/>
+<font size='8' color='#666666'>Dakar – Sénégal<br/>
+Email : contact@groupeyamaplus.com<br/>
+Tel : 78 382 75 75<br/>
+NINEA : 012808210<br/>
+RCCM : SN DKR 2026 A 4814</font>"""
+    
     if logo_path.exists():
         try:
             # Create header with YAMA+ logo
             logo_img = Image(str(logo_path), width=3.5*cm, height=3.5*cm)
-            header_data = [[logo_img, Paragraph("<b>GROUPE YAMA+</b><br/><font size='9' color='#666666'>Votre boutique premium au Sénégal</font>", styles['Normal'])]]
+            header_data = [[logo_img, Paragraph(company_info, styles['Normal'])]]
             header_table = Table(header_data, colWidths=[4.5*cm, 12*cm])
             header_table.setStyle(TableStyle([
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -6010,14 +6018,12 @@ def generate_invoice_pdf(order: dict) -> io.BytesIO:
             logging.info("Logo added to invoice successfully")
         except Exception as e:
             logging.error(f"Error adding logo to invoice: {e}")
-            elements.append(Paragraph("GROUPE YAMA+", title_style))
-            elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
+            elements.append(Paragraph("GROUPE YAMA PLUS", title_style))
+            elements.append(Paragraph(company_info, header_style))
     else:
         logging.warning(f"Logo file not found at {logo_path}")
-        elements.append(Paragraph("GROUPE YAMA+", title_style))
-        elements.append(Paragraph("Votre boutique premium au Sénégal", header_style))
-    
-    elements.append(Paragraph("Email: contact@groupeyamaplus.com | WhatsApp: +221 78 382 75 75", header_style))
+        elements.append(Paragraph("GROUPE YAMA PLUS", title_style))
+        elements.append(Paragraph(company_info, header_style))
     elements.append(Spacer(1, 15))
     
     # Divider line
