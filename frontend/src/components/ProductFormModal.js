@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
@@ -42,7 +42,7 @@ const ProductFormModal = memo(({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [analyzingImage, setAnalyzingImage] = useState(false);
   
-  const [form, setForm] = useState({
+  const getInitialForm = useCallback(() => ({
     name: editingProduct?.name || "",
     description: editingProduct?.description || "",
     short_description: editingProduct?.short_description || "",
@@ -63,7 +63,17 @@ const ProductFormModal = memo(({
     order_delivery_days: editingProduct?.order_delivery_days?.toString() || "",
     meta_title: editingProduct?.meta_title || "",
     meta_description: editingProduct?.meta_description || "",
-  });
+  }), [editingProduct]);
+
+  const [form, setForm] = useState(getInitialForm);
+
+  // Reset form when editingProduct changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setForm(getInitialForm());
+      setActiveTab("general");
+    }
+  }, [isOpen, editingProduct, getInitialForm]);
 
   const updateField = useCallback((field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
