@@ -6187,9 +6187,10 @@ RCCM : SN DKR 2026 A 4814</font>"""
         textColor=colors.HexColor('#999999'),
         alignment=1  # Center
     )
-    elements.append(Paragraph("Merci pour votre achat chez YAMA+ !", footer_style))
-    elements.append(Paragraph("Pour toute question, contactez-nous sur WhatsApp: +221 78 382 75 75", footer_style))
-    elements.append(Paragraph("www.yama.sn", footer_style))
+    elements.append(Paragraph("Merci pour votre achat chez GROUPE YAMA PLUS !", footer_style))
+    elements.append(Paragraph("Pour toute question, contactez-nous au 78 382 75 75", footer_style))
+    elements.append(Paragraph("NINEA : 012808210 | RCCM : SN DKR 2026 A 4814", footer_style))
+    elements.append(Paragraph("www.groupeyamaplus.com", footer_style))
     
     # Build PDF
     doc.build(elements)
