@@ -1,26 +1,11 @@
 # Guide de lancement en local - GROUPE YAMA+
 
-## Problème résolu
+## Configuration actuelle
 
-Ce projet utilise une pile de dépendances spécifique pour éviter les conflits entre :
-- **ajv** (validation JSON schema)
-- **schema-utils** (utilisé par Webpack)
-- **terser-webpack-plugin** (minification)
-
-### Versions forcées (via `overrides` et `resolutions` dans package.json) :
-
-| Package | Version |
-|---------|---------|
-| ajv | 6.12.6 |
-| ajv-keywords | 3.5.2 |
-| schema-utils | 2.7.1 |
-| terser-webpack-plugin | 4.2.3 |
-
-Ces versions sont nécessaires car :
-- CRA/CRACO utilise ajv 6.x
-- ajv-keywords 3.x est compatible uniquement avec ajv 6.x
-- schema-utils 2.x fonctionne avec ajv 6.x
-- terser-webpack-plugin 4.x utilise schema-utils 2.x
+Ce projet utilise :
+- **React 19** avec **Create React App** + **CRACO**
+- **date-fns ^3.6.0** (compatible avec react-day-picker 8.x)
+- **yarn** comme gestionnaire de paquets (préféré)
 
 ## Prérequis
 
