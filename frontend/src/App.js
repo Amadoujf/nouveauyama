@@ -54,16 +54,28 @@ import ProviderDashboardPage from "./pages/ProviderDashboardPage";
 
 import "./App.css";
 
-// Scroll to top on route change
+// Scroll to top on route change - Enhanced for better cross-browser support
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    // Use both methods for better mobile compatibility
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }, [pathname]);
+    // Only scroll to top if there's no hash (anchor link)
+    if (!hash) {
+      // Use requestAnimationFrame for smoother scroll reset
+      requestAnimationFrame(() => {
+        // Modern browsers
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        // Fallback for older browsers
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        // Also reset any overflow containers
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+          mainContent.scrollTop = 0;
+        }
+      });
+    }
+  }, [pathname, hash]);
 
   return null;
 }
