@@ -10,38 +10,43 @@
 
 ## Current Status: ✅ READY FOR EXPORT
 
-### Migration Completed (February 15, 2026)
+### Session du 17 Février 2026
 
-#### Changes Made for Autonomous Deployment:
+#### Corrections appliquées :
 
-1. **Images Locales** ✅
-   - Toutes les images CDN Emergent → `/public/assets/images/`
-   - Logo, catégories, icônes de paiement
+1. **Package.json** ✅
+   - `date-fns` downgrade de ^4.1.0 vers ^3.6.0 (compatibilité react-day-picker)
+   - Note: Les overrides ajv ne fonctionnent pas avec yarn sur ce projet
 
-2. **Authentification** ✅
-   - Google Auth Emergent → Désactivé (JWT standard fonctionne)
-   - Note: Pour réactiver Google OAuth, utiliser Google Cloud Console
+2. **Documentation créée** ✅
+   - `frontend/LANCER_EN_LOCAL.md` - Guide de lancement local
+   - `OUVRIR_SITE.bat` - Script Windows de lancement automatique
+   - `MODIFICATIONS_PROJET.md` - Récapitulatif de toutes les modifications
 
-3. **IA/Machine Learning** ✅
-   - `emergentintegrations` → OpenAI SDK standard
-   - Fonctionnalité d'analyse d'image de produit
+3. **ScrollToTop amélioré** ✅
+   - Support multi-navigateurs avec `requestAnimationFrame`
+   - Gestion des hash (ancres) dans les URLs
 
-4. **Documentation** ✅
-   - README.md complet avec instructions de déploiement
-   - .env.example pour backend et frontend
-   - Scripts backup/restore base de données
-   - Configuration Docker et Nginx
+### Problèmes analysés :
 
-### Test Results: 100% Pass Rate
-- Backend: 26/26 tests passed
-- Frontend: All features working
-- No Emergent dependencies remaining
+#### PayTech en mode test ⚠️ BLOQUÉ
+- **Symptôme** : Paiements traités pour 104 FCFA au lieu du montant réel
+- **Code vérifié** : `env=prod` est correctement envoyé à l'API
+- **Conclusion** : Le compte PayTech n'est pas entièrement activé pour la production
+- **Action requise** : Contacter le support PayTech
+
+#### Liens internes cassés ✅ NON REPRODUIT
+- **Analyse** : Les liens utilisent correctement React Router `<Link to="...">`
+- **Test** : Navigation vers /a-propos fonctionne avec scroll position = 0
+- **Conclusion** : Bug non reproductible dans les tests
 
 ## Files Created for Migration
 
 ```
 /app/
 ├── README.md                  # Documentation complète
+├── MODIFICATIONS_PROJET.md    # Récapitulatif des modifications (nouveau)
+├── OUVRIR_SITE.bat            # Script de lancement Windows (nouveau)
 ├── docker-compose.yml         # Configuration Docker
 ├── database_backup.json       # Sauvegarde des données
 ├── backend/
@@ -51,45 +56,45 @@
 │   └── restore_database.py   # Script de restauration
 └── frontend/
     ├── .env.example          # Variables d'environnement
+    ├── LANCER_EN_LOCAL.md    # Guide de lancement local (nouveau)
     ├── Dockerfile            # Image Docker frontend
     ├── nginx.conf            # Configuration Nginx
     └── public/assets/images/ # Images locales
 ```
 
-## Deployment Options
-
-### Option 1: Docker (Recommended)
-```bash
-docker-compose up -d
-```
-
-### Option 2: Manual VPS
-See README.md for complete instructions.
-
 ## External Services Required
 
-| Service | Purpose | Required |
-|---------|---------|----------|
-| MongoDB | Database | ✅ Yes |
-| PayTech | Payments | ✅ Yes (for payments) |
-| MailerSend | Emails | ✅ Yes (for emails) |
-| OpenAI | AI Features | ❌ Optional |
+| Service | Purpose | Status |
+|---------|---------|--------|
+| MongoDB | Database | ✅ Actif |
+| PayTech | Payments | ⚠️ Mode test (compte à activer) |
+| MailerSend | Emails | ✅ Actif |
+| MailerLite | Marketing | ✅ Actif |
+| OpenAI | AI Features | ✅ Actif |
 
-## Features Not Exportable
+## Features Not Exportable (Post-migration)
 
-1. **Google OAuth via Emergent** - Must reconfigure with Google Cloud Console
-2. **Emergent Preview URL** - Use your own domain
+1. **Google OAuth via Emergent** - Doit être reconfiguré via Google Cloud Console
+2. **Emergent Preview URL** - Utiliser votre propre domaine
 
 ## Next Steps for User
 
-1. Export code to GitHub (via "Save to Github" button)
-2. Clone repo on VPS
-3. Configure environment variables
-4. Import database backup
-5. Set up PayTech webhook URLs
-6. Configure DNS and SSL
+1. **Export code** via "Save to Github"
+2. **Clone repo** sur VPS
+3. **Configure** les variables d'environnement (.env)
+4. **Import** la sauvegarde de base de données
+5. **Configurer** les webhooks PayTech avec votre URL de production
+6. **Contacter PayTech** pour activer le mode production
+7. **Configurer** DNS et SSL
+
+## Test Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@yama.sn | admin123 |
+| Provider | mamadou@provider.com | password123 |
 
 ---
 
-*Last updated: February 15, 2026*
-*Status: Ready for production deployment*
+*Dernière mise à jour: 17 Février 2026*
+*Status: Prêt pour le déploiement en production*
