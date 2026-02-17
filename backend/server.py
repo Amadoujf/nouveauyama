@@ -4737,13 +4737,10 @@ async def analyze_product_image(file: UploadFile = File(...), user: User = Depen
         # Convert to base64
         image_base64 = base64.b64encode(contents).decode("utf-8")
         
-        # Get AI API key - Support both OPENAI_API_KEY and EMERGENT_LLM_KEY for backward compatibility
-        ai_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("EMERGENT_LLM_KEY")
+        # Get AI API key
+        ai_key = os.environ.get("EMERGENT_LLM_KEY") or os.environ.get("OPENAI_API_KEY")
         if not ai_key:
-            raise HTTPException(status_code=500, detail="Clé API OpenAI non configurée (OPENAI_API_KEY)")
-        
-        # Use standard OpenAI SDK
-        client = OpenAI(api_key=ai_key)
+            raise HTTPException(status_code=500, detail="Clé API non configurée")
         
         system_message = """Tu es un expert en e-commerce spécialisé dans l'analyse de produits.
 Analyse l'image fournie et extrais les informations du produit.
@@ -4772,28 +4769,24 @@ Pour la catégorie, choisis parmi:
 
 Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
         
-        # Call OpenAI Vision API
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_message},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "Analyse cette image de produit et extrais les informations. Réponds uniquement en JSON valide."},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=1000
+        # Use emergentintegrations with vision model
+        import uuid
+        chat = LlmChat(
+            api_key=ai_key,
+            session_id=f"product-analysis-{uuid.uuid4()}",
+            system_message=system_message
+        ).with_model("openai", "gpt-4o")
+        
+        # Create image content
+        image_content = ImageContent(image_base64=image_base64)
+        
+        # Send message with image
+        user_message = UserMessage(
+            text="Analyse cette image de produit et extrais les informations. Réponds uniquement en JSON valide.",
+            file_contents=[image_content]
         )
         
-        ai_response = response.choices[0].message.content
+        ai_response = await chat.send_message(user_message)
         
         # Parse AI response
         try:
