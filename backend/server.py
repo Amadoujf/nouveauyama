@@ -1203,7 +1203,7 @@ UPLOADS_DIR = ROOT_DIR / "uploads"
 UPLOADS_DIR.mkdir(exist_ok=True)
 
 @api_router.post("/upload/image")
-async def upload_image(file: UploadFile = File(...), user: User = Depends(require_admin)):
+async def upload_image(file: UploadFile = File(...), user: User = Depends(require_admin), request: Request = None):
     """Upload an image and return its URL"""
     
     # Validate file type
@@ -1227,12 +1227,26 @@ async def upload_image(file: UploadFile = File(...), user: User = Depends(requir
         with open(filepath, "wb") as f:
             f.write(content)
         
-        # Return the FULL URL for proper image display in frontend
-        site_url = os.environ.get('SITE_URL', '')
-        if site_url:
-            image_url = f"{site_url}/api/uploads/{filename}"
+        # Get base URL from request headers or environment
+        # Priority: X-Forwarded-Host > Host header > SITE_URL env > relative
+        base_url = None
+        if request:
+            forwarded_host = request.headers.get('x-forwarded-host')
+            host = request.headers.get('host')
+            forwarded_proto = request.headers.get('x-forwarded-proto', 'https')
+            
+            if forwarded_host:
+                base_url = f"{forwarded_proto}://{forwarded_host}"
+            elif host and 'localhost' not in host:
+                base_url = f"https://{host}"
+        
+        if not base_url:
+            base_url = os.environ.get('SITE_URL', '')
+        
+        if base_url:
+            image_url = f"{base_url}/api/uploads/{filename}"
         else:
-            # Fallback to relative URL (will work if frontend adds base URL)
+            # Fallback to relative URL
             image_url = f"/api/uploads/{filename}"
         
         return {"success": True, "url": image_url, "filename": filename}
