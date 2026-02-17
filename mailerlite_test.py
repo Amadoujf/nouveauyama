@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_mailerlite_endpoints():
-    base_url = "https://marketplace-bugs-2.preview.emergentagent.com"
+    base_url = "https://independent-deploy-1.preview.emergentagent.com"
     
     # First, login as admin
     login_data = {

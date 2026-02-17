@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 class AdminFeaturesTest:
-    def __init__(self, base_url="https://marketplace-bugs-2.preview.emergentagent.com"):
+    def __init__(self, base_url="https://independent-deploy-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.session = requests.Session()
         self.admin_token = None
