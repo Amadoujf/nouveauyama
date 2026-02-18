@@ -46,6 +46,14 @@ export default function WishlistPage() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <main className="min-h-screen pt-20 flex items-center justify-center bg-[#F5F5F7] dark:bg-[#0B0B0B]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </main>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <main className="min-h-screen pt-20 flex items-center justify-center bg-[#F5F5F7] dark:bg-[#0B0B0B]">
