@@ -78,10 +78,19 @@
 - `GET /api/products` - Liste des produits
 - `POST /api/products` - Créer un produit (admin)
 
-## Bugs en attente de vérification utilisateur
+## État des fonctionnalités demandées
 
-1. **PayTech Production** - Les clés ont été mises à jour, une transaction réelle doit être testée
-2. **Descriptions IA** - Le prompt a été amélioré, à vérifier par l'utilisateur
+| Fonctionnalité | Status |
+|----------------|--------|
+| Images uploadées cassées | ✅ Corrigé |
+| Déconnexion au rafraîchissement | ✅ Corrigé |
+| Logo mis à jour sur tout le site | ✅ Fait |
+| Tagline "Votre partenaire au quotidien" | ✅ Ajouté sur login |
+| Factures avec NINEA/RCCM | ✅ Fait (012808210 / SN DKR 2026 A 4814) |
+| Factures avec 2 numéros de téléphone | ✅ Fait (78 382 75 75 / 77 849 81 37) |
+| Descriptions IA améliorées | ✅ Prompt optimisé |
+| PayTech clés production | ⚠️ À vérifier avec transaction réelle |
+| Google Search Console | 📄 Guide créé (voir GOOGLE_SEARCH_CONSOLE_GUIDE.md) |
 
 ## Tâches futures
 
