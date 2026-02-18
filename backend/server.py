@@ -227,7 +227,7 @@ def calculate_shipping_cost(city: str, address: str = "") -> dict:
                 }
                 # Special case for zone_5000
                 if zone_id == "zone_5000":
-                    result["message"] = f"Livraison Zone Éloignée: entre 4 000 et 5 000 FCFA"
+                    result["message"] = "Livraison Zone Éloignée: entre 4 000 et 5 000 FCFA"
                     result["is_range"] = True
                 return result
     
@@ -2273,7 +2273,6 @@ REFERRAL_CONFIG = {
 
 def generate_referral_code(user_id: str) -> str:
     """Generate a unique referral code for a user"""
-    import hashlib
     hash_obj = hashlib.md5(f"{user_id}_{STORE_NAME}".encode())
     return f"YAMA{hash_obj.hexdigest()[:6].upper()}"
 
@@ -4702,7 +4701,7 @@ async def send_order_status_update_email(email: str, order_id: str, new_status: 
     }
     
     status_info = status_messages.get(new_status, {
-        "title": f"Mise à jour de votre commande",
+        "title": "Mise à jour de votre commande",
         "message": f"Le statut de votre commande a été mis à jour: {new_status}",
         "color": "#666666"
     })
@@ -4839,7 +4838,7 @@ Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
             
             return result
             
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             logging.error(f"AI response not valid JSON: {ai_response}")
             return {
                 "success": False,
