@@ -202,7 +202,7 @@ function DocumentUploadSection({ provider, onRefresh }) {
 }
 
 export default function ProviderDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
