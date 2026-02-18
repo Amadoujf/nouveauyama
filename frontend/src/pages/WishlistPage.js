@@ -14,7 +14,7 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, loading } = useWishlist();
   const { addToCart } = useCart();
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, loading: authLoading } = useAuth();
   const [shareLink, setShareLink] = useState(null);
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
