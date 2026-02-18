@@ -349,7 +349,11 @@ export default function ProviderDashboardPage() {
         }
       );
       
-      const imageUrl = uploadResponse.data.url;
+      // Convert relative URL to absolute URL
+      let imageUrl = uploadResponse.data.url;
+      if (imageUrl.startsWith('/api/')) {
+        imageUrl = `${API_URL}${imageUrl}`;
+      }
       
       // Then add to gallery
       await axios.post(
