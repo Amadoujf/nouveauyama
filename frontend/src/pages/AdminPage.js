@@ -370,6 +370,9 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) return;
+    
     if (!isAuthenticated) {
       navigate("/login");
       return;
@@ -381,7 +384,7 @@ export default function AdminPage() {
     }
 
     fetchData();
-  }, [isAuthenticated, isAdmin, navigate, currentPage]);
+  }, [isAuthenticated, isAdmin, authLoading, navigate, currentPage]);
 
   const fetchData = async () => {
     setLoading(true);
