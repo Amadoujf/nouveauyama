@@ -1227,28 +1227,11 @@ async def upload_image(file: UploadFile = File(...), user: User = Depends(requir
         with open(filepath, "wb") as f:
             f.write(content)
         
-        # Determine base URL from request or environment
-        # Priority: 1) Request origin/host, 2) SITE_URL env var
-        base_url = None
-        if request:
-            # Try to get the origin from various headers
-            origin = request.headers.get("origin")
-            if origin:
-                base_url = origin
-            else:
-                # Fallback to host header with protocol detection
-                host = request.headers.get("host") or request.headers.get("x-forwarded-host")
-                proto = request.headers.get("x-forwarded-proto", "https")
-                if host:
-                    base_url = f"{proto}://{host}"
+        # Return relative path - frontend will handle the full URL
+        # This ensures the URL works in both preview and production
+        image_url = f"/api/uploads/{filename}"
         
-        # Fallback to SITE_URL environment variable
-        if not base_url:
-            base_url = SITE_URL
-        
-        image_url = f"{base_url}/api/uploads/{filename}"
-        
-        logging.info(f"Image uploaded: {image_url}")
+        logging.info(f"Image uploaded: {filename}")
         return {"success": True, "url": image_url, "filename": filename}
     
     except Exception as e:
