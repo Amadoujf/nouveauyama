@@ -171,9 +171,14 @@ const ProductFormModal = memo(({
           });
 
           if (uploadResponse.data.success) {
+            // Convert relative URL to absolute URL
+            let imageUrl = uploadResponse.data.url;
+            if (imageUrl.startsWith('/api/')) {
+              imageUrl = `${API_URL}${imageUrl}`;
+            }
             setForm(prev => ({
               ...prev,
-              images: [...prev.images, uploadResponse.data.url]
+              images: [...prev.images, imageUrl]
             }));
           }
         } catch (uploadErr) {
