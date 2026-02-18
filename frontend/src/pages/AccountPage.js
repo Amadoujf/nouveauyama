@@ -29,7 +29,7 @@ const menuItems = [
 ];
 
 export default function AccountPage() {
-  const { user, logout, isAuthenticated, checkAuth } = useAuth();
+  const { user, logout, isAuthenticated, checkAuth, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [orders, setOrders] = useState([]);
@@ -42,6 +42,9 @@ export default function AccountPage() {
   });
 
   useEffect(() => {
+    // Wait for auth to finish loading before checking
+    if (authLoading) return;
+    
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location } });
       return;
@@ -61,7 +64,7 @@ export default function AccountPage() {
     };
 
     fetchOrders();
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, authLoading, navigate, location]);
 
   // Initialize edit form when user changes
   useEffect(() => {
