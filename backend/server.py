@@ -1227,8 +1227,25 @@ async def upload_image(file: UploadFile = File(...), user: User = Depends(requir
         with open(filepath, "wb") as f:
             f.write(content)
         
-        # TOUJOURS utiliser groupeyamaplus.com pour les URLs d'images
-        base_url = "https://groupeyamaplus.com"
+        # Determine base URL from request or environment
+        # Priority: 1) Request origin/host, 2) SITE_URL env var
+        base_url = None
+        if request:
+            # Try to get the origin from various headers
+            origin = request.headers.get("origin")
+            if origin:
+                base_url = origin
+            else:
+                # Fallback to host header with protocol detection
+                host = request.headers.get("host") or request.headers.get("x-forwarded-host")
+                proto = request.headers.get("x-forwarded-proto", "https")
+                if host:
+                    base_url = f"{proto}://{host}"
+        
+        # Fallback to SITE_URL environment variable
+        if not base_url:
+            base_url = SITE_URL
+        
         image_url = f"{base_url}/api/uploads/{filename}"
         
         logging.info(f"Image uploaded: {image_url}")
