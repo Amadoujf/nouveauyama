@@ -194,7 +194,12 @@ export default function AdminPage() {
         });
 
         if (response.data.success) {
-          newImages.push(response.data.url);
+          // Convert relative URL to absolute URL
+          let imageUrl = response.data.url;
+          if (imageUrl.startsWith('/api/')) {
+            imageUrl = `${API_URL}${imageUrl}`;
+          }
+          newImages.push(imageUrl);
         }
       } catch (error) {
         toast.error(`Erreur upload: ${error.response?.data?.detail || 'Erreur'}`);
