@@ -20,7 +20,7 @@ if not BASE_URL:
     except:
         pass
 if not BASE_URL:
-    BASE_URL = 'https://independent-deploy-1.preview.emergentagent.com'
+    BASE_URL = 'https://image-upload-fix-26.preview.emergentagent.com'
 BASE_URL = BASE_URL.rstrip('/')
 
 # Test credentials

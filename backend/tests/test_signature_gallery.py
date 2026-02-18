@@ -246,7 +246,7 @@ class TestProviderGalleryAPIs:
         provider_id = provider_data.get("provider_id")
         
         # Test image URL
-        test_image_url = "https://independent-deploy-1.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
+        test_image_url = "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
         
         response = requests.post(
             f"{BASE_URL}/api/services/providers/{provider_id}/gallery",

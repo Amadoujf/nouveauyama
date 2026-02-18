@@ -73,8 +73,8 @@
 
 ## URLs
 
-- **Preview** : https://independent-deploy-1.preview.emergentagent.com
-- **API** : https://independent-deploy-1.preview.emergentagent.com/api
+- **Preview** : https://image-upload-fix-26.preview.emergentagent.com
+- **API** : https://image-upload-fix-26.preview.emergentagent.com/api
 
 ---
 

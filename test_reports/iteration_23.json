@@ -33,11 +33,11 @@
   "features_tested": {
     "product_images_display": {
       "category_electronique_page": "PASS - 13 products displayed with images loading correctly",
-      "uploaded_images": "PASS - Found 4 products with uploaded images (absolute URLs starting with https://independent-deploy-1.preview.emergentagent.com/api/uploads/)",
+      "uploaded_images": "PASS - Found 4 products with uploaded images (absolute URLs starting with https://image-upload-fix-26.preview.emergentagent.com/api/uploads/)",
       "images_accessible": "PASS - All uploaded images return HTTP 200 with correct content-type"
     },
     "image_upload_endpoint": {
-      "returns_absolute_url": "PASS - Upload returns URL starting with https://independent-deploy-1.preview.emergentagent.com/api/uploads/",
+      "returns_absolute_url": "PASS - Upload returns URL starting with https://image-upload-fix-26.preview.emergentagent.com/api/uploads/",
       "image_accessible_after_upload": "PASS - Uploaded images can be retrieved via GET request"
     },
     "footer_social_links": {
