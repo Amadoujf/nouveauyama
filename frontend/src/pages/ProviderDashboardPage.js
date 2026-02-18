@@ -62,7 +62,7 @@ function DocumentUploadSection({ provider, onRefresh }) {
 
   const fetchDocuments = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await axios.get(
         `${API_URL}/api/services/providers/${provider.provider_id}/verification-documents`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -83,7 +83,7 @@ function DocumentUploadSection({ provider, onRefresh }) {
     
     setUploading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       await axios.post(
         `${API_URL}/api/services/providers/${provider.provider_id}/verification-documents`,
         {
@@ -244,7 +244,7 @@ export default function ProviderDashboardPage() {
 
   const fetchProviderProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await axios.get(`${API_URL}/api/services/provider/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -284,7 +284,7 @@ export default function ProviderDashboardPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       await axios.put(
         `${API_URL}/api/services/provider/me`,
         {
@@ -329,7 +329,7 @@ export default function ProviderDashboardPage() {
     const uploadingToast = toast.loading("Upload en cours...");
     
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       
       // First upload the image to get URL
       const formData = new FormData();
@@ -1069,7 +1069,7 @@ export default function ProviderDashboardPage() {
                           return;
                         }
                         try {
-                          const token = localStorage.getItem("token");
+                          const token = localStorage.getItem("auth_token");
                           await axios.post(
                             `${API_URL}/api/services/providers/${provider.provider_id}/gallery`,
                             { image_url: url },
@@ -1105,7 +1105,7 @@ export default function ProviderDashboardPage() {
                             onClick={async () => {
                               if (!confirm("Supprimer cette photo ?")) return;
                               try {
-                                const token = localStorage.getItem("token");
+                                const token = localStorage.getItem("auth_token");
                                 // Get gallery to find photo_id
                                 const response = await axios.get(
                                   `${API_URL}/api/services/providers/${provider.provider_id}/gallery`,
