@@ -371,7 +371,19 @@ export default function ProviderDashboardPage() {
     navigate("/");
   };
 
-  // Loading
+  // Auth loading - show spinner while checking auth
+  if (authLoading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0A0A0A]">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground">Vérification de la session...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Loading provider data
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0A0A0A]">
