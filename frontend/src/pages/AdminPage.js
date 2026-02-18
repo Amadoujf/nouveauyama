@@ -96,7 +96,7 @@ const defaultColors = [
 const defaultSizes = ["XS", "S", "M", "L", "XL", "XXL", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
 
 export default function AdminPage() {
-  const { user, token, logout, isAdmin, isAuthenticated } = useAuth();
+  const { user, token, logout, isAdmin, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
