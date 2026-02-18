@@ -1289,6 +1289,23 @@ export default function AdminPage() {
     }
   };
 
+  // Show loading spinner while auth is checking
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] dark:bg-black">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated or not admin
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-[#F5F5F7] dark:bg-black">
       <Sidebar />
