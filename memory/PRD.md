@@ -10,39 +10,38 @@
 
 ## Current Status: ✅ ACTIF SUR EMERGENT
 
-### Session du 17 Février 2026 - Restauration complète
+### Session du 18 Février 2026 - Corrections de bugs critiques
 
-#### Ce qui a été remis en place :
+#### Bugs corrigés :
 
-1. **Google OAuth Emergent** ✅
-   - Bouton "Continuer avec Google" fonctionnel
-   - Authentification via Emergent Auth Service
+1. **Images uploadées cassées** ✅ CORRIGÉ
+   - Problème: Les URLs d'images pointaient vers un domaine incorrect
+   - Solution: Le backend retourne maintenant des URLs relatives (`/api/uploads/filename.ext`) 
+   - Le frontend convertit ces URLs en URLs absolues en utilisant `REACT_APP_BACKEND_URL`
+   - Fichiers modifiés: `backend/server.py`, `AdminPage.js`, `ProductFormModal.js`, `ProviderDashboardPage.js`
 
-2. **emergentintegrations** ✅
-   - Bibliothèque installée
-   - `EMERGENT_LLM_KEY` configurée pour l'IA
-
-3. **Toutes les fonctionnalités** ✅
-   - Boutique e-commerce complète
-   - Marketplace de services
-   - Panel admin
-   - Emails (MailerSend)
-   - Notifications push
+2. **Déconnexion au rafraîchissement** ✅ CORRIGÉ
+   - Problème: L'utilisateur était redirigé vers /login quand il rafraîchissait la page
+   - Solution: Les pages protégées affichent un spinner pendant que `authLoading` est `true`
+   - Fichiers modifiés: `AdminPage.js`, `ProviderDashboardPage.js`
 
 ## Architecture Technique
 
 ```
 /app/
 ├── backend/
-│   ├── server.py           # API FastAPI
+│   ├── server.py           # API FastAPI monolithique
+│   ├── uploads/            # Dossier des images uploadées
 │   ├── requirements.txt    # Dépendances Python
-│   └── .env                # Configuration
+│   └── .env                # Configuration (Paytech, MailerSend, etc.)
 └── frontend/
     ├── src/
     │   ├── contexts/
-    │   │   └── AuthContext.js  # Auth avec Google OAuth Emergent
-    │   ├── pages/              # Pages React
-    │   └── components/         # Composants UI
+    │   │   ├── AuthContext.js    # Gestion auth avec loading state
+    │   │   ├── CartContext.js    # Panier
+    │   │   └── WishlistContext.js
+    │   ├── pages/                 # Pages React
+    │   └── components/            # Composants UI (dont ProductFormModal.js)
     └── package.json
 ```
 
@@ -52,17 +51,10 @@
 |---------|--------|
 | MongoDB | ✅ Actif |
 | Google OAuth (Emergent) | ✅ Actif |
-| PayTech | ⚠️ Mode test (compte à activer) |
+| PayTech | ⚠️ Clés production ajoutées (à vérifier avec transaction réelle) |
 | MailerSend | ✅ Actif |
 | MailerLite | ✅ Actif |
 | OpenAI/Emergent LLM | ✅ Actif |
-
-## Problème en suspens
-
-### PayTech en mode test ⚠️
-- Le code envoie `env=prod` correctement
-- Le compte PayTech doit être activé pour la production
-- **Action** : Contacter le support PayTech
 
 ## Test Credentials
 
@@ -74,9 +66,37 @@
 ## URLs
 
 - **Preview** : https://image-upload-fix-26.preview.emergentagent.com
-- **API** : https://image-upload-fix-26.preview.emergentagent.com/api
+- **Production** : https://groupeyamaplus.com
+- **API** : /api (prefix requis pour toutes les routes backend)
+
+## Key Endpoints
+
+- `POST /api/auth/login` - Connexion utilisateur
+- `GET /api/auth/me` - Vérification session
+- `POST /api/upload/image` - Upload d'image (retourne URL relative)
+- `GET /api/uploads/{filename}` - Servir les images uploadées
+- `GET /api/products` - Liste des produits
+- `POST /api/products` - Créer un produit (admin)
+
+## Bugs en attente de vérification utilisateur
+
+1. **PayTech Production** - Les clés ont été mises à jour, une transaction réelle doit être testée
+2. **Descriptions IA** - Le prompt a été amélioré, à vérifier par l'utilisateur
+
+## Tâches futures
+
+### P1 - Haute priorité
+- Guide utilisateur pour Google Search Console
+
+### P2 - Moyenne priorité
+- Système d'abonnement pour prestataires
+- Système de notation et avis
+
+### P3 - Refactoring
+- Diviser server.py en routes séparées
+- Nettoyage des fichiers dupliqués
 
 ---
 
-*Dernière mise à jour: 17 Février 2026*
-*Status: Actif sur Emergent*
+*Dernière mise à jour: 18 Février 2026*
+*Status: Bugs critiques corrigés, en attente de validation utilisateur*
