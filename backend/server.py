@@ -4844,7 +4844,7 @@ Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
             return {
                 "success": False,
                 "error": "L'IA n'a pas pu analyser l'image correctement",
-                "raw_response": response[:500]
+                "raw_response": ai_response[:500] if ai_response else ""
             }
             
     except HTTPException:
