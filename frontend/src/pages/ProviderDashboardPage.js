@@ -235,12 +235,15 @@ export default function ProviderDashboardPage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) return;
+    
     if (!user) {
       navigate("/login");
       return;
     }
     fetchProviderProfile();
-  }, [user]);
+  }, [user, authLoading, navigate]);
 
   const fetchProviderProfile = async () => {
     try {
