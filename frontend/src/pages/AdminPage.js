@@ -875,7 +875,7 @@ export default function AdminPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden flex-shrink-0">
                         <img
-                          src={product.images?.[0] || "/placeholder.jpg"}
+                          src={getImageUrl(product.images?.[0], "/placeholder.jpg")}
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
