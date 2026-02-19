@@ -235,7 +235,7 @@ export default function ProductPage() {
                 className="aspect-square rounded-3xl overflow-hidden bg-[#F5F5F7] dark:bg-[#1C1C1E]"
               >
                 <img
-                  src={product.images?.[selectedImage] || "/placeholder.jpg"}
+                  src={getImageUrl(product.images?.[selectedImage], "/placeholder.jpg")}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -256,7 +256,7 @@ export default function ProductPage() {
                       )}
                     >
                       <img
-                        src={image}
+                        src={getImageUrl(image)}
                         alt={`${product.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
