@@ -471,8 +471,8 @@ export default function GiftBoxPage() {
               <div className="space-y-4">
                 {/* Box */}
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">{selectedBoxSize.name}</span>
-                  <span className="font-medium">{formatPrice(selectedBoxSize.basePrice)}</span>
+                  <span className="text-muted-foreground">{selectedBoxSize?.name || 'Coffret'}</span>
+                  <span className="font-medium">{formatPrice(selectedBoxSize?.basePrice || 0)}</span>
                 </div>
 
                 {/* Items */}
