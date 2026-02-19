@@ -7397,7 +7397,7 @@ async def send_push_to_user(user_id: str, title: str, body: str, url: str = None
     }).to_list(10)
     
     for sub in subscriptions:
-        await send_push_notification(sub, title, body, url)
+        await push_send_notification_v2(sub, title, body, url)
 
 @api_router.post("/admin/push/send")
 async def admin_send_push(
