@@ -51,6 +51,7 @@ import ProviderProfilePage from "./pages/ProviderProfilePage";
 import ServiceRequestPage from "./pages/ServiceRequestPage";
 import ProviderRegisterPage from "./pages/ProviderRegisterPage";
 import ProviderDashboardPage from "./pages/ProviderDashboardPage";
+import GiftBoxPage from "./pages/GiftBoxPage";
 
 import "./App.css";
 
