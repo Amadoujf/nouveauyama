@@ -125,11 +125,9 @@ const ProductFormModal = memo(({
         });
 
         if (response.data.success) {
-          // Convert relative URL to absolute URL
+          // Keep relative URL as-is - getImageUrl will handle display
+          // This ensures portability across environments (preview vs production)
           let imageUrl = response.data.url;
-          if (imageUrl.startsWith('/api/')) {
-            imageUrl = `${API_URL}${imageUrl}`;
-          }
           newImages.push(imageUrl);
         }
       } catch (error) {
