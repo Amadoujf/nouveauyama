@@ -22,6 +22,7 @@ export default function GiftBoxPage() {
   
   // Configuration from API
   const [config, setConfig] = useState(null);
+  const [activeTemplate, setActiveTemplate] = useState(null);
   const [giftBoxSizes, setGiftBoxSizes] = useState([]);
   const [wrappingOptions, setWrappingOptions] = useState([]);
   const [configLoading, setConfigLoading] = useState(true);
@@ -44,9 +45,15 @@ export default function GiftBoxPage() {
   const fetchConfig = async () => {
     setConfigLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/gift-box/config`);
-      const { config: cfg, sizes, wrappings } = response.data;
+      // Fetch both config and active template
+      const [configResponse, templateResponse] = await Promise.all([
+        axios.get(`${API_URL}/api/gift-box/config`),
+        axios.get(`${API_URL}/api/gift-box/active-template`)
+      ]);
+      
+      const { config: cfg, sizes, wrappings } = configResponse.data;
       setConfig(cfg);
+      setActiveTemplate(templateResponse.data);
       setGiftBoxSizes(sizes.map(s => ({
         id: s.size_id,
         name: s.name,
