@@ -128,7 +128,7 @@ export default function AppointmentModal({ isOpen, onClose, product = null, cate
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center gap-4">
                   {product.images?.[0] && (
                     <img
-                      src={product.images[0]}
+                      src={getImageUrl(product.images[0])}
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
