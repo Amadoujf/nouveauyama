@@ -202,6 +202,28 @@ export default function GiftBoxPage() {
     setRecipientName("");
   };
 
+  // Show loading state while configuration is being fetched
+  if (configLoading || !selectedBoxSize || !selectedWrapping) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-black dark:via-gray-900 dark:to-black pt-24 pb-16">
+        <SEO 
+          title="Coffrets Cadeaux Personnalisés - YAMA+"
+          description="Créez votre coffret cadeau personnalisé. Choisissez vos articles, personnalisez l'emballage et ajoutez un message personnel."
+        />
+        <div className="container-lumina flex flex-col items-center justify-center min-h-[50vh]">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center"
+          >
+            <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Chargement des coffrets cadeaux...</p>
+          </motion.div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-black dark:via-gray-900 dark:to-black pt-24 pb-16">
       <SEO 
