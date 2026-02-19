@@ -44,7 +44,7 @@ import {
   ClipboardList,
   Gift,
 } from "lucide-react";
-import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
+import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName, getImageUrl } from "../lib/utils";
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
 import EmailCampaignsPage from "./EmailCampaignsPage";
