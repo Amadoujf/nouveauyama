@@ -315,7 +315,7 @@ export default function GiftBoxPage() {
                   <div>
                     <h2 className="text-xl font-bold">Sélectionnez vos articles</h2>
                     <p className="text-sm text-muted-foreground">
-                      {selectedItems.length}/{selectedBoxSize.maxItems} articles sélectionnés
+                      {selectedItems.length}/{selectedBoxSize?.maxItems || 5} articles sélectionnés
                     </p>
                   </div>
                 </div>
