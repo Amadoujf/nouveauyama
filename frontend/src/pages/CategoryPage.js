@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import SEO from "../components/SEO";
+import FlashSalesBanner from "../components/FlashSalesBanner";
 import { getCategoryName } from "../lib/utils";
 import { 
   SlidersHorizontal, 
