@@ -159,3 +159,47 @@ export function calculateDiscount(originalPrice, currentPrice) {
   if (!originalPrice || originalPrice <= currentPrice) return 0;
   return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 }
+
+// Get full image URL - handles relative and absolute URLs
+// This is the SINGLE SOURCE OF TRUTH for image URL resolution
+const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+
+export function getImageUrl(imageUrl, fallback = '/placeholder.jpg') {
+  if (!imageUrl) return fallback;
+  
+  // Already a full URL (http/https) - return as-is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Relative URL starting with /api/uploads/ - prepend API_URL
+  if (imageUrl.startsWith('/api/uploads/')) {
+    return `${API_URL}${imageUrl}`;
+  }
+  
+  // Relative URL starting with /api/ - prepend API_URL
+  if (imageUrl.startsWith('/api/')) {
+    return `${API_URL}${imageUrl}`;
+  }
+  
+  // Local asset paths (like /assets/images/) - return as-is
+  if (imageUrl.startsWith('/')) {
+    return imageUrl;
+  }
+  
+  // Just a filename - assume it's in uploads
+  if (!imageUrl.includes('/')) {
+    return `${API_URL}/api/uploads/${imageUrl}`;
+  }
+  
+  // Fallback - return as-is
+  return imageUrl;
+}
+
+// Get array of resolved image URLs
+export function getImageUrls(images, fallback = '/placeholder.jpg') {
+  if (!images || !Array.isArray(images) || images.length === 0) {
+    return [fallback];
+  }
+  return images.map(img => getImageUrl(img, fallback));
+}
