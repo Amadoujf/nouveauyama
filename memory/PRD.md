@@ -117,14 +117,27 @@
 
 ### P1 - Haute priorité
 - Guide utilisateur pour Google Search Console
+- Vérifier PayTech avec une transaction réelle
 
 ### P2 - Moyenne priorité
 - Système d'abonnement pour prestataires
-- Système de notation et avis
+- Système de notation et avis (amélioration)
 
 ### P3 - Refactoring
 - Diviser server.py en routes séparées
 - Nettoyage des fichiers dupliqués
+
+## Nouvelles fonctionnalités ajoutées (19 Février 2026)
+
+| Fonctionnalité | Status |
+|----------------|--------|
+| Bannière Ventes Flash animée | ✅ Ajoutée sur pages catégories |
+| Coffrets Cadeaux Personnalisables | ✅ Nouvelle page /coffret-cadeau |
+| Choix taille coffret | ✅ 4 tailles (3-12 articles) |
+| Sélecteur d'articles | ✅ Modal avec recherche |
+| Choix emballage | ✅ 5 options couleurs |
+| Message personnalisé | ✅ Nom destinataire + message |
+| Lien navigation | ✅ Ajouté dans Catégories
 
 ---
 
