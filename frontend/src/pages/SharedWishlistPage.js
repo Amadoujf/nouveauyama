@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Share2, Copy, Check, ExternalLink, ShoppingCart } from "lucide-react";
 import axios from "axios";
-import { formatPrice } from "../lib/utils";
+import { formatPrice, getImageUrl } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { toast } from "sonner";
 
