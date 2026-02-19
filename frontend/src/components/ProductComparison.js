@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Check, Minus, Scale, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { formatPrice } from "../lib/utils";
+import { formatPrice, getImageUrl } from "../lib/utils";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { toast } from "sonner";
 

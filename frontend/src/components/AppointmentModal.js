@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { Calendar, Clock, User, Phone, Mail, MessageSquare, X, CheckCircle, MapPin } from "lucide-react";
+import { getImageUrl } from "../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 

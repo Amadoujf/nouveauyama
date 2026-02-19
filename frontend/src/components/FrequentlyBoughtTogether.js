@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingBag, Plus, Check } from "lucide-react";
 import axios from "axios";
-import { formatPrice } from "../lib/utils";
+import { formatPrice, getImageUrl } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { toast } from "sonner";
 

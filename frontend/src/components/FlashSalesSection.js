@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, ArrowRight, Clock, Flame, Timer, TrendingDown, ShoppingBag, Sparkles } from "lucide-react";
 import axios from "axios";
-import { formatPrice, calculateDiscount } from "../lib/utils";
+import { formatPrice, calculateDiscount, getImageUrls } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
