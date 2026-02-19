@@ -7,16 +7,23 @@
 **URL Production** : https://groupeyamaplus.com
 **URL Preview** : https://giftbox-repair.preview.emergentagent.com
 
-## ✅ VÉRIFICATION FINALE PRÉ-DÉPLOIEMENT (19 Février 2026)
+## ✅ CORRECTIONS BUGS CRITIQUES (19 Février 2026)
 
-### Tests Backend : 19/19 PASSÉS ✅
+### Tests Backend : 16/16 PASSÉS ✅
 ### Tests Frontend : 100% FONCTIONNEL ✅
+### Bugs P0 : 3/3 CORRIGÉS ✅
+
+| Bug | Status | Solution |
+|-----|--------|----------|
+| Images instables | ✅ CORRIGÉ | Fonction centralisée `getImageUrl()` dans utils.js |
+| Gel création produit | ✅ CORRIGÉ | Réinitialisation formulaire améliorée |
+| Page Coffret cassée | ✅ CORRIGÉ | État de chargement + valeurs par défaut |
 
 | Fonctionnalité | Status | Détails |
 |----------------|--------|---------|
 | Authentification | ✅ | Login admin@yama.sn fonctionne |
 | Session persistante | ✅ | Utilisateur reste connecté après refresh |
-| Upload images | ✅ | URLs relatives, compression automatique |
+| Upload images | ✅ | URLs relatives, fonction getImageUrl centralise |
 | Ventes Flash | ✅ | Bannière animée avec compte à rebours |
 | Coffrets Cadeaux | ✅ | Page /coffret-cadeau complète |
 | Panier | ✅ | Ajout, modification quantité |
