@@ -483,9 +483,9 @@ export default function GiftBoxPage() {
 
                 {/* Wrapping */}
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Emballage {selectedWrapping.name}</span>
+                  <span className="text-muted-foreground">Emballage {selectedWrapping?.name || 'Classique'}</span>
                   <span className="font-medium">
-                    {selectedWrapping.price > 0 ? formatPrice(selectedWrapping.price) : 'Inclus'}
+                    {(selectedWrapping?.price || 0) > 0 ? formatPrice(selectedWrapping.price) : 'Inclus'}
                   </span>
                 </div>
 
