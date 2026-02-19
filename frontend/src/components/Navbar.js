@@ -73,6 +73,7 @@ const navItems = [
   { name: "Mode & Beauté", href: "/category/beaute", icon: Sparkles },
   { name: "Automobile", href: "/category/automobile", icon: Car },
   { name: "Services", href: "/services", icon: Wrench, highlight: true },
+  { name: "Coffrets Cadeaux", href: "/coffret-cadeau", icon: Gift, highlight: true },
   { name: "Nouveautés", href: "/nouveautes", icon: Star },
   { name: "Promotions", href: "/promotions", icon: Percent },
 ];
