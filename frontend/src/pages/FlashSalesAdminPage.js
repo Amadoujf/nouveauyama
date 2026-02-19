@@ -161,7 +161,7 @@ export default function FlashSalesAdminPage() {
             {flashProducts.map((product) => (
               <div key={product.product_id} className="p-4 flex items-center gap-4">
                 <img
-                  src={product.images?.[0] || "/placeholder.jpg"}
+                  src={getImageUrl(product.images?.[0], "/placeholder.jpg")}
                   alt={product.name}
                   className="w-16 h-16 rounded-xl object-cover"
                 />
