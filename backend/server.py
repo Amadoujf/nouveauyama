@@ -9268,6 +9268,135 @@ async def health_check():
         "rate_limit_entries": len(rate_limit_storage)
     }
 
+# ============ FIX IMAGE URLS ============
+
+@api_router.post("/admin/fix-image-urls")
+async def fix_all_image_urls(user: User = Depends(require_admin)):
+    """
+    Fix all image URLs in the database:
+    - Convert production URLs (groupeyamaplus.com) to relative URLs
+    - Ensure all uploaded images use relative paths (/api/uploads/...)
+    """
+    import re
+    
+    fixed_count = 0
+    products_checked = 0
+    details = []
+    
+    # Get all products
+    products = await db.products.find({}).to_list(1000)
+    
+    for product in products:
+        products_checked += 1
+        images = product.get('images', [])
+        if not images:
+            continue
+            
+        new_images = []
+        product_fixed = False
+        
+        for img_url in images:
+            if not img_url:
+                continue
+                
+            original_url = img_url
+            new_url = img_url
+            
+            # Fix production URLs
+            # Pattern: https://groupeyamaplus.com/api/uploads/xxx.jpg -> /api/uploads/xxx.jpg
+            production_pattern = r'https?://(?:www\.)?groupeyamaplus\.com(/api/uploads/[^"\']+)'
+            match = re.search(production_pattern, img_url)
+            if match:
+                new_url = match.group(1)
+                product_fixed = True
+                details.append({
+                    'product': product['name'],
+                    'old': original_url,
+                    'new': new_url
+                })
+            
+            # Also fix any preview URLs that might have been stored
+            preview_pattern = r'https?://[^/]+\.preview\.emergentagent\.com(/api/uploads/[^"\']+)'
+            match2 = re.search(preview_pattern, img_url)
+            if match2:
+                new_url = match2.group(1)
+                product_fixed = True
+                details.append({
+                    'product': product['name'],
+                    'old': original_url,
+                    'new': new_url
+                })
+            
+            new_images.append(new_url)
+        
+        if product_fixed:
+            await db.products.update_one(
+                {'product_id': product['product_id']},
+                {'$set': {'images': new_images, 'updated_at': datetime.now(timezone.utc).isoformat()}}
+            )
+            fixed_count += 1
+    
+    logger.info(f"Fixed {fixed_count} products with broken image URLs")
+    
+    return {
+        "success": True,
+        "message": f"Vérification terminée",
+        "products_checked": products_checked,
+        "products_fixed": fixed_count,
+        "details": details
+    }
+
+@api_router.get("/admin/check-images")
+async def check_all_images(user: User = Depends(require_admin)):
+    """Check all product images and report issues"""
+    import re
+    
+    issues = []
+    products = await db.products.find({}).to_list(1000)
+    
+    for product in products:
+        images = product.get('images', [])
+        product_id = product.get('product_id', '')
+        name = product.get('name', 'Sans nom')
+        
+        if not images:
+            issues.append({
+                'product_id': product_id,
+                'name': name,
+                'issue': 'Aucune image',
+                'url': None
+            })
+            continue
+        
+        for img_url in images:
+            if not img_url:
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL vide',
+                    'url': None
+                })
+            elif 'groupeyamaplus.com' in img_url:
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL production stockée',
+                    'url': img_url
+                })
+            elif '.preview.emergentagent.com' in img_url:
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL preview stockée',
+                    'url': img_url
+                })
+    
+    return {
+        "total_products": len(products),
+        "issues_count": len(issues),
+        "issues": issues
+    }
+
 # Include router
 app.include_router(api_router)
 
