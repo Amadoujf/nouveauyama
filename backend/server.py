@@ -7327,7 +7327,7 @@ async def push_subscribe_v2(subscription: PushSubscription, request: Request):
     return {"message": "Inscription aux notifications réussie"}
 
 @api_router.post("/push/unsubscribe")
-async def unsubscribe_push(subscription: PushSubscription):
+async def push_unsubscribe_v2(subscription: PushSubscription):
     """Unsubscribe from push notifications"""
     await db.push_subscriptions.update_one(
         {"endpoint": subscription.endpoint},
