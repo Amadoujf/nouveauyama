@@ -121,7 +121,8 @@ function FlashProductCard({ product, index }) {
   const savings = product.price - (product.flash_sale_price || product.price);
   
   // Auto-scroll images if product has multiple images (max 3)
-  const images = product.images?.slice(0, 3) || ["/placeholder.jpg"];
+  // Use centralized getImageUrls for consistent URL resolution
+  const images = getImageUrls(product.images?.slice(0, 3), "/placeholder.jpg");
   
   useEffect(() => {
     if (images.length <= 1) return;
