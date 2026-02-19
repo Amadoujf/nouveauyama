@@ -7302,7 +7302,7 @@ async def get_vapid_public_key():
     return {"publicKey": VAPID_PUBLIC_KEY}
 
 @api_router.post("/push/subscribe")
-async def subscribe_push(subscription: PushSubscription, request: Request):
+async def push_subscribe_v2(subscription: PushSubscription, request: Request):
     """Subscribe to push notifications"""
     user = await get_current_user(request)
     
