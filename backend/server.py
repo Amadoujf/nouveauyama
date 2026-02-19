@@ -9240,6 +9240,130 @@ async def delete_giftbox_template(template_id: str, user: User = Depends(require
     
     return {"message": "Template supprimé"}
 
+# ============ GIFT BOX PRODUCTS (Admin-controlled) ============
+
+class GiftBoxProductCreate(BaseModel):
+    name: str
+    description: str = ""
+    price: int
+    image: str = ""
+    category: str = ""
+    is_active: bool = True
+    sort_order: int = 0
+
+@api_router.get("/gift-box/products")
+async def get_giftbox_products():
+    """Get all gift box products (public - for customers)"""
+    products = await db.gift_box_products.find(
+        {"is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(100)
+    return {"products": products}
+
+@api_router.get("/admin/gift-box/products")
+async def get_admin_giftbox_products(user: User = Depends(require_admin)):
+    """Get all gift box products (admin - includes inactive)"""
+    products = await db.gift_box_products.find({}, {"_id": 0}).sort("sort_order", 1).to_list(100)
+    return {"products": products}
+
+@api_router.post("/admin/gift-box/products")
+async def create_giftbox_product(product: GiftBoxProductCreate, user: User = Depends(require_admin)):
+    """Create a new gift box product"""
+    product_id = f"gbp_{uuid.uuid4().hex[:12]}"
+    
+    new_product = {
+        "product_id": product_id,
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "image": product.image,
+        "category": product.category,
+        "is_active": product.is_active,
+        "sort_order": product.sort_order,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.gift_box_products.insert_one(new_product)
+    if "_id" in new_product:
+        del new_product["_id"]
+    
+    logger.info(f"Gift box product created: {product.name}")
+    return {"message": "Produit coffret créé", "product": new_product}
+
+@api_router.put("/admin/gift-box/products/{product_id}")
+async def update_giftbox_product(product_id: str, product: dict, user: User = Depends(require_admin)):
+    """Update a gift box product"""
+    update_data = {
+        "name": product.get("name"),
+        "description": product.get("description"),
+        "price": product.get("price"),
+        "image": product.get("image"),
+        "category": product.get("category"),
+        "is_active": product.get("is_active"),
+        "sort_order": product.get("sort_order"),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Remove None values
+    update_data = {k: v for k, v in update_data.items() if v is not None}
+    
+    result = await db.gift_box_products.update_one(
+        {"product_id": product_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    
+    return {"message": "Produit mis à jour"}
+
+@api_router.delete("/admin/gift-box/products/{product_id}")
+async def delete_giftbox_product(product_id: str, user: User = Depends(require_admin)):
+    """Delete a gift box product"""
+    result = await db.gift_box_products.delete_one({"product_id": product_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Produit non trouvé")
+    return {"message": "Produit supprimé"}
+
+@api_router.post("/admin/gift-box/products/import-from-catalog")
+async def import_products_to_giftbox(data: dict, user: User = Depends(require_admin)):
+    """Import products from main catalog to gift box products"""
+    product_ids = data.get("product_ids", [])
+    
+    if not product_ids:
+        raise HTTPException(status_code=400, detail="Aucun produit sélectionné")
+    
+    imported = 0
+    for pid in product_ids:
+        # Get product from main catalog
+        product = await db.products.find_one({"product_id": pid}, {"_id": 0})
+        if not product:
+            continue
+        
+        # Check if already imported
+        existing = await db.gift_box_products.find_one({"original_product_id": pid})
+        if existing:
+            continue
+        
+        # Create gift box product
+        new_product = {
+            "product_id": f"gbp_{uuid.uuid4().hex[:12]}",
+            "original_product_id": pid,
+            "name": product["name"],
+            "description": product.get("short_description", ""),
+            "price": product["price"],
+            "image": product["images"][0] if product.get("images") else "",
+            "category": product.get("category", ""),
+            "is_active": True,
+            "sort_order": 99,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.gift_box_products.insert_one(new_product)
+        imported += 1
+    
+    return {"message": f"{imported} produit(s) importé(s)", "imported": imported}
+
 @api_router.get("/health")
 async def health_check():
     """Health check with memory monitoring"""
