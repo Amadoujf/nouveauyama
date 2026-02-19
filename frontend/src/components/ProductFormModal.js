@@ -195,11 +195,8 @@ const ProductFormModal = memo(({
           });
 
           if (uploadResponse.data.success) {
-            // Convert relative URL to absolute URL
+            // Keep relative URL as-is - getImageUrl will handle display
             let imageUrl = uploadResponse.data.url;
-            if (imageUrl.startsWith('/api/')) {
-              imageUrl = `${API_URL}${imageUrl}`;
-            }
             setForm(prev => ({
               ...prev,
               images: [...prev.images, imageUrl]
