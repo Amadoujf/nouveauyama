@@ -216,18 +216,57 @@ export default function SEO({
 export const categoryMeta = {
   electronique: {
     title: "Électronique",
-    description: "Découvrez notre sélection premium d'électronique au Sénégal. iPhone, Samsung, MacBook, tablettes et accessoires. Livraison rapide à Dakar."
+    description: "Découvrez notre sélection premium d'électronique au Sénégal. iPhone, Samsung, MacBook, tablettes et accessoires. Livraison rapide à Dakar.",
+    keywords: ["iPhone Dakar", "Samsung Sénégal", "MacBook Dakar", "tablette Sénégal", "accessoires électronique"]
   },
   electromenager: {
     title: "Électroménager",
-    description: "Électroménager de qualité au Sénégal. Réfrigérateurs, climatiseurs, machines à laver et petit électroménager. Prix compétitifs, livraison Dakar."
+    description: "Électroménager de qualité au Sénégal. Réfrigérateurs, climatiseurs, machines à laver et petit électroménager. Prix compétitifs, livraison Dakar.",
+    keywords: ["réfrigérateur Dakar", "climatiseur Sénégal", "machine à laver Dakar", "électroménager Sénégal"]
   },
   decoration: {
     title: "Décoration & Mobilier",
-    description: "Transformez votre intérieur avec notre collection décoration. Mobilier moderne, luminaires, accessoires déco. Livraison à Dakar et régions."
+    description: "Transformez votre intérieur avec notre collection décoration. Mobilier moderne, luminaires, accessoires déco. Livraison à Dakar et régions.",
+    keywords: ["décoration Dakar", "mobilier Sénégal", "luminaire Dakar", "meuble moderne Sénégal"]
   },
   beaute: {
     title: "Beauté & Bien-être",
-    description: "Produits de beauté premium au Sénégal. Soins visage, maquillage, soins corps et accessoires beauté. Marques authentiques, qualité garantie."
+    description: "Produits de beauté premium au Sénégal. Soins visage, maquillage, soins corps et accessoires beauté. Marques authentiques, qualité garantie.",
+    keywords: ["cosmétique Dakar", "maquillage Sénégal", "soins beauté Dakar", "parfum Sénégal"]
+  },
+  automobile: {
+    title: "Automobile",
+    description: "Accessoires auto premium au Sénégal. GPS, dashcam, pièces détachées et équipements pour votre véhicule. Livraison rapide à Dakar.",
+    keywords: ["accessoire auto Dakar", "GPS voiture Sénégal", "dashcam Dakar", "équipement auto"]
+  }
+};
+
+// Generate Open Graph image URL for social sharing
+export const getOGImageUrl = (type, data) => {
+  // Default OG image
+  const defaultOG = "https://groupeyamaplus.com/assets/images/og-default.jpg";
+  
+  if (type === 'product' && data?.images?.[0]) {
+    return data.images[0].startsWith('http') ? data.images[0] : `https://groupeyamaplus.com${data.images[0]}`;
+  }
+  
+  if (type === 'category') {
+    return `https://groupeyamaplus.com/assets/images/og-${data}.jpg`;
+  }
+  
+  return defaultOG;
+};
+
+// Generate page-specific meta description
+export const generateMetaDescription = (type, data) => {
+  switch (type) {
+    case 'product':
+      return `${data.name} - ${data.short_description || ''} Prix: ${data.price?.toLocaleString('fr-FR')} FCFA. Livraison rapide à Dakar. Paiement Wave, Orange Money.`;
+    case 'category':
+      return categoryMeta[data]?.description || `Découvrez notre sélection ${data} au Sénégal. Livraison rapide à Dakar.`;
+    case 'search':
+      return `Résultats de recherche pour "${data}" - GROUPE YAMA+ Sénégal`;
+    default:
+      return "GROUPE YAMA+ - Votre boutique premium au Sénégal. Livraison rapide, paiement mobile.";
   }
 };
