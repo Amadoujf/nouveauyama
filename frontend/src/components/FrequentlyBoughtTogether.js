@@ -94,7 +94,7 @@ export default function FrequentlyBoughtTogether({ productId, currentProduct }) 
             >
               <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
                 <img
-                  src={product.images?.[0] || '/placeholder.jpg'}
+                  src={getImageUrl(product.images?.[0], '/placeholder.jpg')}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
