@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, Check } from "lucide-react";
-import { formatPrice, calculateDiscount } from "../lib/utils";
+import { formatPrice, calculateDiscount, getImageUrls, cn } from "../lib/utils";
 import { useCart } from "../contexts/CartContext";
 import { useWishlist } from "../contexts/WishlistContext";
-import { cn } from "../lib/utils";
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart, loading: cartLoading } = useCart();
