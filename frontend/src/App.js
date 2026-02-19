@@ -215,6 +215,14 @@ function AppRouter() {
         }
       />
       <Route
+        path="/coffret-cadeau"
+        element={
+          <PublicLayout>
+            <GiftBoxPage />
+          </PublicLayout>
+        }
+      />
+      <Route
         path="/fidelite"
         element={
           <PublicLayout>
