@@ -34,7 +34,46 @@
 
 ## Current Status: ✅ PRÊT POUR DÉPLOIEMENT
 
-### Session du 18 Février 2026 - Corrections de bugs critiques
+### Session du 19 Février 2026 - Corrections 3 Bugs Critiques P0
+
+#### Bug 1 : Images Produits Instables ✅ CORRIGÉ
+- **Problème**: Les images apparaissaient/disparaissaient de façon aléatoire
+- **Cause racine**: Gestion incohérente des URLs d'images entre upload (absolue) et affichage
+- **Solution**: 
+  - Création d'une fonction centralisée `getImageUrl()` dans `/app/frontend/src/lib/utils.js`
+  - Stockage des URLs relatives dans la DB (ex: `/api/uploads/xxx.jpg`)
+  - Conversion en URL absolue uniquement à l'affichage
+  - Gestion des URLs d'autres domaines (extraction et reconstruction)
+- **Fichiers modifiés**: 
+  - `lib/utils.js` (nouvelle fonction getImageUrl)
+  - `ProductCard.js`, `ProductPage.js`, `AdminPage.js`
+  - `ProductFormModal.js`, `GiftBoxPage.js`
+  - `FlashSalesSection.js`, `FrequentlyBoughtTogether.js`
+  - `ProductComparison.js`, `AppointmentModal.js`
+  - `FlashSalesAdminPage.js`, `SharedWishlistPage.js`
+  - `GiftBoxAdmin.js`
+
+#### Bug 2 : Gel après 2-3 Créations de Produits ✅ CORRIGÉ
+- **Problème**: L'application gelait après création consécutive de produits
+- **Cause racine**: État du formulaire non correctement réinitialisé (closure stale)
+- **Solution**:
+  - Refactorisation du useEffect dans `ProductFormModal.js`
+  - Création d'un nouvel objet complet à chaque ouverture du modal
+  - Ajout d'un délai dans `AdminPage.js` pour éviter les conditions de course
+  - Reset des états `loading`, `uploadingImage`, `analyzingImage`
+- **Fichiers modifiés**: `ProductFormModal.js`, `AdminPage.js`
+
+#### Bug 3 : Page Coffret Cadeau Cassée ✅ CORRIGÉ
+- **Problème**: Erreur `Cannot read properties of null (reading 'basePrice')`
+- **Cause racine**: Accès aux propriétés avant que l'API ne réponde (state null)
+- **Solution**:
+  - Ajout d'un état `configLoading` pour le chargement initial
+  - Écran de chargement pendant le fetch de la configuration
+  - Opérateur `?.` (optional chaining) sur tous les accès à `selectedBoxSize` et `selectedWrapping`
+  - Valeurs par défaut fallback dans les calculs
+- **Fichiers modifiés**: `GiftBoxPage.js`
+
+### Session du 18 Février 2026 - Corrections précédentes
 
 #### Bugs corrigés :
 
