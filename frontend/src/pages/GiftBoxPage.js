@@ -309,7 +309,7 @@ export default function GiftBoxPage() {
                         <span className="text-sm font-bold text-purple-500 w-6">{index + 1}</span>
                         {item.images?.[0] && (
                           <img
-                            src={item.images[0].startsWith('http') ? item.images[0] : `${API_URL}${item.images[0]}`}
+                            src={getImageUrl(item.images[0])}
                             alt={item.name}
                             className="w-14 h-14 object-cover rounded-lg"
                           />
