@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
-import { formatPrice } from "../../lib/utils";
+import { formatPrice, getImageUrl } from "../../lib/utils";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
