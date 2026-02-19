@@ -70,10 +70,36 @@ const ProductFormModal = memo(({
   // Reset form when editingProduct changes or modal opens
   useEffect(() => {
     if (isOpen) {
-      setForm(getInitialForm());
+      // Force complete state reset with a fresh object
+      const newForm = {
+        name: editingProduct?.name || "",
+        description: editingProduct?.description || "",
+        short_description: editingProduct?.short_description || "",
+        price: editingProduct?.price?.toString() || "",
+        original_price: editingProduct?.original_price?.toString() || "",
+        category: editingProduct?.category || "electronique",
+        subcategory: editingProduct?.subcategory || "",
+        images: editingProduct?.images ? [...editingProduct.images] : [],
+        stock: editingProduct?.stock?.toString() || "",
+        featured: editingProduct?.featured || false,
+        is_new: editingProduct?.is_new || false,
+        is_promo: editingProduct?.is_promo || false,
+        brand: editingProduct?.brand || "",
+        colors: editingProduct?.colors ? [...editingProduct.colors] : [],
+        sizes: editingProduct?.sizes ? [...editingProduct.sizes] : [],
+        specs: editingProduct?.specs ? {...editingProduct.specs} : {},
+        is_on_order: editingProduct?.is_on_order || false,
+        order_delivery_days: editingProduct?.order_delivery_days?.toString() || "",
+        meta_title: editingProduct?.meta_title || "",
+        meta_description: editingProduct?.meta_description || "",
+      };
+      setForm(newForm);
       setActiveTab("general");
+      setLoading(false);
+      setUploadingImage(false);
+      setAnalyzingImage(false);
     }
-  }, [isOpen, editingProduct, getInitialForm]);
+  }, [isOpen, editingProduct]);
 
   const updateField = useCallback((field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
