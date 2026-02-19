@@ -12,7 +12,7 @@ import {
   Search,
   Package,
 } from "lucide-react";
-import { formatPrice } from "../lib/utils";
+import { formatPrice, getImageUrl } from "../lib/utils";
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
 
