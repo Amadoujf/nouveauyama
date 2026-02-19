@@ -635,7 +635,7 @@ export default function GiftBoxPage() {
               {/* Footer */}
               <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  {selectedItems.length}/{selectedBoxSize.maxItems} articles sélectionnés
+                  {selectedItems.length}/{selectedBoxSize?.maxItems || 5} articles sélectionnés
                 </p>
                 <button
                   onClick={() => setShowProductSelector(false)}
