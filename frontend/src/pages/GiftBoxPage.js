@@ -127,12 +127,16 @@ export default function GiftBoxPage() {
   // Get unique categories
   const categories = ["all", ...new Set(products.map(p => p.category).filter(Boolean))];
 
-  // Calculate total price
+  // Calculate total price (handle null states)
   const itemsTotal = selectedItems.reduce((sum, item) => sum + (item.flash_sale_price || item.price), 0);
-  const totalPrice = itemsTotal + selectedBoxSize.basePrice + selectedWrapping.price;
+  const totalPrice = itemsTotal + (selectedBoxSize?.basePrice || 0) + (selectedWrapping?.price || 0);
 
   // Add item to gift box
   const addItem = (product) => {
+    if (!selectedBoxSize) {
+      toast.error("Veuillez d'abord choisir une taille de coffret");
+      return;
+    }
     if (selectedItems.length >= selectedBoxSize.maxItems) {
       toast.error(`Ce coffret ne peut contenir que ${selectedBoxSize.maxItems} articles maximum`);
       return;
