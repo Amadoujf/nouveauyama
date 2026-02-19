@@ -576,7 +576,7 @@ export default function GiftBoxPage() {
                           <div className="relative">
                             {product.images?.[0] && (
                               <img
-                                src={product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`}
+                                src={getImageUrl(product.images[0])}
                                 alt={product.name}
                                 className="w-full aspect-square object-cover rounded-lg mb-2"
                               />
