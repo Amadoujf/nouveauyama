@@ -562,7 +562,7 @@ const ProductFormModal = memo(({
                   <div className="grid grid-cols-3 gap-3">
                     {form.images.map((img, index) => (
                       <div key={index} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 group">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(index)}
