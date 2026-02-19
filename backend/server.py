@@ -1205,45 +1205,96 @@ async def logout(request: Request, response: Response):
 UPLOADS_DIR = ROOT_DIR / "uploads"
 UPLOADS_DIR.mkdir(exist_ok=True)
 
+# Image compression settings
+MAX_IMAGE_SIZE = 1920  # Max width/height in pixels
+JPEG_QUALITY = 85  # Quality for JPEG compression
+
+def compress_image(content: bytes, max_size: int = MAX_IMAGE_SIZE, quality: int = JPEG_QUALITY) -> tuple[bytes, str]:
+    """Compress and optimize image for web. Returns (compressed_content, extension)"""
+    try:
+        img = PILImage.open(io.BytesIO(content))
+        
+        # Convert RGBA to RGB for JPEG (remove transparency)
+        if img.mode in ('RGBA', 'P'):
+            background = PILImage.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = background
+        elif img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Resize if too large
+        if img.width > max_size or img.height > max_size:
+            img.thumbnail((max_size, max_size), PILImage.Resampling.LANCZOS)
+        
+        # Save as optimized JPEG
+        output = io.BytesIO()
+        img.save(output, format='JPEG', quality=quality, optimize=True)
+        output.seek(0)
+        
+        return output.getvalue(), 'jpg'
+    except Exception as e:
+        logging.error(f"Image compression error: {e}")
+        # Return original content if compression fails
+        return content, 'jpg'
+
 @api_router.post("/upload/image")
 async def upload_image(file: UploadFile = File(...), user: User = Depends(require_admin), request: Request = None):
-    """Upload an image and return its URL"""
+    """Upload an image with automatic compression and optimization"""
     
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Type de fichier non supporté. Utilisez JPG, PNG, WebP ou GIF.")
     
-    # Generate unique filename
-    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = UPLOADS_DIR / filename
-    
     # Save file
     try:
         content = await file.read()
+        original_size = len(content)
         
-        # Limit file size to 5MB
-        if len(content) > 5 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 5MB)")
+        # Limit file size to 10MB before compression
+        if original_size > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 10MB)")
+        
+        # Compress image (skip GIFs to preserve animation)
+        if file.content_type != "image/gif":
+            content, ext = compress_image(content)
+        else:
+            ext = "gif"
+        
+        compressed_size = len(content)
+        compression_ratio = round((1 - compressed_size / original_size) * 100, 1) if original_size > 0 else 0
+        
+        # Generate unique filename
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = UPLOADS_DIR / filename
         
         with open(filepath, "wb") as f:
             f.write(content)
         
         # Return relative path - frontend will handle the full URL
-        # This ensures the URL works in both preview and production
         image_url = f"/api/uploads/{filename}"
         
-        logging.info(f"Image uploaded: {filename}")
-        return {"success": True, "url": image_url, "filename": filename}
+        logging.info(f"Image uploaded: {filename} (compressed {compression_ratio}%: {original_size//1024}KB -> {compressed_size//1024}KB)")
+        return {
+            "success": True, 
+            "url": image_url, 
+            "filename": filename,
+            "original_size": original_size,
+            "compressed_size": compressed_size,
+            "compression": f"{compression_ratio}%"
+        }
     
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error uploading image: {e}")
         raise HTTPException(status_code=500, detail="Erreur lors de l'upload")
 
 @api_router.get("/uploads/{filename}")
-async def get_uploaded_image(filename: str):
-    """Serve uploaded images"""
+async def get_uploaded_image(filename: str, response: Response):
+    """Serve uploaded images with caching headers"""
     filepath = UPLOADS_DIR / filename
     
     if not filepath.exists():
@@ -1263,7 +1314,15 @@ async def get_uploaded_image(filename: str):
     with open(filepath, "rb") as f:
         content = f.read()
     
-    return Response(content=content, media_type=content_type)
+    # Add caching headers for better performance
+    return Response(
+        content=content, 
+        media_type=content_type,
+        headers={
+            "Cache-Control": "public, max-age=31536000",  # Cache for 1 year
+            "ETag": hashlib.md5(content).hexdigest()
+        }
+    )
 
 # ============== PRODUCTS ROUTES ==============
 
