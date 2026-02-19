@@ -615,6 +615,11 @@ export default function GiftBoxPage() {
                   <div className="flex items-center justify-center py-12">
                     <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                   </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Gift className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">Aucun produit disponible pour les coffrets</p>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {filteredProducts.map((product) => {
@@ -637,12 +642,16 @@ export default function GiftBoxPage() {
                           }`}
                         >
                           <div className="relative">
-                            {product.images?.[0] && (
+                            {product.image ? (
                               <img
-                                src={getImageUrl(product.images[0])}
+                                src={getImageUrl(product.image)}
                                 alt={product.name}
                                 className="w-full aspect-square object-cover rounded-lg mb-2"
                               />
+                            ) : (
+                              <div className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 flex items-center justify-center">
+                                <Gift className="w-8 h-8 text-muted-foreground" />
+                              </div>
                             )}
                             {isSelected && (
                               <div className="absolute top-2 right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
