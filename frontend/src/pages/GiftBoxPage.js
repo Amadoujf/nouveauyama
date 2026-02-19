@@ -104,6 +104,8 @@ export default function GiftBoxPage() {
       setWrappingOptions(defaultWrappings);
       setSelectedBoxSize(defaultSizes[1]);
       setSelectedWrapping(defaultWrappings[0]);
+    } finally {
+      setConfigLoading(false);
     }
   };
 
