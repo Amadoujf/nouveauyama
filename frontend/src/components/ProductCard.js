@@ -16,7 +16,8 @@ export default function ProductCard({ product, index = 0 }) {
   const inWishlist = isInWishlist(product.product_id);
   
   // Auto-scroll images if product has multiple images (max 3)
-  const images = product.images?.slice(0, 3) || ["/placeholder.jpg"];
+  // Use centralized getImageUrls for consistent URL resolution
+  const images = getImageUrls(product.images?.slice(0, 3), "/placeholder.jpg");
   
   useEffect(() => {
     if (images.length <= 1) return;
