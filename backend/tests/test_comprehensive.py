@@ -175,9 +175,27 @@ class TestImageUpload:
         """Test that upload endpoint exists (no actual upload)"""
         # Test with empty POST should return error but endpoint exists
         response = requests.post(f"{BASE_URL}/api/upload/image")
-        # 422 = validation error (no file provided), which means endpoint exists
-        assert response.status_code in [422, 400]
-        print("✅ Upload endpoint exists and validates input")
+        # 401 = requires auth, 422 = validation error - both mean endpoint exists
+        assert response.status_code in [422, 400, 401]
+        print(f"✅ Upload endpoint exists, returns {response.status_code} (auth required)")
+    
+    def test_upload_with_auth(self):
+        """Test upload endpoint with authentication"""
+        # Login first
+        login_response = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD
+        })
+        token = login_response.json()["token"]
+        
+        # Test upload endpoint with auth but no file
+        response = requests.post(
+            f"{BASE_URL}/api/upload/image",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        # Should return 422 (no file) now that we're authenticated
+        assert response.status_code == 422
+        print("✅ Upload endpoint with auth returns 422 (no file provided)")
 
 class TestPayTech:
     """PayTech payment integration tests"""
