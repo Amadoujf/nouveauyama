@@ -8790,6 +8790,203 @@ async def admin_update_service_request(
 async def root():
     return {"message": "Bienvenue sur l'API Lumina Senegal", "version": "1.0.0"}
 
+# ============== GIFT BOX MANAGEMENT ==============
+
+@api_router.get("/gift-box/config")
+async def get_gift_box_config():
+    """Get public gift box configuration"""
+    config = await db.gift_box_config.find_one({"config_id": "main"}, {"_id": 0})
+    if not config:
+        # Return default config
+        config = {
+            "is_enabled": True,
+            "page_title": "Coffrets Cadeaux Personnalisés",
+            "page_description": "Composez le coffret parfait en sélectionnant vos articles préférés",
+            "banner_image": None,
+            "allow_personal_message": True,
+            "max_message_length": 200
+        }
+    
+    # Get active sizes
+    sizes = await db.gift_box_sizes.find(
+        {"is_active": True}, 
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(20)
+    
+    # Get active wrapping options
+    wrappings = await db.gift_box_wrappings.find(
+        {"is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(20)
+    
+    # Use defaults if none exist
+    if not sizes:
+        sizes = [
+            {"size_id": "small", "name": "Petit Coffret", "description": "Idéal pour une attention délicate", "max_items": 3, "base_price": 5000, "icon": "🎁", "is_active": True, "sort_order": 0},
+            {"size_id": "medium", "name": "Coffret Moyen", "description": "Parfait pour surprendre", "max_items": 5, "base_price": 8000, "icon": "🎀", "is_active": True, "sort_order": 1},
+            {"size_id": "large", "name": "Grand Coffret", "description": "Pour les grandes occasions", "max_items": 8, "base_price": 12000, "icon": "✨", "is_active": True, "sort_order": 2},
+            {"size_id": "premium", "name": "Coffret Premium", "description": "L'ultime cadeau de luxe", "max_items": 12, "base_price": 20000, "icon": "👑", "is_active": True, "sort_order": 3},
+        ]
+    
+    if not wrappings:
+        wrappings = [
+            {"wrapping_id": "classic", "name": "Classique", "color": "#C41E3A", "price": 0, "is_active": True, "sort_order": 0},
+            {"wrapping_id": "gold", "name": "Or & Luxe", "color": "#FFD700", "price": 3000, "is_active": True, "sort_order": 1},
+            {"wrapping_id": "silver", "name": "Argent Élégant", "color": "#C0C0C0", "price": 2500, "is_active": True, "sort_order": 2},
+            {"wrapping_id": "rose", "name": "Rose Romantique", "color": "#FF69B4", "price": 2000, "is_active": True, "sort_order": 3},
+            {"wrapping_id": "nature", "name": "Nature & Kraft", "color": "#8B4513", "price": 1500, "is_active": True, "sort_order": 4},
+        ]
+    
+    return {
+        "config": config,
+        "sizes": sizes,
+        "wrappings": wrappings
+    }
+
+@api_router.get("/admin/gift-box/config")
+async def get_admin_gift_box_config(user: User = Depends(require_admin)):
+    """Get full gift box configuration for admin"""
+    config = await db.gift_box_config.find_one({"config_id": "main"}, {"_id": 0})
+    if not config:
+        config = {
+            "config_id": "main",
+            "is_enabled": True,
+            "page_title": "Coffrets Cadeaux Personnalisés",
+            "page_description": "Composez le coffret parfait en sélectionnant vos articles préférés",
+            "banner_image": None,
+            "allow_personal_message": True,
+            "max_message_length": 200
+        }
+    
+    # Get ALL sizes (including inactive)
+    sizes = await db.gift_box_sizes.find({}, {"_id": 0}).sort("sort_order", 1).to_list(50)
+    
+    # Get ALL wrapping options (including inactive)
+    wrappings = await db.gift_box_wrappings.find({}, {"_id": 0}).sort("sort_order", 1).to_list(50)
+    
+    return {
+        "config": config,
+        "sizes": sizes,
+        "wrappings": wrappings
+    }
+
+@api_router.put("/admin/gift-box/config")
+async def update_gift_box_config(config_data: GiftBoxConfig, user: User = Depends(require_admin)):
+    """Update gift box general configuration"""
+    await db.gift_box_config.update_one(
+        {"config_id": "main"},
+        {"$set": {
+            "config_id": "main",
+            "is_enabled": config_data.is_enabled,
+            "page_title": config_data.page_title,
+            "page_description": config_data.page_description,
+            "banner_image": config_data.banner_image,
+            "allow_personal_message": config_data.allow_personal_message,
+            "max_message_length": config_data.max_message_length,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
+    )
+    return {"message": "Configuration mise à jour"}
+
+@api_router.post("/admin/gift-box/sizes")
+async def create_gift_box_size(size_data: GiftBoxSize, user: User = Depends(require_admin)):
+    """Create a new gift box size"""
+    size_id = f"size_{uuid.uuid4().hex[:8]}"
+    
+    doc = {
+        "size_id": size_id,
+        "name": size_data.name,
+        "description": size_data.description,
+        "max_items": size_data.max_items,
+        "base_price": size_data.base_price,
+        "image": size_data.image,
+        "icon": size_data.icon,
+        "is_active": size_data.is_active,
+        "sort_order": size_data.sort_order,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.gift_box_sizes.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+@api_router.put("/admin/gift-box/sizes/{size_id}")
+async def update_gift_box_size(size_id: str, size_data: GiftBoxSize, user: User = Depends(require_admin)):
+    """Update a gift box size"""
+    result = await db.gift_box_sizes.update_one(
+        {"size_id": size_id},
+        {"$set": {
+            "name": size_data.name,
+            "description": size_data.description,
+            "max_items": size_data.max_items,
+            "base_price": size_data.base_price,
+            "image": size_data.image,
+            "icon": size_data.icon,
+            "is_active": size_data.is_active,
+            "sort_order": size_data.sort_order,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Taille non trouvée")
+    return {"message": "Taille mise à jour"}
+
+@api_router.delete("/admin/gift-box/sizes/{size_id}")
+async def delete_gift_box_size(size_id: str, user: User = Depends(require_admin)):
+    """Delete a gift box size"""
+    result = await db.gift_box_sizes.delete_one({"size_id": size_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Taille non trouvée")
+    return {"message": "Taille supprimée"}
+
+@api_router.post("/admin/gift-box/wrappings")
+async def create_gift_box_wrapping(wrapping_data: GiftBoxWrapping, user: User = Depends(require_admin)):
+    """Create a new wrapping option"""
+    wrapping_id = f"wrap_{uuid.uuid4().hex[:8]}"
+    
+    doc = {
+        "wrapping_id": wrapping_id,
+        "name": wrapping_data.name,
+        "color": wrapping_data.color,
+        "price": wrapping_data.price,
+        "image": wrapping_data.image,
+        "is_active": wrapping_data.is_active,
+        "sort_order": wrapping_data.sort_order,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.gift_box_wrappings.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+@api_router.put("/admin/gift-box/wrappings/{wrapping_id}")
+async def update_gift_box_wrapping(wrapping_id: str, wrapping_data: GiftBoxWrapping, user: User = Depends(require_admin)):
+    """Update a wrapping option"""
+    result = await db.gift_box_wrappings.update_one(
+        {"wrapping_id": wrapping_id},
+        {"$set": {
+            "name": wrapping_data.name,
+            "color": wrapping_data.color,
+            "price": wrapping_data.price,
+            "image": wrapping_data.image,
+            "is_active": wrapping_data.is_active,
+            "sort_order": wrapping_data.sort_order,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Emballage non trouvé")
+    return {"message": "Emballage mis à jour"}
+
+@api_router.delete("/admin/gift-box/wrappings/{wrapping_id}")
+async def delete_gift_box_wrapping(wrapping_id: str, user: User = Depends(require_admin)):
+    """Delete a wrapping option"""
+    result = await db.gift_box_wrappings.delete_one({"wrapping_id": wrapping_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Emballage non trouvé")
+    return {"message": "Emballage supprimé"}
+
 @api_router.get("/health")
 async def health_check():
     """Health check with memory monitoring"""
