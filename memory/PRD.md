@@ -204,7 +204,20 @@
 | Sélecteur d'articles | ✅ Modal avec recherche |
 | Choix emballage | ✅ 5 options couleurs |
 | Message personnalisé | ✅ Nom destinataire + message |
-| Lien navigation | ✅ Ajouté dans Catégories
+| Lien navigation | ✅ Ajouté dans Catégories |
+| **Templates Coffrets Cadeaux** | ✅ **NOUVEAU** - 8 templates |
+
+### Templates Coffrets Disponibles
+| Template | Icône | Couleur | Description |
+|----------|-------|---------|-------------|
+| Ramadan | 🌙 | Vert | Coffrets pour le mois sacré |
+| Enfant | 🧸 | Orange | Cadeaux pour les petits |
+| Noël | 🎄 | Rouge | Magie de Noël |
+| Pack Accessoires | 👜 | Violet | Accessoires tendances |
+| Saint-Valentin | 💝 | Rose | Pour l'amour |
+| Tabaski | 🐑 | Bleu | Aïd el-Kébir |
+| Fête des Mères | 💐 | Rose | Pour les mamans |
+| Classique | 🎁 | Violet | Par défaut |
 
 ---
 
