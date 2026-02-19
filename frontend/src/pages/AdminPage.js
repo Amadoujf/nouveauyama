@@ -197,11 +197,8 @@ export default function AdminPage() {
         });
 
         if (response.data.success) {
-          // Convert relative URL to absolute URL
+          // Keep relative URL as-is - getImageUrl will handle display
           let imageUrl = response.data.url;
-          if (imageUrl.startsWith('/api/')) {
-            imageUrl = `${API_URL}${imageUrl}`;
-          }
           newImages.push(imageUrl);
         }
       } catch (error) {
