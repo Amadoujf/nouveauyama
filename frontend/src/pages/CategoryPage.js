@@ -252,6 +252,9 @@ export default function CategoryPage() {
       />
 
       <div className="container-lumina">
+        {/* Flash Sales Banner */}
+        <FlashSalesBanner />
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
