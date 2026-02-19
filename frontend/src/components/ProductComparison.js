@@ -92,7 +92,7 @@ export function CompareFloatingBar() {
               {compareItems.map((product) => (
                 <div key={product.product_id} className="relative group">
                   <img
-                    src={product.images?.[0] || '/placeholder.jpg'}
+                    src={getImageUrl(product.images?.[0], '/placeholder.jpg')}
                     alt={product.name}
                     className="w-12 h-12 rounded-lg object-cover"
                   />
