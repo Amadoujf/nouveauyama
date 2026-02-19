@@ -29,6 +29,9 @@ from mailersend import MailerSendClient, EmailBuilder
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
+# Image compression
+from PIL import Image as PILImage
+
 # AI Image Analysis - Using emergentintegrations
 from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
 
