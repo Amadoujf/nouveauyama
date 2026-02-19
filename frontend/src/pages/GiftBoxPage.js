@@ -370,9 +370,9 @@ export default function GiftBoxPage() {
                         className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl"
                       >
                         <span className="text-sm font-bold text-purple-500 w-6">{index + 1}</span>
-                        {item.images?.[0] && (
+                        {(item.image || item.images?.[0]) && (
                           <img
-                            src={getImageUrl(item.images[0])}
+                            src={getImageUrl(item.image || item.images?.[0])}
                             alt={item.name}
                             className="w-14 h-14 object-cover rounded-lg"
                           />
