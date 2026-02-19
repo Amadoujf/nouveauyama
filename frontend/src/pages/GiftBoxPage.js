@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useCart } from "../contexts/CartContext";
-import { formatPrice } from "../lib/utils";
+import { formatPrice, getImageUrl } from "../lib/utils";
 import SEO from "../components/SEO";
 import { toast } from "sonner";
 
