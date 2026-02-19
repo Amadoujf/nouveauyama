@@ -590,7 +590,7 @@ export default function GiftBoxPage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {filteredProducts.map((product) => {
                       const isSelected = selectedItems.find(item => item.product_id === product.product_id);
-                      const canAdd = selectedItems.length < selectedBoxSize.maxItems;
+                      const canAdd = selectedItems.length < (selectedBoxSize?.maxItems || 5);
                       
                       return (
                         <motion.button
