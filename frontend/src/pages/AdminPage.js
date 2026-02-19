@@ -62,6 +62,7 @@ const menuItems = [
   { id: "commercial", label: "Gestion Commerciale", icon: FileText, href: "/admin/commercial" },
   { id: "products", label: "Produits", icon: Package, href: "/admin/products" },
   { id: "flash-sales", label: "Ventes Flash", icon: Zap, href: "/admin/flash-sales" },
+  { id: "gift-boxes", label: "Coffrets Cadeaux", icon: Gift, href: "/admin/gift-boxes" },
   { id: "orders", label: "Commandes", icon: ShoppingCart, href: "/admin/orders" },
   { id: "appointments", label: "Rendez-vous", icon: Clock, href: "/admin/appointments" },
   { id: "service-providers", label: "Prestataires", icon: Briefcase, href: "/admin/service-providers" },
