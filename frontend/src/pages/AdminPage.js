@@ -1291,6 +1291,8 @@ export default function AdminPage() {
         return <AnalyticsDashboard />;
       case "flash-sales":
         return <FlashSalesAdminPage />;
+      case "gift-boxes":
+        return <GiftBoxAdmin token={token} />;
       case "email":
         return <EmailCampaignsPage />;
       case "promo-codes":
