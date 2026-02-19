@@ -118,10 +118,12 @@ export default function GiftBoxPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/products?limit=100`);
-      setProducts(response.data || []);
+      // Fetch ONLY gift box products selected by admin
+      const response = await axios.get(`${API_URL}/api/gift-box/products`);
+      setProducts(response.data.products || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching gift box products:", error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -132,7 +134,7 @@ export default function GiftBoxPage() {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          p.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
-    return matchesSearch && matchesCategory && p.stock > 0;
+    return matchesSearch && matchesCategory;
   });
 
   // Get unique categories
