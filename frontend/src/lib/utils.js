@@ -167,8 +167,16 @@ const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 export function getImageUrl(imageUrl, fallback = '/placeholder.jpg') {
   if (!imageUrl) return fallback;
   
-  // Already a full URL (http/https) - return as-is
+  // Already a full URL with http/https
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    // Check if this is an uploaded image URL from a different environment
+    // Extract the path if it contains /api/uploads/ regardless of domain
+    const uploadsMatch = imageUrl.match(/\/api\/uploads\/(.+)$/);
+    if (uploadsMatch) {
+      // Reconstruct with current API_URL
+      return `${API_URL}/api/uploads/${uploadsMatch[1]}`;
+    }
+    // For external URLs (Unsplash, Pexels, etc.) - return as-is
     return imageUrl;
   }
   
