@@ -7383,7 +7383,7 @@ async def send_push_to_all(title: str, body: str, url: str = None):
     
     success_count = 0
     for sub in subscriptions:
-        if await send_push_notification(sub, title, body, url):
+        if await push_send_notification_v2(sub, title, body, url):
             success_count += 1
     
     logger.info(f"Push notifications sent: {success_count}/{len(subscriptions)}")
