@@ -8794,6 +8794,34 @@ async def root():
 
 # ============== GIFT BOX MANAGEMENT ==============
 
+@api_router.post("/admin/reset-test-data")
+async def reset_test_data(user: User = Depends(require_admin)):
+    """Reset all test data - DELETE ALL ORDERS AND STATS"""
+    # Delete all orders
+    orders_result = await db.orders.delete_many({})
+    
+    # Delete all notifications
+    await db.notifications.delete_many({})
+    
+    # Delete all reviews
+    await db.reviews.delete_many({})
+    
+    # Delete cart items
+    await db.cart_items.delete_many({})
+    
+    # Delete wishlist items
+    await db.wishlist_items.delete_many({})
+    
+    # Clear all caches
+    clear_cache("products")
+    clear_cache("flash_sales")
+    clear_cache("orders")
+    
+    return {
+        "message": "Données de test réinitialisées",
+        "orders_deleted": orders_result.deleted_count
+    }
+
 @api_router.get("/gift-box/config")
 async def get_gift_box_config():
     """Get public gift box configuration"""
