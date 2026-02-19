@@ -73,10 +73,8 @@ export default function GiftBoxAdmin({ token }) {
           "Content-Type": "multipart/form-data"
         }
       });
+      // Keep relative URL as-is - getImageUrl will handle display
       let imageUrl = response.data.url;
-      if (imageUrl.startsWith('/api/')) {
-        imageUrl = `${API_URL}${imageUrl}`;
-      }
       callback(imageUrl);
       toast.success("Image uploadée");
     } catch (error) {
