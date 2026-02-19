@@ -42,6 +42,7 @@ import {
   Sparkles,
   Briefcase,
   ClipboardList,
+  Gift,
 } from "lucide-react";
 import { formatPrice, formatDate, getOrderStatusDisplay, getPaymentStatusDisplay, getCategoryName } from "../lib/utils";
 import { cn } from "../lib/utils";
@@ -53,6 +54,7 @@ import PromoCodesAdminPage from "./PromoCodesAdminPage";
 import AbandonedCartsAdminPage from "./AbandonedCartsAdminPage";
 import { ServiceProvidersAdmin, ServiceRequestsAdmin } from "./ServiceAdminComponents";
 import { CommercialDashboard } from "./CommercialDashboard";
+import GiftBoxAdmin from "../components/Admin/GiftBoxAdmin";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
