@@ -156,6 +156,10 @@ export default function GiftBoxPage() {
 
   // Add gift box to cart
   const handleAddToCart = () => {
+    if (!selectedBoxSize || !selectedWrapping) {
+      toast.error("Veuillez configurer votre coffret avant de l'ajouter au panier");
+      return;
+    }
     if (selectedItems.length === 0) {
       toast.error("Veuillez sélectionner au moins un article pour votre coffret");
       return;
