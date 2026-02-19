@@ -1251,11 +1251,15 @@ export default function AdminPage() {
       isOpen={showProductForm}
       onClose={() => {
         setShowProductForm(false);
-        setEditingProduct(null);
+        // Delay clearing editingProduct to prevent race conditions
+        setTimeout(() => setEditingProduct(null), 100);
       }}
       editingProduct={editingProduct}
       token={token}
-      onSuccess={fetchData}
+      onSuccess={() => {
+        // Refresh data after successful product creation/update
+        fetchData();
+      }}
     />
   );
 
