@@ -92,6 +92,27 @@
 | PayTech clés production | ⚠️ À vérifier avec transaction réelle |
 | Google Search Console | 📄 Guide créé (voir GOOGLE_SEARCH_CONSOLE_GUIDE.md) |
 
+## Optimisations P2 (18 Février 2026)
+
+| Fonctionnalité | Status |
+|----------------|--------|
+| Compression d'images automatique | ✅ Ajouté (Pillow, réduction ~25%) |
+| Lazy loading images | ✅ Déjà présent (LazyImage.js) |
+| Cache produits | ✅ Déjà présent (60s TTL) |
+| Notifications push | ✅ Déjà présent |
+| Système d'avis clients | ✅ Déjà présent |
+| Suivi de commande | ✅ Déjà présent |
+
+## Optimisations SEO P3 (18 Février 2026)
+
+| Fonctionnalité | Status |
+|----------------|--------|
+| Meta tags dynamiques | ✅ Amélioré (SEO.js avec keywords, robots, etc.) |
+| Open Graph images | ✅ Amélioré (product OG, Twitter cards) |
+| Structured Data | ✅ Amélioré (Product, Article, Breadcrumb, Organization) |
+| Blog SEO | ✅ Déjà présent (/blog avec catégories) |
+| Sitemap | ✅ Déjà présent (/sitemap.xml) |
+
 ## Tâches futures
 
 ### P1 - Haute priorité
