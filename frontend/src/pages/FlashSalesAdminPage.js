@@ -264,7 +264,7 @@ export default function FlashSalesAdminPage() {
                             className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-white/5 text-left"
                           >
                             <img
-                              src={product.images?.[0] || "/placeholder.jpg"}
+                              src={getImageUrl(product.images?.[0], "/placeholder.jpg")}
                               alt={product.name}
                               className="w-10 h-10 rounded-lg object-cover"
                             />
