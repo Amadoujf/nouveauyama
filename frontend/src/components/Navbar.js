@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Car,
   Wrench,
+  Gift,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
