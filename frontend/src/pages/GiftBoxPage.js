@@ -24,6 +24,7 @@ export default function GiftBoxPage() {
   const [config, setConfig] = useState(null);
   const [giftBoxSizes, setGiftBoxSizes] = useState([]);
   const [wrappingOptions, setWrappingOptions] = useState([]);
+  const [configLoading, setConfigLoading] = useState(true);
   
   // Gift box state
   const [selectedBoxSize, setSelectedBoxSize] = useState(null);
@@ -41,6 +42,7 @@ export default function GiftBoxPage() {
   }, []);
 
   const fetchConfig = async () => {
+    setConfigLoading(true);
     try {
       const response = await axios.get(`${API_URL}/api/gift-box/config`);
       const { config: cfg, sizes, wrappings } = response.data;
