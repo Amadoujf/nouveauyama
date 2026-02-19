@@ -9017,6 +9017,228 @@ async def delete_gift_box_wrapping(wrapping_id: str, user: User = Depends(requir
         raise HTTPException(status_code=404, detail="Emballage non trouvé")
     return {"message": "Emballage supprimé"}
 
+# ============ GIFT BOX TEMPLATES ============
+
+# Default templates
+DEFAULT_GIFTBOX_TEMPLATES = [
+    {
+        "template_id": "ramadan",
+        "name": "Coffret Ramadan",
+        "description": "Coffrets spéciaux pour le mois sacré du Ramadan",
+        "icon": "🌙",
+        "theme_color": "#2E7D32",
+        "banner_image": None,
+        "page_title": "Coffrets Ramadan - Partagez la Baraka",
+        "page_subtitle": "Des coffrets pensés pour le partage et la générosité",
+        "is_active": False,
+        "sort_order": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "enfant",
+        "name": "Coffret Enfant",
+        "description": "Des cadeaux qui font briller les yeux des petits",
+        "icon": "🧸",
+        "theme_color": "#FF9800",
+        "banner_image": None,
+        "page_title": "Coffrets pour Enfants",
+        "page_subtitle": "Faites plaisir aux plus jeunes avec des coffrets magiques",
+        "is_active": False,
+        "sort_order": 1,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "noel",
+        "name": "Coffret Noël",
+        "description": "La magie de Noël dans un coffret",
+        "icon": "🎄",
+        "theme_color": "#C62828",
+        "banner_image": None,
+        "page_title": "Coffrets de Noël",
+        "page_subtitle": "Célébrez les fêtes avec des coffrets enchanteurs",
+        "is_active": False,
+        "sort_order": 2,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "pack_accessoires",
+        "name": "Pack Accessoires",
+        "description": "Accessoires tendances regroupés pour vous",
+        "icon": "👜",
+        "theme_color": "#7B1FA2",
+        "banner_image": None,
+        "page_title": "Packs Accessoires",
+        "page_subtitle": "Des ensembles d'accessoires coordonnés et stylés",
+        "is_active": False,
+        "sort_order": 3,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "saint_valentin",
+        "name": "Coffret Saint-Valentin",
+        "description": "Pour célébrer l'amour",
+        "icon": "💝",
+        "theme_color": "#E91E63",
+        "banner_image": None,
+        "page_title": "Coffrets Saint-Valentin",
+        "page_subtitle": "Exprimez votre amour avec un coffret romantique",
+        "is_active": False,
+        "sort_order": 4,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "tabaski",
+        "name": "Coffret Tabaski",
+        "description": "Célébrez la fête du mouton",
+        "icon": "🐑",
+        "theme_color": "#1565C0",
+        "banner_image": None,
+        "page_title": "Coffrets Tabaski - Aïd el-Kébir",
+        "page_subtitle": "Des coffrets pour partager la joie de la Tabaski",
+        "is_active": False,
+        "sort_order": 5,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "fete_meres",
+        "name": "Coffret Fête des Mères",
+        "description": "Pour remercier nos mamans adorées",
+        "icon": "💐",
+        "theme_color": "#EC407A",
+        "banner_image": None,
+        "page_title": "Coffrets Fête des Mères",
+        "page_subtitle": "Offrez de la tendresse à votre maman",
+        "is_active": False,
+        "sort_order": 6,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    },
+    {
+        "template_id": "classique",
+        "name": "Coffret Classique",
+        "description": "Template par défaut toute l'année",
+        "icon": "🎁",
+        "theme_color": "#9333EA",
+        "banner_image": None,
+        "page_title": "Coffrets Cadeaux Personnalisés",
+        "page_subtitle": "Composez le coffret parfait en sélectionnant vos articles préférés",
+        "is_active": True,
+        "sort_order": 99,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+]
+
+@api_router.get("/admin/gift-box/templates")
+async def get_giftbox_templates(user: User = Depends(require_admin)):
+    """Get all gift box templates"""
+    templates = await db.gift_box_templates.find({}, {"_id": 0}).sort("sort_order", 1).to_list(50)
+    
+    # If no templates exist, create defaults
+    if not templates:
+        for template in DEFAULT_GIFTBOX_TEMPLATES:
+            await db.gift_box_templates.insert_one(template)
+        templates = DEFAULT_GIFTBOX_TEMPLATES
+    
+    return {"templates": templates}
+
+@api_router.get("/gift-box/active-template")
+async def get_active_giftbox_template():
+    """Get the currently active gift box template for public display"""
+    template = await db.gift_box_templates.find_one({"is_active": True}, {"_id": 0})
+    
+    if not template:
+        # Return default template
+        template = DEFAULT_GIFTBOX_TEMPLATES[-1]  # Classique
+    
+    return template
+
+@api_router.put("/admin/gift-box/templates/{template_id}/activate")
+async def activate_giftbox_template(template_id: str, user: User = Depends(require_admin)):
+    """Activate a specific template and deactivate all others"""
+    # First, deactivate all templates
+    await db.gift_box_templates.update_many({}, {"$set": {"is_active": False}})
+    
+    # Then activate the selected one
+    result = await db.gift_box_templates.update_one(
+        {"template_id": template_id},
+        {"$set": {"is_active": True, "activated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Template non trouvé")
+    
+    logger.info(f"Gift box template '{template_id}' activated by {user.email}")
+    return {"message": f"Template '{template_id}' activé", "template_id": template_id}
+
+@api_router.post("/admin/gift-box/templates")
+async def create_giftbox_template(template: dict, user: User = Depends(require_admin)):
+    """Create a new gift box template"""
+    template_id = template.get("template_id") or str(uuid.uuid4())[:8]
+    
+    # Check if template_id already exists
+    existing = await db.gift_box_templates.find_one({"template_id": template_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="Un template avec cet ID existe déjà")
+    
+    new_template = {
+        "template_id": template_id,
+        "name": template.get("name", "Nouveau Template"),
+        "description": template.get("description", ""),
+        "icon": template.get("icon", "🎁"),
+        "theme_color": template.get("theme_color", "#9333EA"),
+        "banner_image": template.get("banner_image"),
+        "page_title": template.get("page_title", "Coffrets Personnalisés"),
+        "page_subtitle": template.get("page_subtitle", ""),
+        "is_active": False,
+        "sort_order": template.get("sort_order", 50),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.gift_box_templates.insert_one(new_template)
+    del new_template["_id"] if "_id" in new_template else None
+    
+    return {"message": "Template créé", "template": new_template}
+
+@api_router.put("/admin/gift-box/templates/{template_id}")
+async def update_giftbox_template(template_id: str, template: dict, user: User = Depends(require_admin)):
+    """Update a gift box template"""
+    update_data = {
+        "name": template.get("name"),
+        "description": template.get("description"),
+        "icon": template.get("icon"),
+        "theme_color": template.get("theme_color"),
+        "banner_image": template.get("banner_image"),
+        "page_title": template.get("page_title"),
+        "page_subtitle": template.get("page_subtitle"),
+        "sort_order": template.get("sort_order"),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Remove None values
+    update_data = {k: v for k, v in update_data.items() if v is not None}
+    
+    result = await db.gift_box_templates.update_one(
+        {"template_id": template_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Template non trouvé")
+    
+    return {"message": "Template mis à jour"}
+
+@api_router.delete("/admin/gift-box/templates/{template_id}")
+async def delete_giftbox_template(template_id: str, user: User = Depends(require_admin)):
+    """Delete a gift box template"""
+    # Prevent deletion of default templates
+    if template_id in ["classique", "ramadan", "noel", "enfant", "pack_accessoires"]:
+        raise HTTPException(status_code=400, detail="Impossible de supprimer un template par défaut")
+    
+    result = await db.gift_box_templates.delete_one({"template_id": template_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Template non trouvé")
+    
+    return {"message": "Template supprimé"}
+
 @api_router.get("/health")
 async def health_check():
     """Health check with memory monitoring"""
