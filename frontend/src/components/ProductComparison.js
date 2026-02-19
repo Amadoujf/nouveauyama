@@ -193,7 +193,7 @@ export default function ProductComparisonPage() {
                       </button>
                       <Link to={`/product/${product.product_id}`}>
                         <img
-                          src={product.images?.[0] || '/placeholder.jpg'}
+                          src={getImageUrl(product.images?.[0], '/placeholder.jpg')}
                           alt={product.name}
                           className="w-full h-48 object-cover rounded-xl mb-3"
                         />
