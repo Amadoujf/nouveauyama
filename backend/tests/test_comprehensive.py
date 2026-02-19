@@ -8,7 +8,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://image-upload-fix-26.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://giftbox-repair.preview.emergentagent.com')
 
 # Test credentials
 ADMIN_EMAIL = "admin@yama.sn"

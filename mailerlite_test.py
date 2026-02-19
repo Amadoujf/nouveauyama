@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_mailerlite_endpoints():
-    base_url = "https://image-upload-fix-26.preview.emergentagent.com"
+    base_url = "https://giftbox-repair.preview.emergentagent.com"
     
     # First, login as admin
     login_data = {

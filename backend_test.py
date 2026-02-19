@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class YAMAPhase3Tester:
-    def __init__(self, base_url="https://image-upload-fix-26.preview.emergentagent.com"):
+    def __init__(self, base_url="https://giftbox-repair.preview.emergentagent.com"):
         self.base_url = base_url
         self.session = requests.Session()
         self.admin_token = None

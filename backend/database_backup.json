@@ -980,7 +980,7 @@
       "category": "electronique",
       "subcategory": "",
       "images": [
-        "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/50a58344b48f4dbbbe274a023ae6b2bc.jpeg"
+        "https://giftbox-repair.preview.emergentagent.com/api/uploads/50a58344b48f4dbbbe274a023ae6b2bc.jpeg"
       ],
       "stock": 0,
       "featured": false,
@@ -1040,7 +1040,7 @@
       "category": "electronique",
       "subcategory": "",
       "images": [
-        "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/ec27586a0cba4d1090aa78bce39023e0.jpeg"
+        "https://giftbox-repair.preview.emergentagent.com/api/uploads/ec27586a0cba4d1090aa78bce39023e0.jpeg"
       ],
       "stock": 1,
       "featured": false,
@@ -1104,7 +1104,7 @@
       "category": "electronique",
       "subcategory": null,
       "images": [
-        "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/83dd0d95765d493b860dab2eb5a72ebe.jpeg"
+        "https://giftbox-repair.preview.emergentagent.com/api/uploads/83dd0d95765d493b860dab2eb5a72ebe.jpeg"
       ],
       "stock": 0,
       "featured": false,
@@ -1136,7 +1136,7 @@
       "category": "electronique",
       "subcategory": null,
       "images": [
-        "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/57ff6c30b5ea417682149ffd1bfb5eb2.jpeg"
+        "https://giftbox-repair.preview.emergentagent.com/api/uploads/57ff6c30b5ea417682149ffd1bfb5eb2.jpeg"
       ],
       "stock": 13,
       "featured": false,
@@ -2675,7 +2675,7 @@
       "availability": "available",
       "experience_years": 10,
       "photos": [
-        "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
+        "https://giftbox-repair.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
       ],
       "is_verified": true,
       "is_premium": false,
@@ -2708,7 +2708,7 @@
       "gallery": [
         {
           "photo_id": "PHT-ECA5EF1C",
-          "image_url": "https://image-upload-fix-26.preview.emergentagent.com/api/uploads/test_gallery_image.jpg",
+          "image_url": "https://giftbox-repair.preview.emergentagent.com/api/uploads/test_gallery_image.jpg",
           "caption": "TEST_Photo de test",
           "order": 1,
           "added_at": "2026-02-15T17:08:07.981637+00:00"

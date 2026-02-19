@@ -5,7 +5,7 @@
 **GROUPE YAMA+** est une plateforme marketplace e-commerce complète pour le Sénégal.
 
 **URL Production** : https://groupeyamaplus.com
-**URL Preview** : https://image-upload-fix-26.preview.emergentagent.com
+**URL Preview** : https://giftbox-repair.preview.emergentagent.com
 
 ## ✅ VÉRIFICATION FINALE PRÉ-DÉPLOIEMENT (19 Février 2026)
 
@@ -82,7 +82,7 @@
 
 ## URLs
 
-- **Preview** : https://image-upload-fix-26.preview.emergentagent.com
+- **Preview** : https://giftbox-repair.preview.emergentagent.com
 - **Production** : https://groupeyamaplus.com
 - **API** : /api (prefix requis pour toutes les routes backend)
 
