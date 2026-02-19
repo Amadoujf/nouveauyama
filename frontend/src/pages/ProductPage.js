@@ -25,6 +25,7 @@ import {
   getCategoryName,
   generateWhatsAppLink,
   generateOrderMessage,
+  getImageUrl,
 } from "../lib/utils";
 import { cn } from "../lib/utils";
 import {
