@@ -1,7 +1,7 @@
 import { useState, useCallback, memo, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { cn } from "../lib/utils";
+import { cn, getImageUrl } from "../lib/utils";
 import {
   X,
   FileText,
