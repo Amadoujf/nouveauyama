@@ -141,7 +141,7 @@ export default function GiftBoxPage() {
   const categories = ["all", ...new Set(products.map(p => p.category).filter(Boolean))];
 
   // Calculate total price (handle null states)
-  const itemsTotal = selectedItems.reduce((sum, item) => sum + (item.flash_sale_price || item.price), 0);
+  const itemsTotal = selectedItems.reduce((sum, item) => sum + (item.price || 0), 0);
   const totalPrice = itemsTotal + (selectedBoxSize?.basePrice || 0) + (selectedWrapping?.price || 0);
 
   // Add item to gift box
