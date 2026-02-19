@@ -546,6 +546,42 @@ class SingleEmailRequest(BaseModel):
     subject: str
     html_content: str
 
+# ============== GIFT BOX MODELS ==============
+
+class GiftBoxSize(BaseModel):
+    """Gift box size configuration"""
+    model_config = ConfigDict(extra="ignore")
+    size_id: Optional[str] = None
+    name: str
+    description: str
+    max_items: int
+    base_price: int
+    image: Optional[str] = None
+    icon: str = "🎁"
+    is_active: bool = True
+    sort_order: int = 0
+
+class GiftBoxWrapping(BaseModel):
+    """Gift box wrapping option"""
+    model_config = ConfigDict(extra="ignore")
+    wrapping_id: Optional[str] = None
+    name: str
+    color: str  # Hex color code
+    price: int = 0
+    image: Optional[str] = None
+    is_active: bool = True
+    sort_order: int = 0
+
+class GiftBoxConfig(BaseModel):
+    """Overall gift box configuration"""
+    model_config = ConfigDict(extra="ignore")
+    is_enabled: bool = True
+    page_title: str = "Coffrets Cadeaux Personnalisés"
+    page_description: str = "Composez le coffret parfait en sélectionnant vos articles préférés"
+    banner_image: Optional[str] = None
+    allow_personal_message: bool = True
+    max_message_length: int = 200
+
 # ============== AUTH HELPERS ==============
 
 def hash_password(password: str) -> str:
