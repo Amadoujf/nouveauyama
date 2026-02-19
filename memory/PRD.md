@@ -178,6 +178,10 @@
 
 ## Tâches futures
 
+### P0 - À valider par l'utilisateur
+- ⚠️ Vérifier les corrections sur le site LIVE (production peut avoir config différente)
+- ⚠️ Tester PayTech avec une vraie transaction
+
 ### P1 - Haute priorité
 - Guide utilisateur pour Google Search Console
 - Vérifier PayTech avec une transaction réelle
