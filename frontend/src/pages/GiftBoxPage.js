@@ -13,51 +13,6 @@ import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Predefined gift box sizes
-const giftBoxSizes = [
-  { 
-    id: "small", 
-    name: "Petit Coffret", 
-    maxItems: 3, 
-    basePrice: 5000,
-    description: "Idéal pour une attention délicate",
-    icon: "🎁"
-  },
-  { 
-    id: "medium", 
-    name: "Coffret Moyen", 
-    maxItems: 5, 
-    basePrice: 8000,
-    description: "Parfait pour surprendre",
-    icon: "🎀"
-  },
-  { 
-    id: "large", 
-    name: "Grand Coffret", 
-    maxItems: 8, 
-    basePrice: 12000,
-    description: "Pour les grandes occasions",
-    icon: "✨"
-  },
-  { 
-    id: "premium", 
-    name: "Coffret Premium", 
-    maxItems: 12, 
-    basePrice: 20000,
-    description: "L'ultime cadeau de luxe",
-    icon: "👑"
-  },
-];
-
-// Gift wrapping options
-const wrappingOptions = [
-  { id: "classic", name: "Classique", price: 0, color: "#C41E3A" },
-  { id: "gold", name: "Or & Luxe", price: 3000, color: "#FFD700" },
-  { id: "silver", name: "Argent Élégant", price: 2500, color: "#C0C0C0" },
-  { id: "rose", name: "Rose Romantique", price: 2000, color: "#FF69B4" },
-  { id: "nature", name: "Nature & Kraft", price: 1500, color: "#8B4513" },
-];
-
 export default function GiftBoxPage() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
@@ -65,10 +20,15 @@ export default function GiftBoxPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   
+  // Configuration from API
+  const [config, setConfig] = useState(null);
+  const [giftBoxSizes, setGiftBoxSizes] = useState([]);
+  const [wrappingOptions, setWrappingOptions] = useState([]);
+  
   // Gift box state
-  const [selectedBoxSize, setSelectedBoxSize] = useState(giftBoxSizes[1]);
+  const [selectedBoxSize, setSelectedBoxSize] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [selectedWrapping, setSelectedWrapping] = useState(wrappingOptions[0]);
+  const [selectedWrapping, setSelectedWrapping] = useState(null);
   const [personalMessage, setPersonalMessage] = useState("");
   const [recipientName, setRecipientName] = useState("");
   
@@ -76,8 +36,74 @@ export default function GiftBoxPage() {
   const [showProductSelector, setShowProductSelector] = useState(false);
 
   useEffect(() => {
+    fetchConfig();
     fetchProducts();
   }, []);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/gift-box/config`);
+      const { config: cfg, sizes, wrappings } = response.data;
+      setConfig(cfg);
+      setGiftBoxSizes(sizes.map(s => ({
+        id: s.size_id,
+        name: s.name,
+        maxItems: s.max_items,
+        basePrice: s.base_price,
+        description: s.description,
+        icon: s.icon,
+        image: s.image
+      })));
+      setWrappingOptions(wrappings.map(w => ({
+        id: w.wrapping_id,
+        name: w.name,
+        price: w.price,
+        color: w.color,
+        image: w.image
+      })));
+      
+      // Set defaults
+      if (sizes.length > 0) {
+        const defaultSize = sizes.find(s => s.size_id === 'medium') || sizes[1] || sizes[0];
+        setSelectedBoxSize({
+          id: defaultSize.size_id,
+          name: defaultSize.name,
+          maxItems: defaultSize.max_items,
+          basePrice: defaultSize.base_price,
+          description: defaultSize.description,
+          icon: defaultSize.icon
+        });
+      }
+      if (wrappings.length > 0) {
+        setSelectedWrapping({
+          id: wrappings[0].wrapping_id,
+          name: wrappings[0].name,
+          price: wrappings[0].price,
+          color: wrappings[0].color
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching gift box config:", error);
+      // Use fallback defaults
+      const defaultSizes = [
+        { id: "small", name: "Petit Coffret", maxItems: 3, basePrice: 5000, description: "Idéal pour une attention délicate", icon: "🎁" },
+        { id: "medium", name: "Coffret Moyen", maxItems: 5, basePrice: 8000, description: "Parfait pour surprendre", icon: "🎀" },
+        { id: "large", name: "Grand Coffret", maxItems: 8, basePrice: 12000, description: "Pour les grandes occasions", icon: "✨" },
+        { id: "premium", name: "Coffret Premium", maxItems: 12, basePrice: 20000, description: "L'ultime cadeau de luxe", icon: "👑" },
+      ];
+      const defaultWrappings = [
+        { id: "classic", name: "Classique", price: 0, color: "#C41E3A" },
+        { id: "gold", name: "Or & Luxe", price: 3000, color: "#FFD700" },
+        { id: "silver", name: "Argent Élégant", price: 2500, color: "#C0C0C0" },
+        { id: "rose", name: "Rose Romantique", price: 2000, color: "#FF69B4" },
+        { id: "nature", name: "Nature & Kraft", price: 1500, color: "#8B4513" },
+      ];
+      setGiftBoxSizes(defaultSizes);
+      setWrappingOptions(defaultWrappings);
+      setSelectedBoxSize(defaultSizes[1]);
+      setSelectedWrapping(defaultWrappings[0]);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
