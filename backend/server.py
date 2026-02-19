@@ -9194,7 +9194,8 @@ async def create_giftbox_template(template: dict, user: User = Depends(require_a
     }
     
     await db.gift_box_templates.insert_one(new_template)
-    del new_template["_id"] if "_id" in new_template else None
+    if "_id" in new_template:
+        del new_template["_id"]
     
     return {"message": "Template créé", "template": new_template}
 
