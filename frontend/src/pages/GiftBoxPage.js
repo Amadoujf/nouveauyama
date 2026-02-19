@@ -232,10 +232,17 @@ export default function GiftBoxPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-black dark:via-gray-900 dark:to-black pt-24 pb-16">
+    <main 
+      className="min-h-screen pt-24 pb-16"
+      style={{
+        background: activeTemplate?.theme_color 
+          ? `linear-gradient(135deg, ${activeTemplate.theme_color}15 0%, transparent 50%, ${activeTemplate.theme_color}10 100%)`
+          : 'linear-gradient(135deg, #ec489915 0%, transparent 50%, #8b5cf610 100%)'
+      }}
+    >
       <SEO 
-        title="Coffrets Cadeaux Personnalisés - YAMA+"
-        description="Créez votre coffret cadeau personnalisé. Choisissez vos articles, personnalisez l'emballage et ajoutez un message personnel."
+        title={activeTemplate?.page_title || "Coffrets Cadeaux Personnalisés - YAMA+"}
+        description={activeTemplate?.page_subtitle || "Créez votre coffret cadeau personnalisé. Choisissez vos articles, personnalisez l'emballage et ajoutez un message personnel."}
       />
 
       <div className="container-lumina">
@@ -245,16 +252,29 @@ export default function GiftBoxPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
+          <div 
+            className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-full text-sm font-medium mb-4"
+            style={{ 
+              background: activeTemplate?.theme_color 
+                ? `linear-gradient(135deg, ${activeTemplate.theme_color}, ${activeTemplate.theme_color}cc)`
+                : 'linear-gradient(135deg, #ec4899, #8b5cf6)'
+            }}
+          >
+            <span className="text-lg">{activeTemplate?.icon || '✨'}</span>
             Créez un cadeau unique
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Coffrets Cadeaux Personnalisés
+          <h1 
+            className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent mb-4"
+            style={{ 
+              backgroundImage: activeTemplate?.theme_color 
+                ? `linear-gradient(135deg, ${activeTemplate.theme_color}, ${activeTemplate.theme_color}99)`
+                : 'linear-gradient(135deg, #ec4899, #8b5cf6)'
+            }}
+          >
+            {activeTemplate?.page_title || "Coffrets Cadeaux Personnalisés"}
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Composez le coffret parfait en sélectionnant vos articles préférés, 
-            choisissez un emballage élégant et ajoutez votre message personnel.
+            {activeTemplate?.page_subtitle || "Composez le coffret parfait en sélectionnant vos articles préférés, choisissez un emballage élégant et ajoutez votre message personnel."}
           </p>
         </motion.div>
 
