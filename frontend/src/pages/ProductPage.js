@@ -196,7 +196,7 @@ export default function ProductPage() {
       <SEO 
         title={product.name}
         description={product.short_description || product.description?.slice(0, 160)}
-        image={product.images?.[0]}
+        image={getImageUrl(product.images?.[0])}
         url={`/product/${product.product_id}`}
         type="product"
         product={product}
