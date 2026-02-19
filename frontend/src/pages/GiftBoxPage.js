@@ -661,7 +661,7 @@ export default function GiftBoxPage() {
                           </div>
                           <p className="font-medium text-sm line-clamp-2">{product.name}</p>
                           <p className="text-sm text-purple-600 dark:text-purple-400 font-semibold mt-1">
-                            {formatPrice(product.flash_sale_price || product.price)}
+                            {formatPrice(product.price)}
                           </p>
                         </motion.button>
                       );
