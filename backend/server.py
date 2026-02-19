@@ -7335,7 +7335,7 @@ async def push_unsubscribe_v2(subscription: PushSubscription):
     )
     return {"message": "Désinscription réussie"}
 
-async def send_push_notification(subscription: dict, title: str, body: str, url: str = None, icon: str = None):
+async def push_send_notification_v2(subscription: dict, title: str, body: str, url: str = None, icon: str = None):
     """Send a push notification to a single subscriber"""
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         logger.warning("VAPID keys not configured")
