@@ -840,6 +840,22 @@ export default function AdminPage() {
               <Zap className="w-5 h-5" />
               <span className="font-medium">Ventes Flash</span>
             </Link>
+            
+            {/* Image Fix Button - Important for production */}
+            <button
+              onClick={handleFixImages}
+              disabled={fixingImages}
+              className="w-full flex items-center gap-3 p-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-colors disabled:opacity-50"
+            >
+              {fixingImages ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <ImageIcon className="w-5 h-5" />
+              )}
+              <span className="font-medium">
+                {fixingImages ? "Correction en cours..." : "Réparer les images"}
+              </span>
+            </button>
           </div>
         </div>
       </div>
