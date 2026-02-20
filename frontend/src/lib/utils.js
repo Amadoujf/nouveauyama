@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { logger } from "./logger";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -17,7 +18,8 @@ export function formatPrice(price) {
 
 // Generate WhatsApp link for order
 export function generateWhatsAppLink(phone, message) {
-  const encodedMessage = encodeURIComponent(message);
+  if (!phone || typeof phone !== "string") return "";
+  const encodedMessage = encodeURIComponent(message || "");
   const cleanPhone = phone.replace(/\s/g, "").replace(/^\+/, "");
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }
@@ -26,25 +28,23 @@ export function generateWhatsAppLink(phone, message) {
 export function generateOrderMessage(items, total, shipping) {
   let message = "🛒 *Nouvelle Commande - Lumina Senegal*\n\n";
   message += "*Produits:*\n";
-  
-  items.forEach((item, index) => {
-    message += `${index + 1}. ${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}\n`;
+  const list = Array.isArray(items) ? items : [];
+  list.forEach((item, index) => {
+    const name = item?.name ?? "Produit";
+    const qty = Number(item?.quantity) || 1;
+    const price = Number(item?.price) || 0;
+    message += `${index + 1}. ${name} x${qty} - ${formatPrice(price * qty)}\n`;
   });
-  
   message += `\n*Total:* ${formatPrice(total)}\n\n`;
-  
-  if (shipping) {
+  if (shipping && typeof shipping === "object") {
     message += "*Livraison:*\n";
-    message += `Nom: ${shipping.full_name}\n`;
-    message += `Téléphone: ${shipping.phone}\n`;
-    message += `Adresse: ${shipping.address}\n`;
-    message += `Ville: ${shipping.city}\n`;
-    message += `Région: ${shipping.region}\n`;
-    if (shipping.notes) {
-      message += `Notes: ${shipping.notes}\n`;
-    }
+    message += `Nom: ${shipping.full_name ?? ""}\n`;
+    message += `Téléphone: ${shipping.phone ?? ""}\n`;
+    message += `Adresse: ${shipping.address ?? ""}\n`;
+    message += `Ville: ${shipping.city ?? ""}\n`;
+    message += `Région: ${shipping.region ?? ""}\n`;
+    if (shipping.notes) message += `Notes: ${shipping.notes}\n`;
   }
-  
   return message;
 }
 
