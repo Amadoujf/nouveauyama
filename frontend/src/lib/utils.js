@@ -57,13 +57,15 @@ export function truncateText(text, maxLength) {
 
 // Get category display name
 export function getCategoryName(categoryId) {
+  if (categoryId == null || categoryId === "") return "";
   const categories = {
     electronique: "Électronique",
     electromenager: "Électroménager",
     decoration: "Décoration & Mobilier",
     beaute: "Beauté & Bien-être",
+    automobile: "Automobile",
   };
-  return categories[categoryId] || categoryId;
+  return categories[categoryId] || String(categoryId);
 }
 
 // Get order status display
