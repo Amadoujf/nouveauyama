@@ -17,7 +17,7 @@
     "availability": "available",
     "experience_years": 10,
     "photos": [
-      "https://giftbox-repair.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
+      "https://stable-prod.preview.emergentagent.com/api/uploads/test_gallery_image.jpg"
     ],
     "is_verified": true,
     "is_premium": false,
@@ -50,7 +50,7 @@
     "gallery": [
       {
         "photo_id": "PHT-ECA5EF1C",
-        "image_url": "https://giftbox-repair.preview.emergentagent.com/api/uploads/test_gallery_image.jpg",
+        "image_url": "https://stable-prod.preview.emergentagent.com/api/uploads/test_gallery_image.jpg",
         "caption": "TEST_Photo de test",
         "order": 1,
         "added_at": "2026-02-15T17:08:07.981637+00:00"
