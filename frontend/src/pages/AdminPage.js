@@ -112,6 +112,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [fixingImages, setFixingImages] = useState(false);
   
   // Product form state
   const [showProductForm, setShowProductForm] = useState(false);
