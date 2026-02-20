@@ -168,34 +168,49 @@ export function calculateDiscount(originalPrice, currentPrice) {
   return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 }
 
+// Placeholder image (data URI) - always works, no 404
+const PLACEHOLDER_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f0f0f0' width='400' height='400'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='18' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3EImage%3C/text%3E%3C/svg%3E";
+
+// Base URL for API/uploads - ensures images work in production
+function getImageBaseUrl() {
+  if (typeof process !== "undefined" && process.env.REACT_APP_BACKEND_URL) {
+    return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  return "";
+}
+
 // Get full image URL - handles relative and absolute URLs
 // This is the SINGLE SOURCE OF TRUTH for image URL resolution
-const API_URL = process.env.REACT_APP_BACKEND_URL || '';
-
-export function getImageUrl(imageUrl, fallback = '/placeholder.jpg') {
+export function getImageUrl(imageUrl, fallback = PLACEHOLDER_IMAGE) {
   if (!imageUrl) return fallback;
   
+  const baseUrl = getImageBaseUrl();
+
   // Already a full URL with http/https
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     // Check if this is an uploaded image URL from a different environment
     // Extract the path if it contains /api/uploads/ regardless of domain
     const uploadsMatch = imageUrl.match(/\/api\/uploads\/(.+)$/);
-    if (uploadsMatch) {
-      // Reconstruct with current API_URL
-      return `${API_URL}/api/uploads/${uploadsMatch[1]}`;
+    if (uploadsMatch && baseUrl) {
+      // Reconstruct with current base URL
+      return `${baseUrl}/api/uploads/${uploadsMatch[1]}`;
     }
     // For external URLs (Unsplash, Pexels, etc.) - return as-is
     return imageUrl;
   }
   
-  // Relative URL starting with /api/uploads/ - prepend API_URL
+  // Relative URL starting with /api/uploads/ - prepend base URL
   if (imageUrl.startsWith('/api/uploads/')) {
-    return `${API_URL}${imageUrl}`;
+    return baseUrl ? `${baseUrl}${imageUrl}` : imageUrl;
   }
   
-  // Relative URL starting with /api/ - prepend API_URL
+  // Relative URL starting with /api/ - prepend base URL
   if (imageUrl.startsWith('/api/')) {
-    return `${API_URL}${imageUrl}`;
+    return baseUrl ? `${baseUrl}${imageUrl}` : imageUrl;
   }
   
   // Local asset paths (like /assets/images/) - return as-is
@@ -205,7 +220,7 @@ export function getImageUrl(imageUrl, fallback = '/placeholder.jpg') {
   
   // Just a filename - assume it's in uploads
   if (!imageUrl.includes('/')) {
-    return `${API_URL}/api/uploads/${imageUrl}`;
+    return baseUrl ? `${baseUrl}/api/uploads/${imageUrl}` : imageUrl;
   }
   
   // Fallback - return as-is
@@ -213,9 +228,11 @@ export function getImageUrl(imageUrl, fallback = '/placeholder.jpg') {
 }
 
 // Get array of resolved image URLs
-export function getImageUrls(images, fallback = '/placeholder.jpg') {
+export function getImageUrls(images, fallback = PLACEHOLDER_IMAGE) {
   if (!images || !Array.isArray(images) || images.length === 0) {
     return [fallback];
   }
   return images.map(img => getImageUrl(img, fallback));
 }
+
+export { PLACEHOLDER_IMAGE };
