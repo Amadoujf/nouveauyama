@@ -135,7 +135,7 @@ export function getFromStorage(key, defaultValue = null) {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
   } catch (error) {
-    console.error(`Error reading from localStorage: ${error}`);
+    logger.error("Error reading from localStorage:", error);
     return defaultValue;
   }
 }
@@ -144,18 +144,20 @@ export function setToStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
-    console.error(`Error writing to localStorage: ${error}`);
+    logger.error("Error writing to localStorage:", error);
   }
 }
 
 // Validate email
 export function isValidEmail(email) {
+  if (email == null || typeof email !== "string") return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
 // Validate phone (Senegal format)
 export function isValidPhone(phone) {
+  if (phone == null || typeof phone !== "string") return false;
   const phoneRegex = /^(\+221|221)?[7][0-9]{8}$/;
   return phoneRegex.test(phone.replace(/\s/g, ""));
 }
