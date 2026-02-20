@@ -9392,20 +9392,25 @@ async def health_check():
         "rate_limit_entries": len(rate_limit_storage)
     }
 
-# ============ FIX IMAGE URLS ============
+# ============ FIX IMAGE URLS - SOLUTION DÉFINITIVE ============
 
 @api_router.post("/admin/fix-image-urls")
 async def fix_all_image_urls(user: User = Depends(require_admin)):
     """
-    Fix all image URLs in the database:
-    - Convert production URLs (groupeyamaplus.com) to relative URLs
-    - Ensure all uploaded images use relative paths (/api/uploads/...)
+    SOLUTION DÉFINITIVE pour corriger TOUTES les images cassées.
+    À exécuter après chaque déploiement sur production.
+    
+    Corrige:
+    - URLs de production (groupeyamaplus.com) -> URLs relatives
+    - URLs de preview (*.emergentagent.com) -> URLs relatives  
+    - URLs vides ou invalides -> supprimées
     """
     import re
     
     fixed_count = 0
     products_checked = 0
     details = []
+    errors = []
     
     # Get all products
     products = await db.products.find({}).to_list(1000)
@@ -9413,6 +9418,9 @@ async def fix_all_image_urls(user: User = Depends(require_admin)):
     for product in products:
         products_checked += 1
         images = product.get('images', [])
+        product_name = product.get('name', 'Sans nom')
+        product_id = product.get('product_id', '')
+        
         if not images:
             continue
             
@@ -9420,34 +9428,146 @@ async def fix_all_image_urls(user: User = Depends(require_admin)):
         product_fixed = False
         
         for img_url in images:
-            if not img_url:
+            # Skip empty URLs
+            if not img_url or img_url.strip() == '':
+                product_fixed = True
+                details.append({
+                    'product': product_name,
+                    'action': 'URL vide supprimée'
+                })
                 continue
-                
+            
             original_url = img_url
             new_url = img_url
             
-            # Fix production URLs
-            # Pattern: https://groupeyamaplus.com/api/uploads/xxx.jpg -> /api/uploads/xxx.jpg
-            production_pattern = r'https?://(?:www\.)?groupeyamaplus\.com(/api/uploads/[^"\']+)'
-            match = re.search(production_pattern, img_url)
-            if match:
-                new_url = match.group(1)
+            # Pattern 1: Fix production URLs (groupeyamaplus.com)
+            prod_match = re.search(r'https?://(?:www\.)?groupeyamaplus\.com(/api/uploads/[^\s"\'<>]+)', img_url)
+            if prod_match:
+                new_url = prod_match.group(1)
                 product_fixed = True
                 details.append({
-                    'product': product['name'],
-                    'old': original_url,
+                    'product': product_name,
+                    'action': 'URL production -> relative',
+                    'old': original_url[:60],
                     'new': new_url
                 })
             
-            # Also fix any preview URLs that might have been stored
-            preview_pattern = r'https?://[^/]+\.preview\.emergentagent\.com(/api/uploads/[^"\']+)'
-            match2 = re.search(preview_pattern, img_url)
-            if match2:
-                new_url = match2.group(1)
+            # Pattern 2: Fix preview URLs (*.emergentagent.com)
+            preview_match = re.search(r'https?://[^/]+\.emergentagent\.com(/api/uploads/[^\s"\'<>]+)', img_url)
+            if preview_match and not prod_match:
+                new_url = preview_match.group(1)
                 product_fixed = True
                 details.append({
-                    'product': product['name'],
-                    'old': original_url,
+                    'product': product_name,
+                    'action': 'URL preview -> relative',
+                    'old': original_url[:60],
+                    'new': new_url
+                })
+            
+            # Pattern 3: Fix any other domain with /api/uploads/
+            other_match = re.search(r'https?://[^/]+(/api/uploads/[^\s"\'<>]+)', img_url)
+            if other_match and not prod_match and not preview_match:
+                new_url = other_match.group(1)
+                product_fixed = True
+                details.append({
+                    'product': product_name,
+                    'action': 'URL externe -> relative',
+                    'old': original_url[:60],
+                    'new': new_url
+                })
+            
+            # Only add valid URLs
+            if new_url and new_url.strip():
+                new_images.append(new_url)
+        
+        # Update product if changes were made
+        if product_fixed:
+            try:
+                await db.products.update_one(
+                    {'product_id': product_id},
+                    {'$set': {
+                        'images': new_images,
+                        'updated_at': datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                fixed_count += 1
+            except Exception as e:
+                errors.append({
+                    'product': product_name,
+                    'error': str(e)
+                })
+    
+    logger.info(f"Image URL fix completed: {fixed_count}/{products_checked} products fixed")
+    
+    return {
+        "success": True,
+        "message": f"Correction terminée: {fixed_count} produit(s) corrigé(s) sur {products_checked}",
+        "products_checked": products_checked,
+        "products_fixed": fixed_count,
+        "details": details[:50],  # Limit to 50 details
+        "errors": errors
+    }
+
+@api_router.get("/admin/check-images")
+async def check_all_images(user: User = Depends(require_admin)):
+    """Vérifier toutes les images et lister les problèmes"""
+    
+    issues = []
+    ok_count = 0
+    products = await db.products.find({}).to_list(1000)
+    
+    for product in products:
+        images = product.get('images', [])
+        product_id = product.get('product_id', '')
+        name = product.get('name', 'Sans nom')
+        
+        if not images or len(images) == 0:
+            issues.append({
+                'product_id': product_id,
+                'name': name,
+                'issue': 'Aucune image',
+                'severity': 'high'
+            })
+            continue
+        
+        has_issue = False
+        for img_url in images:
+            if not img_url or img_url.strip() == '':
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL vide',
+                    'severity': 'high'
+                })
+                has_issue = True
+            elif 'groupeyamaplus.com' in img_url:
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL production absolue',
+                    'url': img_url[:60],
+                    'severity': 'high'
+                })
+                has_issue = True
+            elif '.emergentagent.com' in img_url:
+                issues.append({
+                    'product_id': product_id,
+                    'name': name,
+                    'issue': 'URL preview absolue',
+                    'url': img_url[:60],
+                    'severity': 'high'
+                })
+                has_issue = True
+        
+        if not has_issue:
+            ok_count += 1
+    
+    return {
+        "total_products": len(products),
+        "products_ok": ok_count,
+        "issues_count": len(issues),
+        "issues": issues
+    }
                     'new': new_url
                 })
             
