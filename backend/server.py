@@ -9577,11 +9577,19 @@ from routes.commercial_routes import get_commercial_routes
 commercial_router = get_commercial_routes(db, require_admin)
 app.include_router(commercial_router)
 
-# CORS
+# CORS - Allow multiple origins including production and preview
+ALLOWED_ORIGINS = [
+    "https://groupeyamaplus.com",
+    "https://www.groupeyamaplus.com",
+    "https://stable-prod.preview.emergentagent.com",
+    "http://localhost:3000",
+    "http://localhost:8001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=False,
-    allow_origins=["*"],
+    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
