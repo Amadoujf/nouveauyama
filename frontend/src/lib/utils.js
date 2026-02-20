@@ -92,7 +92,9 @@ export function getPaymentStatusDisplay(status) {
 
 // Format date
 export function formatDate(dateString) {
+  if (dateString == null) return "";
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat("fr-SN", {
     day: "numeric",
     month: "long",
@@ -102,7 +104,9 @@ export function formatDate(dateString) {
 
 // Format date with time
 export function formatDateTime(dateString) {
+  if (dateString == null) return "";
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat("fr-SN", {
     day: "numeric",
     month: "long",
