@@ -571,6 +571,30 @@ export default function AdminPage() {
     }
   };
 
+  // Fix all image URLs in database
+  const handleFixImages = async () => {
+    if (!confirm("Voulez-vous corriger toutes les URLs d'images ? Cette opération est sûre et ne supprime rien.")) return;
+    
+    setFixingImages(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.post(`${API_URL}/api/admin/fix-image-urls`, {}, { headers });
+      
+      if (response.data.success) {
+        toast.success(`${response.data.products_fixed} produit(s) corrigé(s) sur ${response.data.products_checked}`);
+        // Refresh products to show corrected images
+        fetchData();
+      } else {
+        toast.error("Erreur lors de la correction");
+      }
+    } catch (error) {
+      console.error("Error fixing images:", error);
+      toast.error(error.response?.data?.detail || "Erreur lors de la correction des images");
+    } finally {
+      setFixingImages(false);
+    }
+  };
+
   // Filter products by search
   const filteredProducts = products.filter(
     (p) =>
