@@ -4892,17 +4892,6 @@ Sois créatif et commercial dans tes descriptions !"""
         
         ai_response = response.choices[0].message.content
         
-        # Create image content
-        image_content = ImageContent(image_base64=image_base64)
-        
-        # Send message with image
-        user_message = UserMessage(
-            text="Analyse cette image de produit et extrais les informations. Réponds uniquement en JSON valide.",
-            file_contents=[image_content]
-        )
-        
-        ai_response = await chat.send_message(user_message)
-        
         # Parse AI response
         try:
             # Clean response if needed (remove markdown code blocks)
