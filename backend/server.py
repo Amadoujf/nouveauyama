@@ -32,8 +32,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 # Image compression
 from PIL import Image as PILImage
 
-# AI Image Analysis - Using emergentintegrations
-from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+# AI Image Analysis - Using OpenAI SDK directly
+from openai import OpenAI
 
 # PDF Generation
 from reportlab.lib.pagesizes import A4
