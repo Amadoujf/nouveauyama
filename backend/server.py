@@ -4834,9 +4834,9 @@ async def analyze_product_image(file: UploadFile = File(...), user: User = Depen
         image_base64 = base64.b64encode(contents).decode("utf-8")
         
         # Get AI API key
-        ai_key = os.environ.get("EMERGENT_LLM_KEY") or os.environ.get("OPENAI_API_KEY")
+        ai_key = os.environ.get("OPENAI_API_KEY")
         if not ai_key:
-            raise HTTPException(status_code=500, detail="Clé API non configurée")
+            raise HTTPException(status_code=500, detail="Clé API OpenAI non configurée")
         
         system_message = """Tu es un expert copywriter e-commerce spécialisé dans la rédaction de fiches produits vendeuses.
 Analyse l'image fournie et crée une fiche produit complète et VENDEUSE.
@@ -4865,19 +4865,32 @@ Pour la catégorie, choisis parmi:
 - automobile: accessoires auto, pièces, équipements, GPS, dashcam
 
 Pour le prix, estime en FCFA pour le marché sénégalais (1€ ≈ 656 FCFA).
-Sois créatif et commercial dans tes descriptions !
-- beaute: parfums, cosmétiques, soins, accessoires beauté
-- automobile: accessoires auto, pièces, équipements
-
-Pour le prix, estime en FCFA (1€ ≈ 656 FCFA)."""
+Sois créatif et commercial dans tes descriptions !"""
         
-        # Use emergentintegrations with vision model
-        import uuid
-        chat = LlmChat(
-            api_key=ai_key,
-            session_id=f"product-analysis-{uuid.uuid4()}",
-            system_message=system_message
-        ).with_model("openai", "gpt-4o")
+        # Use OpenAI SDK directly with vision model
+        client = OpenAI(api_key=ai_key)
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_message},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Analyse cette image de produit et extrais les informations. Réponds uniquement en JSON valide."},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{content_type};base64,{image_base64}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1000
+        )
+        
+        ai_response = response.choices[0].message.content
         
         # Create image content
         image_content = ImageContent(image_base64=image_base64)
