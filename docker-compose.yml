@@ -1,5 +1,8 @@
-# GROUPE YAMA+ - Docker Compose Configuration
-# Pour un déploiement simple avec Docker
+version: '3.8'
+
+# ============================================================
+# GROUPE YAMA+ - Docker Compose pour VPS
+# ============================================================
 
 services:
   # MongoDB Database
@@ -10,9 +13,16 @@ services:
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: yama_marketplace
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-lumina_senegal}
     networks:
       - yama-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Backend API (FastAPI)
   backend:
@@ -24,50 +34,59 @@ services:
     ports:
       - "8001:8001"
     environment:
-      MONGO_URL: mongodb://mongodb:27017
-      DB_NAME: yama_marketplace
-      JWT_SECRET: ${JWT_SECRET:-your-secure-jwt-secret-change-this}
-      SITE_URL: ${SITE_URL:-http://localhost}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
-      MAILERSEND_API_KEY: ${MAILERSEND_API_KEY:-}
-      PAYTECH_API_KEY: ${PAYTECH_API_KEY:-}
-      PAYTECH_API_SECRET: ${PAYTECH_API_SECRET:-}
-      PAYTECH_ENV: ${PAYTECH_ENV:-prod}
-      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
-      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
-      VAPID_CLAIMS_EMAIL: ${VAPID_CLAIMS_EMAIL:-contact@yourdomain.com}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      - MONGO_URL=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-changeme}@mongodb:27017/${DB_NAME:-lumina_senegal}?authSource=admin
+      - DB_NAME=${DB_NAME:-lumina_senegal}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      - SITE_URL=${SITE_URL:-https://groupeyamaplus.com}
+      - PAYTECH_API_KEY=${PAYTECH_API_KEY:-}
+      - PAYTECH_API_SECRET=${PAYTECH_API_SECRET:-}
+      - PAYTECH_ENV=${PAYTECH_ENV:-prod}
+      - MAILERSEND_API_KEY=${MAILERSEND_API_KEY:-}
+      - MAILERSEND_FROM_EMAIL=${MAILERSEND_FROM_EMAIL:-noreply@groupeyamaplus.com}
+      - MAILERSEND_FROM_NAME=${MAILERSEND_FROM_NAME:-GROUPE YAMA+}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - yama-network
     volumes:
       - uploads_data:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Frontend (React Static Build served by Nginx)
+  # Frontend (React + Nginx)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        REACT_APP_BACKEND_URL: ${SITE_URL:-http://localhost}
-        REACT_APP_VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+        - REACT_APP_BACKEND_URL=${SITE_URL:-https://groupeyamaplus.com}
+        - REACT_APP_VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
     container_name: yama-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:80"
     depends_on:
       - backend
     networks:
       - yama-network
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mongodb_data:
+    driver: local
   uploads_data:
+    driver: local
 
 networks:
   yama-network:
