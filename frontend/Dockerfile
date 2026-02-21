@@ -1,7 +1,7 @@
 # GROUPE YAMA+ Frontend Dockerfile
-# Compatible avec VPS autonome
+# Utilise Node 16 pour compatibilité avec react-scripts 5.0.1
 
-FROM node:18-alpine as build
+FROM node:16-alpine as build
 
 WORKDIR /app
 
@@ -18,8 +18,9 @@ ENV SKIP_PREFLIGHT_CHECK=true
 
 # Copy package files first (for better caching)
 COPY package.json ./
+COPY craco.config.js ./
 
-# Install dependencies with legacy-peer-deps to avoid conflicts
+# Install dependencies
 RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy source code
