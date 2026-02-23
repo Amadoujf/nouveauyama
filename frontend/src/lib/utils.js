@@ -1,6 +1,5 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { logger } from "./logger";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -16,38 +15,6 @@ export function formatPrice(price) {
   }).format(price) + " FCFA";
 }
 
-// Generate WhatsApp link for order
-export function generateWhatsAppLink(phone, message) {
-  if (!phone || typeof phone !== "string") return "";
-  const encodedMessage = encodeURIComponent(message || "");
-  const cleanPhone = phone.replace(/\s/g, "").replace(/^\+/, "");
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-}
-
-// Generate order message for WhatsApp
-export function generateOrderMessage(items, total, shipping) {
-  let message = "🛒 *Nouvelle Commande - Lumina Senegal*\n\n";
-  message += "*Produits:*\n";
-  const list = Array.isArray(items) ? items : [];
-  list.forEach((item, index) => {
-    const name = item?.name ?? "Produit";
-    const qty = Number(item?.quantity) || 1;
-    const price = Number(item?.price) || 0;
-    message += `${index + 1}. ${name} x${qty} - ${formatPrice(price * qty)}\n`;
-  });
-  message += `\n*Total:* ${formatPrice(total)}\n\n`;
-  if (shipping && typeof shipping === "object") {
-    message += "*Livraison:*\n";
-    message += `Nom: ${shipping.full_name ?? ""}\n`;
-    message += `Téléphone: ${shipping.phone ?? ""}\n`;
-    message += `Adresse: ${shipping.address ?? ""}\n`;
-    message += `Ville: ${shipping.city ?? ""}\n`;
-    message += `Région: ${shipping.region ?? ""}\n`;
-    if (shipping.notes) message += `Notes: ${shipping.notes}\n`;
-  }
-  return message;
-}
-
 // Truncate text
 export function truncateText(text, maxLength) {
   if (!text) return "";
@@ -57,7 +24,6 @@ export function truncateText(text, maxLength) {
 
 // Get category display name
 export function getCategoryName(categoryId) {
-  if (categoryId == null || categoryId === "") return "";
   const categories = {
     electronique: "Électronique",
     electromenager: "Électroménager",
@@ -65,7 +31,45 @@ export function getCategoryName(categoryId) {
     beaute: "Beauté & Bien-être",
     automobile: "Automobile",
   };
-  return categories[categoryId] || String(categoryId);
+  return categories[categoryId] || categoryId || "";
+}
+
+// Calculate discount percentage
+export function calculateDiscount(originalPrice, currentPrice) {
+  if (!originalPrice || originalPrice <= currentPrice) return 0;
+  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+}
+
+// Format date
+export function formatDate(dateString) {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("fr-SN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  } catch {
+    return "";
+  }
+}
+
+// Format date with time
+export function formatDateTime(dateString) {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("fr-SN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  } catch {
+    return "";
+  }
 }
 
 // Get order status display
@@ -90,52 +94,12 @@ export function getPaymentStatusDisplay(status) {
   return statuses[status] || { label: status, class: "" };
 }
 
-// Format date
-export function formatDate(dateString) {
-  if (dateString == null) return "";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("fr-SN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
-
-// Format date with time
-export function formatDateTime(dateString) {
-  if (dateString == null) return "";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("fr-SN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-// Debounce function
-export function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
 // Local storage helpers
 export function getFromStorage(key, defaultValue = null) {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    logger.error("Error reading from localStorage:", error);
+  } catch {
     return defaultValue;
   }
 }
@@ -143,96 +107,128 @@ export function getFromStorage(key, defaultValue = null) {
 export function setToStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    logger.error("Error writing to localStorage:", error);
+  } catch {
+    // Ignore storage errors
   }
 }
 
 // Validate email
 export function isValidEmail(email) {
-  if (email == null || typeof email !== "string") return false;
+  if (!email) return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
 // Validate phone (Senegal format)
 export function isValidPhone(phone) {
-  if (phone == null || typeof phone !== "string") return false;
+  if (!phone) return false;
   const phoneRegex = /^(\+221|221)?[7][0-9]{8}$/;
   return phoneRegex.test(phone.replace(/\s/g, ""));
 }
 
-// Calculate discount percentage
-export function calculateDiscount(originalPrice, currentPrice) {
-  if (!originalPrice || originalPrice <= currentPrice) return 0;
-  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+// Generate WhatsApp link for order
+export function generateWhatsAppLink(phone, message) {
+  if (!phone) return "";
+  const encodedMessage = encodeURIComponent(message || "");
+  const cleanPhone = phone.replace(/\s/g, "").replace(/^\+/, "");
+  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }
 
-// Placeholder image (data URI) - always works, no 404
-const PLACEHOLDER_IMAGE =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f0f0f0' width='400' height='400'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='18' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3EImage%3C/text%3E%3C/svg%3E";
+// Generate order message for WhatsApp
+export function generateOrderMessage(items, total, shipping) {
+  let message = "🛒 *Nouvelle Commande - GROUPE YAMA+*\n\n";
+  message += "*Produits:*\n";
+  
+  if (Array.isArray(items)) {
+    items.forEach((item, index) => {
+      message += `${index + 1}. ${item.name || "Produit"} x${item.quantity || 1} - ${formatPrice((item.price || 0) * (item.quantity || 1))}\n`;
+    });
+  }
+  
+  message += `\n*Total:* ${formatPrice(total)}\n\n`;
+  
+  if (shipping) {
+    message += "*Livraison:*\n";
+    message += `Nom: ${shipping.full_name || ""}\n`;
+    message += `Téléphone: ${shipping.phone || ""}\n`;
+    message += `Adresse: ${shipping.address || ""}\n`;
+    message += `Ville: ${shipping.city || ""}\n`;
+    message += `Région: ${shipping.region || ""}\n`;
+    if (shipping.notes) message += `Notes: ${shipping.notes}\n`;
+  }
+  
+  return message;
+}
 
-// Base URL for API/uploads - ensures images work in production
-function getImageBaseUrl() {
-  if (typeof process !== "undefined" && process.env.REACT_APP_BACKEND_URL) {
+// ============================================
+// IMAGE URL HANDLING - SIMPLIFIED AND ROBUST
+// ============================================
+
+// Placeholder image (SVG data URI - always works)
+export const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f5f5f7' width='400' height='400'/%3E%3Ctext fill='%23999' font-family='system-ui,sans-serif' font-size='16' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3EImage%3C/text%3E%3C/svg%3E";
+
+// Get the base URL for API calls
+function getBaseUrl() {
+  // Use environment variable if available
+  if (process.env.REACT_APP_BACKEND_URL) {
     return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "");
   }
+  // Fallback to current origin
   if (typeof window !== "undefined") {
     return window.location.origin;
   }
   return "";
 }
 
-// Get full image URL - handles relative and absolute URLs
-// This is the SINGLE SOURCE OF TRUTH for image URL resolution
+/**
+ * Convert any image URL to a working URL
+ * Handles: external URLs, relative URLs, uploaded files
+ */
 export function getImageUrl(imageUrl, fallback = PLACEHOLDER_IMAGE) {
-  if (!imageUrl) return fallback;
-  
-  const baseUrl = getImageBaseUrl();
+  // No URL provided - return fallback
+  if (!imageUrl || typeof imageUrl !== "string") {
+    return fallback;
+  }
 
-  // Already a full URL with http/https
-  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-    // Check if this is an uploaded image URL from a different environment
-    // Extract the path if it contains /api/uploads/ regardless of domain
-    const uploadsMatch = imageUrl.match(/\/api\/uploads\/(.+)$/);
-    if (uploadsMatch && baseUrl) {
-      // Reconstruct with current base URL
-      return `${baseUrl}/api/uploads/${uploadsMatch[1]}`;
-    }
-    // For external URLs (Unsplash, Pexels, etc.) - return as-is
-    return imageUrl;
-  }
+  const trimmedUrl = imageUrl.trim();
   
-  // Relative URL starting with /api/uploads/ - prepend base URL
-  if (imageUrl.startsWith('/api/uploads/')) {
-    return baseUrl ? `${baseUrl}${imageUrl}` : imageUrl;
+  // Empty string - return fallback
+  if (!trimmedUrl) {
+    return fallback;
   }
-  
+
+  // Already a complete URL (http/https) - return as-is
+  if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+    return trimmedUrl;
+  }
+
+  // Data URI - return as-is
+  if (trimmedUrl.startsWith("data:")) {
+    return trimmedUrl;
+  }
+
+  const baseUrl = getBaseUrl();
+
   // Relative URL starting with /api/ - prepend base URL
-  if (imageUrl.startsWith('/api/')) {
-    return baseUrl ? `${baseUrl}${imageUrl}` : imageUrl;
+  if (trimmedUrl.startsWith("/api/")) {
+    return `${baseUrl}${trimmedUrl}`;
   }
-  
-  // Local asset paths (like /assets/images/) - return as-is
-  if (imageUrl.startsWith('/')) {
-    return imageUrl;
+
+  // Relative URL starting with / - return as-is (local asset)
+  if (trimmedUrl.startsWith("/")) {
+    return trimmedUrl;
   }
-  
-  // Just a filename - assume it's in uploads
-  if (!imageUrl.includes('/')) {
-    return baseUrl ? `${baseUrl}/api/uploads/${imageUrl}` : imageUrl;
-  }
-  
-  // Fallback - return as-is
-  return imageUrl;
+
+  // Just a filename - assume it's an upload
+  return `${baseUrl}/api/uploads/${trimmedUrl}`;
 }
 
-// Get array of resolved image URLs
+/**
+ * Get array of resolved image URLs
+ */
 export function getImageUrls(images, fallback = PLACEHOLDER_IMAGE) {
   if (!images || !Array.isArray(images) || images.length === 0) {
     return [fallback];
   }
   return images.map(img => getImageUrl(img, fallback));
 }
-
-export { PLACEHOLDER_IMAGE };
